@@ -18,11 +18,13 @@ VITE_API_URL=http://localhost:3000
 PORT=5173
 .env dosyası git’e eklenmez.
 Örnek değerler için .env.example dosyasına bakabilirsiniz.
+```
 
-▶️ Docker ile Çalıştırma (Development)
+## ▶️ Docker ile Çalıştırma (Development)
 Geliştirme ortamını ayağa kaldırmak için:
-
+```
 docker compose up --build
+```
 Uygulama ayağa kalktıktan sonra:
 
-Frontend: http://localhost:5173
+**Frontend: http://localhost:5173**

@@ -20,6 +20,8 @@ PORT=5173
 Örnek değerler için .env.example dosyasına bakabilirsiniz.
 ```
 
+---
+
 ## ▶️ Docker ile Çalıştırma (Development)
 Geliştirme ortamını ayağa kaldırmak için:
 ```

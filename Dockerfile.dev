@@ -1,0 +1,15 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# sadece package dosyaları
+COPY package*.json ./
+
+RUN npm install
+
+# geri kalan kod
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host"]

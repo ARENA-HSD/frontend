@@ -1,0 +1,13 @@
+services:
+  frontend:
+    container_name: arena-frontend-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev # Geliştirme için olan Dockerfile'ı kullanır
+    ports:
+      - "${PORT:-5173}:5173" # .env'de yoksa varsayılan 5173
+    environment:
+      - API_URL=${API_URL}
+    volumes:
+      - .:/app # Kodunu içeri yansıtır (Hot Reload için şart)
+      - /app/node_modules # Konteynerin kendi modüllerini korur (ÖNEMLİ)

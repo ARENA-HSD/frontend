@@ -1,0 +1,129 @@
+/**
+ * HSD Arena - Organizations Page
+ * 
+ * Main dashboard showing user's organizations (fetched from API)
+ */
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks';
+import { organizationService } from '@/services';
+import { OrganizationCard } from '@/components';
+import { Button, MainLayout } from '@/components';
+import type { UserOrganization, Organization } from '@/types';
+
+const OrganizationsPage = () => {
+    const navigate = useNavigate();
+    const { user, selectOrganization } = useAuth();
+    const [organizations, setOrganizations] = useState<UserOrganization[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchOrganizations();
+    }, []);
+
+    const fetchOrganizations = async () => {
+        try {
+            setIsLoading(true);
+            const response = await organizationService.getUserOrganizations();
+            const r = response as any;
+
+            // API returns: { success, data: { organizations: [...] } }
+            const rawOrgs: any[] =
+                Array.isArray(response) ? response :
+                    Array.isArray(r?.data?.organizations) ? r.data.organizations :
+                        Array.isArray(r?.data) ? r.data :
+                            (r?.data?.id ? [r.data] : []);
+
+            const orgs: UserOrganization[] = rawOrgs.map((org: any) => ({
+                id: org.id || org._id,
+                name: org.name,
+                subdomain: org.subdomain,
+                package: org.package || 'FREE',
+                role: org.role || 'MANAGER',
+                branding: org.branding,
+            }));
+            setOrganizations(orgs);
+        } catch (error) {
+            console.error('Failed to fetch organizations:', error);
+            // Fallback to user context data
+            setOrganizations(user?.organizations || []);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAccessOrganization = (org: UserOrganization) => {
+        selectOrganization(org);
+
+        // For development, navigate to manager dashboard
+        // In production: window.location.href = `https://${org.subdomain}.hsdarena.com`;
+        navigate('/subdomain/manager/quizzes');
+    };
+
+    const handleCreateNew = () => {
+        navigate('/organizations/create');
+    };
+
+    return (
+        <MainLayout>
+            <div className="space-y-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold text-primary mb-2">
+                            Your Organizations
+                        </h1>
+                        <p className="text-secondary">
+                            Select an organization to access or create a new one
+                        </p>
+                    </div>
+
+                    <Button
+                        variant="primary"
+                        onClick={handleCreateNew}
+                    >
+                        + Create New
+                    </Button>
+                </div>
+
+                {/* Loading */}
+                {isLoading && (
+                    <div className="text-center py-12 text-gray-500">
+                        Loading organizations...
+                    </div>
+                )}
+
+                {/* Organizations List */}
+                {!isLoading && organizations.length === 0 ? (
+                    <div className="card text-center py-12">
+                        <div className="text-6xl mb-4">🏢</div>
+                        <h2 className="text-xl font-bold text-primary mb-2">
+                            No Organizations Yet
+                        </h2>
+                        <p className="text-secondary mb-6">
+                            Create your first organization to get started
+                        </p>
+                        <Button variant="primary" onClick={handleCreateNew}>
+                            Create Organization
+                        </Button>
+                    </div>
+                ) : (
+                    !isLoading && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {organizations.map((org) => (
+                                <OrganizationCard
+                                    key={org.id}
+                                    organization={org}
+                                    onAccess={handleAccessOrganization}
+                                />
+                            ))}
+                        </div>
+                    )
+                )}
+            </div>
+        </MainLayout>
+    );
+};
+
+export default OrganizationsPage;

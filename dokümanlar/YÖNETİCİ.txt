@@ -1,0 +1,122 @@
+YÖNETİCİ
+
+  DASHBOARD
+    ÜST BAR
+      Sol: Avatar + Kullanıcı adı + rol
+      Sağ: Organizasyon adı
+    İÇERİK
+      Grid yapısında quizler listelenir
+      Gridin ilk elemanı quiz kartı büyüklüğünde bir quiz ekleme buttonu
+      Quiz kartları içeriği: üstte quiz adı yanında ⋯ (düzenle ve silme butonu için) altta quiz başlat buttonu
+      Not: hiçbir quiz yoksa ekle butonu grid yapısının tamamını kaplar.
+
+  QUİZ DETAY
+    ÜST BAR
+      SOL
+	Quiz adı
+	Altında küçük info: 12 soru, Kişisel mod, 20 sn / soru
+      Sağ
+	Başlat buttonu
+	⋯ (dropdown) içeriği: Quiz ayarları, Quiz sil
+	Not: Quiz ayarları tekrar bir dropdown içinde mod ayarı, countdown ayarı vs. var
+    ANA GÖVDE
+      Scrollable soru kartları
+      Soru kartları içeriği: sıra numarası, soru metni başı, sağda düzenle ve sil
+      Altında sabit soru ekle buttonu scroll üstünde durur
+
+  QUESTİON DÜZENLEME/EKLEME
+    option-1 DÜZENLE
+	       ÜST ALAN		
+	         Sol: Soru numarası
+		 Orta: "Soru düzenle" başlığı
+		 Sağ: (⋯) → Dropdown: Soru süresi, Soruyu sil
+	       SORU ALANI
+		 Üstte soru resmi (tıklayarak yada değiştir yada sil buttonu çıkar)
+		 Altında soru metni (input içinde)
+	       ŞIKLAR ALANI
+		 2x2 grid
+		 Şık başında checkbox (doğru şık için)
+		 Şık metni (input içinde)
+	       ALT ALAN
+		 Kaydet buttonu
+    option-2 EKLEME
+	       ÜST ALAN		
+	         Sol: "Yeni soru" yazısı
+		 Orta: "Soru oluştur" başlığı
+		 Sağ: (⋯) → Dropdown: Soru süresi
+	       SORU ALANI
+		 Üstte soru resmi eklemek için resim boyutunda button
+		 Altında soru metni için input
+	       ŞIKLAR ALANI
+		 2x2 grid
+		 Şık başında checkbox (doğru şık için)
+		 Şık metni için input
+	       ALT ALAN
+		 Kaydet buttonu
+
+  LOBBY
+    ÜST BAR
+      Sol: Katılımcı yönetimi buttonu (sidebar açar)
+      Orta: Quiz adı
+    ANA İÇERİK
+      Orta alanda Büyük QR kod
+      Altında kısa katılım linki
+    KATILIMCILAR  
+      Son katılan 3 kişi büyük boy isim ile
+      altında  Sonraki 5 kişi  Orta boy isim ile 
+      altında Diğer katılımcılar  Yatay slider küçük boy isimler ile 
+    ALT ALAN
+      Başlat buttonu
+    SIDEBAR (Katılımcı Yönetimi)
+      Arama inputu
+      Scrollable katılımcı listesi
+      Katılımcı kartı (İsim + Kick buttonu)
+
+  SORU GEÇİŞ EKRANI
+    "Soru geliyor!" mesajı
+    Ekranda geri sayım sayar
+  
+  SORU EKRANI
+    ÜST BAR (ince)
+      Sol: Katılımcı yönetimi buttonu (sidebar açar)
+      Orta: Quiz adı
+      Sağ: geri sayım (dairesel bir geri sayım içinde saniye yada progress bar + saniye)
+    SORU ALANI
+      Soru resmi ?varsa
+      Soru metni
+    ŞIKLAR ALANI
+      2x2 grid şeklinde olabildiğince büyük
+
+  CEVAP EKRANI
+    ÜST BAR (ince)
+      Sol: Katılımcı yönetimi buttonu (sidebar açar)
+      Orta: Quiz adı
+      Sağ: leaderboard geçiş buttonu
+      Not: eğer son soru ise quiz bitir buttonu tıklanınca geri sayım başlar ve quiz bitir ekranına geçilir.
+    SORU ALANI
+      Kaç kişi hangi şıkları işaretlemiş sütun grafiği
+      altında soru metni
+    ŞIKLAR ALANI
+      2x2 grid şeklinde olabildiğince büyük
+      Not: soru ekranından farkı doğru şıkı belli edecek diğer şıkları arka plana itecek bir renklendirme yada gölgelendirme.
+
+  LEADERBOARD EKRANI
+    ÜST BAR (ince)
+      Sol: Katılımcı yönetimi buttonu (sidebar açar)
+      Orta: Quiz adı
+      Sağ: sonraki soru buttonu
+    LEADERBOARD
+      Leaderboard yazısı
+      Top 5 liste ilk 3 ikonlu yada daha gösterişli
+      Not: streaki olanlar alevli
+      altta o turda en çok sıra atlayan kişinin sırası ve puanı streak varsa alevli
+      Not: alev streak sayısına göre değişir 3 normal 5 çok 7 çok fazla alevli bu leaderboardtaki alevler içinde kendi alevi içinde geçerli.
+
+  QUİZ BİTİŞ EKRANI
+    ÜST BAR (ince)
+      Orta: Quiz adı
+      Sağ: çıkış buttonu
+    ANA GÖVDE
+      Derece kürsüsünde yerleştirilmiş top 3 isim ve puanları ile birlikte
+    ALT KISIM
+      Organizasyonun mesajı örnek olarak teşekkürler mesajı

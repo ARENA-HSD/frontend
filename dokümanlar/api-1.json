@@ -1,0 +1,2999 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ARENA API",
+    "description": "API documentation for the ARENA application.",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "User Operations",
+      "description": "User related endpoints"
+    },
+    {
+      "name": "Auth Operations",
+      "description": "Authentication and login endpoints"
+    },
+    {
+      "name": "Organization Operations",
+      "description": "Organization related endpoints"
+    },
+    {
+      "name": "Quiz Operations",
+      "description": "Quiz related endpoints"
+    },
+    {
+      "name": "Question Operations",
+      "description": "Question related endpoints"
+    },
+    {
+      "name": "Game Operations",
+      "description": "Game related endpoints"
+    },
+    {
+      "name": "Invitation Operations",
+      "description": "Invitation related endpoints"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Login endpoint'inden token alıp buraya yapıştır. Korumalı endpoint'ler için gerekli."
+      }
+    },
+    "schemas": {}
+  },
+  "paths": {
+    "/users/": {
+      "post": {
+        "summary": "Create user and return token",
+        "tags": [
+          "User Operations",
+          "Auth Operations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "user",
+                        "token"
+                      ],
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "username",
+                            "email"
+                          ],
+                          "properties": {
+                            "id": {
+                              "format": "uuid",
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "format": "email",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "token": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postUsers"
+      },
+      "get": {
+        "summary": "Get all users",
+        "tags": [
+          "User Operations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "users"
+                      ],
+                      "properties": {
+                        "users": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "id",
+                              "username",
+                              "email",
+                              "createdAt"
+                            ],
+                            "properties": {
+                              "id": {
+                                "format": "uuid",
+                                "type": "string"
+                              },
+                              "username": {
+                                "type": "string"
+                              },
+                              "email": {
+                                "format": "email",
+                                "type": "string"
+                              },
+                              "createdAt": {
+                                "anyOf": [
+                                  {
+                                    "type": "Date"
+                                  },
+                                  {
+                                    "format": "date-time",
+                                    "type": "string"
+                                  },
+                                  {
+                                    "format": "date",
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "number"
+                                  }
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getUsers"
+      }
+    },
+    "/users/{id}": {
+      "delete": {
+        "summary": "Delete the user",
+        "tags": [
+          "User Operations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "id"
+                      ],
+                      "properties": {
+                        "id": {
+                          "format": "uuid",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteUsersById"
+      },
+      "patch": {
+        "summary": "Update the user",
+        "tags": [
+          "User Operations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "user"
+                      ],
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "username",
+                            "email",
+                            "createdAt"
+                          ],
+                          "properties": {
+                            "id": {
+                              "format": "uuid",
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "format": "email",
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "anyOf": [
+                                {
+                                  "type": "Date"
+                                },
+                                {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                {
+                                  "format": "date",
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchUsersById"
+      },
+      "get": {
+        "summary": "Get user by ID",
+        "tags": [
+          "User Operations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "user"
+                      ],
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "username",
+                            "email",
+                            "createdAt"
+                          ],
+                          "properties": {
+                            "id": {
+                              "format": "uuid",
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "format": "email",
+                              "type": "string"
+                            },
+                            "createdAt": {
+                              "anyOf": [
+                                {
+                                  "type": "Date"
+                                },
+                                {
+                                  "format": "date-time",
+                                  "type": "string"
+                                },
+                                {
+                                  "format": "date",
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getUsersById"
+      }
+    },
+    "/login/": {
+      "post": {
+        "summary": "Authenticate user and issue JWT",
+        "tags": [
+          "Auth Operations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "user",
+                        "token"
+                      ],
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "username",
+                            "email"
+                          ],
+                          "properties": {
+                            "id": {
+                              "format": "uuid",
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "format": "email",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "token": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postLogin"
+      }
+    },
+    "/login/register": {
+      "post": {
+        "summary": "Register new user and issue JWT",
+        "tags": [
+          "Auth Operations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "username",
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "email": {
+                    "format": "email",
+                    "type": "string"
+                  },
+                  "password": {
+                    "minLength": 6,
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "user",
+                        "token"
+                      ],
+                      "properties": {
+                        "user": {
+                          "type": "object",
+                          "required": [
+                            "id",
+                            "username",
+                            "email"
+                          ],
+                          "properties": {
+                            "id": {
+                              "format": "uuid",
+                              "type": "string"
+                            },
+                            "username": {
+                              "type": "string"
+                            },
+                            "email": {
+                              "format": "email",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "token": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postLoginRegister"
+      }
+    },
+    "/org/": {
+      "post": {
+        "summary": "Create a new organization",
+        "description": "Creates a new organization with the authenticated user as the owner (SUPER_ADMIN)",
+        "tags": [
+          "Organization Operations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "subdomain"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "subdomain": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "branding": {
+                    "type": "object",
+                    "properties": {
+                      "logoUrl": {
+                        "type": "string"
+                      },
+                      "css": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "subdomain"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "subdomain": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "branding": {
+                    "type": "object",
+                    "properties": {
+                      "logoUrl": {
+                        "type": "string"
+                      },
+                      "css": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "subdomain"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "subdomain": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "branding": {
+                    "type": "object",
+                    "properties": {
+                      "logoUrl": {
+                        "type": "string"
+                      },
+                      "css": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postOrg"
+      },
+      "get": {
+        "summary": "Get all organizations for the authenticated user",
+        "description": "Returns all organizations where the user is a member",
+        "tags": [
+          "Organization Operations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getOrg"
+      }
+    },
+    "/org/{orgDomain}": {
+      "get": {
+        "summary": "Get organization by subdomain",
+        "description": "Public endpoint to fetch organization details by subdomain (for routing)",
+        "tags": [
+          "Organization Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getOrgByOrgDomain"
+      },
+      "patch": {
+        "summary": "Update organization",
+        "description": "Update organization details (owner only)",
+        "tags": [
+          "Organization Operations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "subdomain": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "branding": {
+                    "type": "object",
+                    "properties": {
+                      "logoUrl": {
+                        "type": "string"
+                      },
+                      "css": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "subdomain": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "branding": {
+                    "type": "object",
+                    "properties": {
+                      "logoUrl": {
+                        "type": "string"
+                      },
+                      "css": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "subdomain": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "branding": {
+                    "type": "object",
+                    "properties": {
+                      "logoUrl": {
+                        "type": "string"
+                      },
+                      "css": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchOrgByOrgDomain"
+      },
+      "delete": {
+        "summary": "Delete organization",
+        "description": "Delete organization and all related data (owner only, cascade delete)",
+        "tags": [
+          "Organization Operations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteOrgByOrgDomain"
+      }
+    },
+    "/org/{orgDomain}/quizzes/": {
+      "post": {
+        "summary": "Create a new quiz",
+        "tags": [
+          "Quiz Operations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Creates a new quiz in the specified organization. Requires MANAGER role or higher.",
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "defaultMode"
+                ],
+                "properties": {
+                  "title": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "defaultMode": {
+                    "type": "string",
+                    "enum": [
+                      "PERSONAL",
+                      "STAGE"
+                    ]
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "defaultMode"
+                ],
+                "properties": {
+                  "title": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "defaultMode": {
+                    "type": "string",
+                    "enum": [
+                      "PERSONAL",
+                      "STAGE"
+                    ]
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "defaultMode"
+                ],
+                "properties": {
+                  "title": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "defaultMode": {
+                    "type": "string",
+                    "enum": [
+                      "PERSONAL",
+                      "STAGE"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postOrgByOrgDomainQuizzes"
+      },
+      "get": {
+        "summary": "Get all quizzes in organization",
+        "tags": [
+          "Quiz Operations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Lists all active quizzes for the organization. Ordered by creation date descending.",
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getOrgByOrgDomainQuizzes"
+      }
+    },
+    "/org/{orgDomain}/quizzes/{quizId}": {
+      "get": {
+        "summary": "Get quiz by ID with questions",
+        "tags": [
+          "Quiz Operations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Retrieves detailed quiz information including all questions ordered by index.",
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "getOrgByOrgDomainQuizzesByQuizId"
+      },
+      "patch": {
+        "summary": "Update quiz",
+        "tags": [
+          "Quiz Operations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Updates quiz title or default mode. Only provided fields are updated.",
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "defaultMode": {
+                    "type": "string",
+                    "enum": [
+                      "PERSONAL",
+                      "STAGE"
+                    ]
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "defaultMode": {
+                    "type": "string",
+                    "enum": [
+                      "PERSONAL",
+                      "STAGE"
+                    ]
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "minLength": 3,
+                    "type": "string"
+                  },
+                  "defaultMode": {
+                    "type": "string",
+                    "enum": [
+                      "PERSONAL",
+                      "STAGE"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchOrgByOrgDomainQuizzesByQuizId"
+      },
+      "delete": {
+        "summary": "Delete quiz (soft delete)",
+        "tags": [
+          "Quiz Operations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Soft deletes a quiz by setting isDeleted=true. Questions remain in DB.",
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "operationId": "deleteOrgByOrgDomainQuizzesByQuizId"
+      }
+    },
+    "/org/{orgDomain}/quizzes/{quizId}/questions": {
+      "post": {
+        "summary": "Create a new question",
+        "tags": [
+          "Question Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text",
+                  "timeLimit",
+                  "correctIndex",
+                  "options"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "type": "number"
+                  },
+                  "points": {
+                    "type": "number"
+                  },
+                  "correctIndex": {
+                    "type": "number"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "text",
+                        "color"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "color": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text",
+                  "timeLimit",
+                  "correctIndex",
+                  "options"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "type": "number"
+                  },
+                  "points": {
+                    "type": "number"
+                  },
+                  "correctIndex": {
+                    "type": "number"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "text",
+                        "color"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "color": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text",
+                  "timeLimit",
+                  "correctIndex",
+                  "options"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "type": "number"
+                  },
+                  "points": {
+                    "type": "number"
+                  },
+                  "correctIndex": {
+                    "type": "number"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "text",
+                        "color"
+                      ],
+                      "properties": {
+                        "text": {
+                          "type": "string"
+                        },
+                        "color": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postOrgByOrgDomainQuizzesByQuizIdQuestions"
+      }
+    },
+    "/org/{orgDomain}/quizzes/{quizId}/questions/{questionId}": {
+      "patch": {
+        "summary": "Update question",
+        "description": "Update question details. If options provided, must be exactly 4.",
+        "tags": [
+          "Question Operations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "minLength": 5,
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "minimum": 10,
+                    "maximum": 120,
+                    "type": "number"
+                  },
+                  "points": {
+                    "minimum": 100,
+                    "type": "number"
+                  },
+                  "options": {
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "correctIndex": {
+                    "minimum": 0,
+                    "maximum": 3,
+                    "type": "number"
+                  },
+                  "orderIndex": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "minLength": 5,
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "minimum": 10,
+                    "maximum": 120,
+                    "type": "number"
+                  },
+                  "points": {
+                    "minimum": 100,
+                    "type": "number"
+                  },
+                  "options": {
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "correctIndex": {
+                    "minimum": 0,
+                    "maximum": 3,
+                    "type": "number"
+                  },
+                  "orderIndex": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "minLength": 5,
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "minimum": 10,
+                    "maximum": 120,
+                    "type": "number"
+                  },
+                  "points": {
+                    "minimum": 100,
+                    "type": "number"
+                  },
+                  "options": {
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "correctIndex": {
+                    "minimum": 0,
+                    "maximum": 3,
+                    "type": "number"
+                  },
+                  "orderIndex": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchOrgByOrgDomainQuizzesByQuizIdQuestionsByQuestionId"
+      },
+      "delete": {
+        "summary": "Delete question",
+        "description": "Delete a question from the quiz",
+        "tags": [
+          "Question Operations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteOrgByOrgDomainQuizzesByQuizIdQuestionsByQuestionId"
+      },
+      "get": {
+        "summary": "Get question by ID",
+        "description": "Returns a single question with hierarchy validation",
+        "tags": [
+          "Question Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "questionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getOrgByOrgDomainQuizzesByQuizIdQuestionsByQuestionId"
+      }
+    },
+    "/org/{orgDomain}/quizzes/{quizId}/questions/reorder": {
+      "post": {
+        "summary": "Reorder questions",
+        "tags": [
+          "Question Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "questionIds"
+                ],
+                "properties": {
+                  "questionIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "questionIds"
+                ],
+                "properties": {
+                  "questionIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "questionIds"
+                ],
+                "properties": {
+                  "questionIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postOrgByOrgDomainQuizzesByQuizIdQuestionsReorder"
+      }
+    },
+    "/org/{orgDomain}/quizzes/{quizId}/questions/": {
+      "post": {
+        "summary": "Create a new question",
+        "description": "Creates a new question for the quiz. Must have exactly 4 options.",
+        "tags": [
+          "Question Operations"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text",
+                  "timeLimit",
+                  "points",
+                  "options",
+                  "correctIndex",
+                  "orderIndex"
+                ],
+                "properties": {
+                  "text": {
+                    "minLength": 5,
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "minimum": 10,
+                    "maximum": 120,
+                    "type": "number"
+                  },
+                  "points": {
+                    "minimum": 100,
+                    "type": "number"
+                  },
+                  "options": {
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "correctIndex": {
+                    "minimum": 0,
+                    "maximum": 3,
+                    "type": "number"
+                  },
+                  "orderIndex": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text",
+                  "timeLimit",
+                  "points",
+                  "options",
+                  "correctIndex",
+                  "orderIndex"
+                ],
+                "properties": {
+                  "text": {
+                    "minLength": 5,
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "minimum": 10,
+                    "maximum": 120,
+                    "type": "number"
+                  },
+                  "points": {
+                    "minimum": 100,
+                    "type": "number"
+                  },
+                  "options": {
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "correctIndex": {
+                    "minimum": 0,
+                    "maximum": 3,
+                    "type": "number"
+                  },
+                  "orderIndex": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "text",
+                  "timeLimit",
+                  "points",
+                  "options",
+                  "correctIndex",
+                  "orderIndex"
+                ],
+                "properties": {
+                  "text": {
+                    "minLength": 5,
+                    "type": "string"
+                  },
+                  "mediaUrl": {
+                    "type": "string"
+                  },
+                  "timeLimit": {
+                    "minimum": 10,
+                    "maximum": 120,
+                    "type": "number"
+                  },
+                  "points": {
+                    "minimum": 100,
+                    "type": "number"
+                  },
+                  "options": {
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "correctIndex": {
+                    "minimum": 0,
+                    "maximum": 3,
+                    "type": "number"
+                  },
+                  "orderIndex": {
+                    "minimum": 0,
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postOrgByOrgDomainQuizzesByQuizIdQuestions"
+      },
+      "get": {
+        "summary": "Get all questions for a quiz",
+        "description": "Returns all questions sorted by orderIndex (ASC)",
+        "tags": [
+          "Question Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "quizId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getOrgByOrgDomainQuizzesByQuizIdQuestions"
+      }
+    },
+    "/org/{orgDomain}/invitations/": {
+      "post": {
+        "summary": "Create the invitation",
+        "description": "Cookieden inviterId alırsınız. orgDomain parametreden gelir. usernamdende inviteeId bulunur ve davet oluşturulur.",
+        "tags": [
+          "Invitation Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inviteeUsername"
+                ],
+                "properties": {
+                  "inviteeUsername": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inviteeUsername"
+                ],
+                "properties": {
+                  "inviteeUsername": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "inviteeUsername"
+                ],
+                "properties": {
+                  "inviteeUsername": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postOrgByOrgDomainInvitations"
+      },
+      "get": {
+        "summary": "Get all invitations for the organization",
+        "tags": [
+          "Invitation Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getOrgByOrgDomainInvitations"
+      }
+    },
+    "/org/{orgDomain}/invitations/{invitationId}": {
+      "delete": {
+        "summary": "Delete the invitation",
+        "tags": [
+          "Invitation Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteOrgByOrgDomainInvitationsByInvitationId"
+      },
+      "patch": {
+        "summary": "Update the invitation",
+        "tags": [
+          "Invitation Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "patchOrgByOrgDomainInvitationsByInvitationId"
+      },
+      "get": {
+        "summary": "Get invitation by ID",
+        "tags": [
+          "Invitation Operations"
+        ],
+        "parameters": [
+          {
+            "name": "orgDomain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "invitationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {},
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getOrgByOrgDomainInvitationsByInvitationId"
+      }
+    },
+    "/games/": {
+      "post": {
+        "summary": "Create a new game session",
+        "tags": [
+          "Game Operations"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "quizId"
+                ],
+                "properties": {
+                  "quizId": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "quizId"
+                ],
+                "properties": {
+                  "quizId": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "quizId"
+                ],
+                "properties": {
+                  "quizId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "gameId",
+                    "pin",
+                    "mode"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "gameId": {
+                      "type": "string"
+                    },
+                    "pin": {
+                      "type": "string"
+                    },
+                    "mode": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "postGames"
+      }
+    },
+    "/games/{id}": {
+      "get": {
+        "summary": "Get game summary",
+        "tags": [
+          "Game Operations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success",
+                    "status",
+                    "totalPlayers"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "totalPlayers": {
+                      "type": "number"
+                    },
+                    "winner": {
+                      "type": "string"
+                    },
+                    "finalScores": {}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "getGamesById"
+      },
+      "delete": {
+        "summary": "Delete game and cleanup",
+        "tags": [
+          "Game Operations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Response for status 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "deleteGamesById"
+      }
+    },
+    "/games/ws": {
+      "ws": {
+        "operationId": "wsGamesWs"
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Main endpoint",
+        "operationId": "getIndex"
+      }
+    },
+    "/db-health": {
+      "get": {
+        "summary": "Database health check endpoint",
+        "operationId": "getDb-health"
+      }
+    }
+  }
+}

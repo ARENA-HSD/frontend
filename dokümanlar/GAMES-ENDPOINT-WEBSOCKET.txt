@@ -1,0 +1,42 @@
+HSD ARENA - GAMES ENDPOINT (WEBSOCKET & HTTP)
+Sürüm: 1.1
+Tarih: 27.01.2026
+Bu doküman, oyun motorunun HTTP kurulumunu ve WebSocket üzerinden dönen canlı oyun döngüsünü tanımlar.
+
+1. HTTP Tarafı: "Kurulum ve Başlatma"
+Oyunun veritabanından çekilip Redis'e atıldığı ilk aşamadır.
+POST /games — Yönetici çağırır. Body olarak { "quizId": "uuid..." } gönderilir. Sunucu şu işlemleri yapar: Quiz ayarlarını çeker, 6 haneli PIN üretir, Redis state oluşturur (LOBBY). QR URL üretilmez (iptal edildi). Dönüş: { "success": true, "gameId": "xyz", "pin": "482910", "mode": "STAGE" }
+GET /games/:id — Yönetici çağırır. Body gönderilmez. Oyun bitiş raporunu döner. Dönüş: Özet Rapor JSON.
+DELETE /games/:id — Yönetici çağırır. Body gönderilmez. Oyunu iptal eder veya bitirir. Dönüş: { "success": true }
+
+2. WebSocket Tarafı: "Canlı Oyun Motoru"
+A. Bağlantı ve Lobi (Lobby Phase)
+Yönetici ekranında katılımcıların aktığı, oyuncuların beklediği alandır.
+JOIN_ROOM (Oyuncu -> Server): Payload: { "pin": "123", "nickname": "Ali" }. Sunucu şu işlemleri yapar: IP ban kontrolü yapar, isim çakışması varsa Ali#1 gibi düzeltir, Redis players listesine ekler.
+JOIN_SUCCESS (Server -> Tek Kişi): Payload: { "status": "WAITING", "myNick": "Ali" }. Sadece bağlanan kişiye onay döner.
+LOBBY_UPDATE (Server -> Yönetici): Payload: { "count": 45, "recentPlayers": ["Ali", "Veli"...] }. Güncelleme: Sadece sayıyı değil, son 28 katılımcının nickname listesini döndürür (frontend grid yapısı için).
+KICK_PLAYER (Yönetici -> Server): Payload: { "socketId": "...", "ban": true }. Oyuncuyu atar. ban: true ise IP'yi Redis ban listesine ekler.
+FORCE_DISCONNECT (Server -> Tek Kişi): Payload: { "reason": "Atıldınız" }. Atılan kişinin soketini koparır.
+
+B. Oyun Akışı (Gameplay Loop)
+Döngü: Başlat -> Soru Sor -> Cevapla -> Soru Sonu (Analiz) -> Liderlik Tablosu -> Sıradaki
+1. Oyunu Başlatma (Geri Sayım)
+START_GAME (Host -> Server): Payload: { "gameId": "xyz" }. Yönetici başlatır.
+GAME_STARTING (Server -> All): Payload: { "countDown": 3, "serverTime": 170000... }. Güncelleme: İlk soru gelmeden önceki animasyon için geri sayım ve senkronizasyon zamanı gönderilir.
+2. Soru Gönderme
+QUESTION_START (Server -> All): Payload: { "qIndex": 0, "time": 30, "serverTime": 170... }. Güncelleme: Kişisel Mod'da şık metinleri ve medya gider. Sahne Modu'nda şık metni gitmez, sadece renk kodları gider. serverTime eklenir (timer senkronizasyonu için).
+3. Cevaplama
+SUBMIT_ANSWER (Client -> Server): Payload: { "qId": "q1", "ansIdx": 0 }. Redis üzerinden cevap kontrolü yapılır, puan hesaplanır.
+4. Soru Sonu ve Analiz (Question End)
+Süre bittiğinde veya herkes cevapladığında otomatik tetiklenir.
+QUESTION_END (Server -> All): Herkese farklı veri gider.
+Host'a giden veri: { "correctOptionIndex": 2, "stats": { "0": 15, "1": 5, "2": 40, "3": 0 } } — Hangi şıkka kaç kişi tıkladı.
+Oyuncuya giden veri: { "correct": true, "scoreEarned": 1200, "streak": 3, "correctOptionIndex": 2 } — Doğru bildi mi, bu sorudan kaç puan aldı, alev (streak) sayısı.
+5. Liderlik Tablosu (Leaderboard)
+Host butona bastığında veya otomatik geçişte çağrılır. Kritik: Backend, hesaplama bitmeden bu isteğe cevap vermemelidir (Calculation Lock).
+SHOW_LEADERBOARD (Host -> Server): Payload: { "gameId": "xyz" }. Admin tabloyu ister.
+LEADERBOARD_RESULT (Server -> All): Herkese farklı veri gider.
+Host'a giden veri: { "top5": [ { "nick": "Ali", "score": 5000 }, ... ], "highStreaks": [ { "nick": "Veli", "streak": 5 } ] } — O turun en iyileri veya genel Top 5 ve streak yapanlar.
+Oyuncuya giden veri (Kişisel Mod ve Sahne Modu): { "top5": [ ... ], "myRank": 12, "myTotalScore": 4500 } — Genel sıralama, kendi sırası ve kendi toplam puanı.
+6. Sıradaki Soru
+NEXT_QUESTION (Host -> Server): Payload: { "gameId": "xyz" }. Döngü QUESTION_START olayına geri döner (Index + 1).

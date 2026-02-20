@@ -1,0 +1,60 @@
+KATILIMCI
+
+  GİRİŞ
+    SessionID + Nickname
+
+  LOBBY
+    Quiz adı
+    Nickname
+    "bağlanıyor..." kullanıcı sessiona bağlanıca-> "bağlandı ✓"
+    Not: eğer yönetici quizi başlatırsa ekranda bir geri sayım çıkar bu sürede arka planda ilk soru çekilir böylece tüm katılımcılar birlikte başlar.
+
+  SORU GEÇİŞ EKRANI
+    "Soru geliyor!" mesajı
+    Ekranda geri sayım sayar
+    Not: eğer kişisel mod oynanıyorsa bu sürede sonraki soru çekilir böylece tüm takımlar aynı anda soruya başlayabilir.
+
+  SORU EKRANI
+    option-1 KİŞİSEL MOD
+    	       ÜST BAR (ince)
+		 Sol: Yarışma adı
+		 Sağ: geri sayım (dairesel bir geri sayım içinde saniye yada progress bar + saniye)
+	       SORU ALANI
+		 Soru resmi ?varsa
+		 Soru metni
+	       ŞIKLAR ALANI
+		 2x2 grid şeklinde olabildiğince büyük dokunma alanı
+		 Not: seçim sonrası şıkların görünümleri seçilen şıkkı belli edecek ve cevapların kitlendiğini belli edecek şekilde değiştirilecek.
+	       DURUM ALANI (geri bildirim)
+		 "Cevap alındı ✓"
+		 "Sonuçlar bekleniyor..."
+    option-2 SAHNE MODU
+	       Ekranda sadece 2x2 kocaman 4 şık metinler yok.
+
+  CEVAP EKRANI
+    Doğru / Yanlış bilgisi
+    Kaç puan aldığı
+    Streak varsa bilgilendirilmesi “🔥 3’te 3!” gibi
+
+  LEADERBOARD EKRANI
+    option-1 KİŞİSEL MOD
+	       LEADERBOARD
+		 Leaderboard yazısı
+		 Top 5 liste ilk 3 ikonlu yada daha gösterişli
+		 Not: streaki olanlar alevli
+	       Kendi sırası ve puanı streak varsa alevli
+	       Motive edici mesaj
+	       Not: alev streak sayısına göre değişir 3 normal 5 çok 7 çok fazla alevli bu leaderboardtaki alevler içinde kendi alevi içinde geçerli.
+    option-2 SAHNE MODU
+	       Kendi sırası
+	       Puanı varsa streak alevi
+	       Motive edici mesaj
+
+  QUİZ BİTİŞ EKRANI
+    option-1 KİŞİSEL MOD
+	       Derece kürsüsünde yerleştirilmiş top 3 isim ve puanları ile birlikte
+	       Alt kısımda kendi sıralaması ve toplam puanı
+	       Teşekkürler mesajı
+    option-2 SAHNE MODU
+	       Sadece kendi sonucu, toplam puanı ve kaç doğru / yanlış
+	       Teşekkürler mesajı

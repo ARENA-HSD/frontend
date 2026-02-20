@@ -1,0 +1,77 @@
+ADMİN
+
+  ÜST BAR (sabit)
+    Sol: Avatar + Kullanıcı adı + rol
+    Orta: Rol bazlı geçiş butonu
+    Sağ: Organizasyon adı
+
+  SOL NAVİGASYON (sabit)
+    Organizasyon özelleştirme
+    Members yönetimi
+    Varsayılan quiz ayarları
+    Loglar
+
+  ORGANİZASYON (ana giriş sayfası)
+    LOGO ALANI
+      Sol üstte mevcut logo görünür
+      Logo üzerine tıklanarak değiştirilebilir
+      Alternatif olarak logo altında değiştir butonu
+      Değiştirildiğinde ekran ortasında modal açılır
+      Önceden yüklenmiş logolar listelenir
+      Ekle butonu ile yeni logo yüklenebilir
+    ORGANİZASYON BİLGİLERİ  
+      Sağ üstte organizasyon adı  
+      Altında açıklama alanı  
+    TEMA VE GÖRSEL AYARLAR  
+      Font seçimi  
+      Ana renk seçimi  
+      İkinci renk seçimi  
+    ALT ALAN  
+      Kaydet butonu  
+
+  MEMBERS
+    ÜST ALAN  
+      Sol ve orta alanı kaplayan arama çubuğu  
+      Sağda filtre dropdown  
+        Checkbox ile filtreleme  
+    KULLANICI EKLEME  
+      Arama alanının hemen altında  
+      Kullanıcı kartı boyutunda ekleme butonu  
+      Scrollable alanın dışında durur  
+      Tıklandığında modal açılır  
+        Kullanıcı adı  
+        Rol seçimi  
+        Davet gönder butonu  
+    KULLANICI LİSTESİ  
+      Scrollable kullanıcı listesi  
+      KULLANICI KARTI  
+        Sol: Avatar + isim  
+        Sağ: Rol etiketi  
+        En sağ: ⋯ dropdown  
+          Rol değiştir  
+          Kullanıcıyı çıkar  
+
+  QUIZ AYARLARI
+    VARSAYILAN AYARLAR  
+      Varsayılan quiz modu  
+      Varsayılan soru süresi  
+      Streak sistemi açık / kapalı  
+    ALT ALAN  
+      Kaydet butonu  
+
+  LOGLAR
+    FİLTRELER  
+      Tarih aralığı  
+      Aksiyon tipi  
+        Quiz oluşturma  
+        Quiz silme  
+        Kullanıcı ekleme / çıkarma  
+        Ayar değişikliği  
+      Kullanıcı filtresi  
+    LOG LİSTESİ  
+      Scrollable tablo  
+      LOG SATIRI  
+        Zaman  
+        Kullanıcı adı  
+        Yapılan işlem  
+        Etkilenen alan (quiz adı / kullanıcı / ayar)

@@ -11,4 +11,9 @@ export default defineConfig({
       interval: 100,
     },
   },
+  resolve: {
+    alias: {
+      '@': '/src',
+    },
+  },
 })

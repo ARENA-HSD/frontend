@@ -32,7 +32,7 @@ const ParticipantLobbyPage = () => {
 
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: any) => {
-                navigate('/play/game', {
+                navigate('/subdomain/play/game', {
                     state: {
                         ...state,
                         countDown: payload.countDown,

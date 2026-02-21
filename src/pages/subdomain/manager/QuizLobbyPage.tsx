@@ -12,7 +12,7 @@ import { useAuth, useManagerNavigate } from '@/hooks';
 import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
-import type { Quiz, WSLobbyUpdatePayload } from '@/types';
+import type { LobbyUpdatePlayload, Quiz } from '@/types';
 
 const QuizLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -83,12 +83,13 @@ const QuizLobbyPage = () => {
     // ========================================
     useEffect(() => {
         if (!wsConnected) return;
+        console.log('WebSocket connected');
 
         const unsubs: Array<() => void> = [];
 
         // Listen for participant joins
         unsubs.push(
-            gameSocket.on(WS_EVENTS.LOBBY_UPDATE, (payload: WSLobbyUpdatePayload) => {
+            gameSocket.on(WS_EVENTS.LOBBY_UPDATE, (payload: LobbyUpdatePlayload) => {
                 setParticipantCount(payload.count);
                 setRecentPlayers(payload.recentPlayers || []);
             })

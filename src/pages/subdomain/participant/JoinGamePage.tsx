@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
+import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload } from '@/types';
 
 const JoinGamePage = () => {
     const navigate = useNavigate();
@@ -28,33 +29,26 @@ const JoinGamePage = () => {
         setError('');
 
         try {
-            // Connect WebSocket
+            // Önce bağlan
             await gameSocket.connect();
 
-            // Listen for JOIN_SUCCESS
-            const successUnsub = gameSocket.on(WS_EVENTS.JOIN_SUCCESS, (payload: any) => {
+            // Listener'ları kur
+            const successUnsub = gameSocket.on(WS_EVENTS.JOIN_SUCCESS, (payload: JoinSuccessPlayload) => {
                 successUnsub();
                 errorUnsub();
-                // Navigate to lobby with state
-                navigate('/play/lobby', {
-                    state: {
-                        pin,
-                        nickname: payload.myNick || nickname,
-                        gameMode: payload.mode,
-                    }
+                navigate('/subdomain/play/lobby', {
+                    state: { pin, nickname: payload.myNick || nickname }
                 });
             });
 
-            // Listen for ERROR
-            const errorUnsub = gameSocket.on(WS_EVENTS.ERROR, (payload: any) => {
+            const errorUnsub = gameSocket.on(WS_EVENTS.ERROR, (payload: ErrorPlayload) => {
                 successUnsub();
                 errorUnsub();
                 setError(payload.message || 'Failed to join game');
                 setIsJoining(false);
             });
 
-            // Listen for FORCE_DISCONNECT (banned)
-            const disconnectUnsub = gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: any) => {
+            const disconnectUnsub = gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: ForceDisconnectPlayload) => {
                 successUnsub();
                 errorUnsub();
                 disconnectUnsub();
@@ -62,10 +56,9 @@ const JoinGamePage = () => {
                 setIsJoining(false);
             });
 
-            // Send JOIN_ROOM
+            // Sonra mesajı gönder (tek seferlik)
             gameSocket.joinRoom(pin.trim(), nickname.trim());
 
-            // Timeout after 10 seconds
             setTimeout(() => {
                 if (isJoining) {
                     setError('Connection timed out. Please try again.');

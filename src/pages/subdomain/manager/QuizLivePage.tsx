@@ -13,8 +13,12 @@ import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService, questionService } from '@/services';
 import type {
     Quiz, Question,
-    WSGameStartingPayload, WSQuestionStartPayload,
-    WSQuestionEndHostPayload, WSLeaderboardHostPayload,
+    GameStartingPlayload,
+    QuestionEndHostPlayload,
+    QuestionStartPlayload,
+    LeaderboardResultHostPlayload,
+    GameOverPlayload,
+    LeaderboardEntry,
 } from '@/types';
 
 type GamePhase = 'connecting' | 'countdown' | 'question' | 'results' | 'leaderboard' | 'finished';
@@ -35,12 +39,18 @@ const QuizLivePage = () => {
     // ========================================
     // State
     // ========================================
+    const [questionIndex, setQuestionIndex] = useState(0);
+    const [questionText, setQuestionText] = useState('');
+    const [questionMedia, setQuestionMedia] = useState('');
+    const [options, setOptions] = useState<Array<{ text: string; color: string }>>([]);
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [phase, setPhase] = useState<GamePhase>('connecting');
     const [countdown, setCountdown] = useState(3);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [time, setTime] = useState(0);
     const [timeLeft, setTimeLeft] = useState(0);
+    const [serverTime, setServerTime] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
 
     // Question End (results) state
@@ -51,7 +61,11 @@ const QuizLivePage = () => {
     const [leaderboard, setLeaderboard] = useState<Array<{ nick: string; score: number }>>([]);
     const [highStreaks, setHighStreaks] = useState<Array<{ nick: string; streak: number }>>([]);
 
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    // Game over state
+    const [podium, setPodium] = useState<LeaderboardEntry[]>([]);
+    const [winner, setWinner] = useState('');
+
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // ========================================
     // Initialize
@@ -114,25 +128,30 @@ const QuizLivePage = () => {
 
         // GAME_STARTING - countdown before first question
         unsubs.push(
-            gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: WSGameStartingPayload) => {
+            gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
                 setCountdown(payload.countDown);
+                setServerTime(payload.serverTime);
                 setPhase('countdown');
             })
         );
 
         // QUESTION_START - new question arrives
         unsubs.push(
-            gameSocket.on(WS_EVENTS.QUESTION_START, (payload: WSQuestionStartPayload) => {
-                setCurrentQuestionIndex(payload.qIndex);
-                setTimeLeft(payload.time);
+            gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
+                setQuestionIndex(payload.qIndex);
+                setTime(payload.time);
+                setServerTime(payload.serverTime);
+                setQuestionText(payload.text || '');
+                setQuestionMedia(payload.mediaUrl || '');
+                setOptions(payload.options || []);
+                startTimer(time, serverTime);
                 setPhase('question');
-                startTimer(payload.time);
             })
         );
 
         // QUESTION_END - answer stats for host
         unsubs.push(
-            gameSocket.on(WS_EVENTS.QUESTION_END, (payload: WSQuestionEndHostPayload) => {
+            gameSocket.on(WS_EVENTS.QUESTION_END, (payload: QuestionEndHostPlayload) => {
                 if (timerRef.current) clearInterval(timerRef.current);
                 setCorrectOptionIndex(payload.correctOptionIndex);
                 setAnswerStats(payload.stats || {});
@@ -142,7 +161,7 @@ const QuizLivePage = () => {
 
         // LEADERBOARD_RESULT - leaderboard data
         unsubs.push(
-            gameSocket.on(WS_EVENTS.LEADERBOARD_RESULT, (payload: WSLeaderboardHostPayload) => {
+            gameSocket.on(WS_EVENTS.LEADERBOARD_RESULT, (payload: LeaderboardResultHostPlayload) => {
                 setLeaderboard(payload.top5 || []);
                 setHighStreaks(payload.highStreaks || []);
                 setPhase('leaderboard');
@@ -151,7 +170,9 @@ const QuizLivePage = () => {
 
         // GAME_OVER
         unsubs.push(
-            gameSocket.on(WS_EVENTS.GAME_OVER, () => {
+            gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
+                setWinner(payload.winner || '');
+                setPodium(payload.finalScores || []);
                 setPhase('finished');
             })
         );
@@ -172,7 +193,7 @@ const QuizLivePage = () => {
                 const q = questions[currentQuestionIndex];
                 if (q) {
                     setTimeLeft(q.timeLimit || 30);
-                    startTimer(q.timeLimit || 30);
+                    startTimer(q.timeLimit || 30, serverTime);
                 }
                 return;
             }
@@ -188,26 +209,15 @@ const QuizLivePage = () => {
     // ========================================
     // Timer
     // ========================================
-    const startTimer = useCallback((duration: number) => {
+    const startTimer = useCallback((duration: number, serverTime: number) => {
         if (timerRef.current) clearInterval(timerRef.current);
-        setTimeLeft(duration);
 
         timerRef.current = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    if (timerRef.current) clearInterval(timerRef.current);
-                    // If WS doesn't send QUESTION_END, trigger locally
-                    setTimeout(() => {
-                        if (phase === 'question') {
-                            handleTimeUp();
-                        }
-                    }, 500);
-                    return 0;
-                }
-                return prev - 1;
-            });
+            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
+            const timeLeft = Math.max(0, duration - elapsed);
+            setTimeLeft(timeLeft);
         }, 1000);
-    }, [phase]);
+    }, []);
 
     // ========================================
     // Actions

@@ -25,24 +25,30 @@ export interface WSMessage {
 export const WS_EVENTS = {
     // Client → Server
     JOIN_ROOM: 'JOIN_ROOM',
+    SUBMIT_ANSWER: 'SUBMIT_ANSWER',
+
+    // Server → Client (matches games.service.ts)
+    JOIN_SUCCESS: 'JOIN_SUCCESS',           // → joiner on join
+    FORCE_DISCONNECT: 'FORCE_DISCONNECT', // defensive (not actively sent)
+
+    // Host → Server
     KICK_PLAYER: 'KICK_PLAYER',
     START_GAME: 'START_GAME',
-    SUBMIT_ANSWER: 'SUBMIT_ANSWER',
     SHOW_LEADERBOARD: 'SHOW_LEADERBOARD',
     NEXT_QUESTION: 'NEXT_QUESTION',
 
-    // Server → Client (matches games.service.ts)
-    ROOM_JOINED: 'ROOM_JOINED',           // → joiner on join
-    PLAYER_JOINED: 'PLAYER_JOINED',       // → broadcast on join
-    PLAYER_KICKED: 'PLAYER_KICKED',       // → broadcast on kick
-    LOBBY_UPDATE: 'LOBBY_UPDATE',         // → broadcast on disconnect (controller)
-    FORCE_DISCONNECT: 'FORCE_DISCONNECT', // defensive (not actively sent)
+    // Server → Host
+    LOBBY_UPDATE: 'LOBBY_UPDATE',
+
+    // Server → All
+    PLAYER_JOINED: 'PLAYER_JOINED',
+    GAME_STARTING: 'GAME_STARTING',
     QUESTION_START: 'QUESTION_START',
-    ANSWER_RESULT: 'ANSWER_RESULT',       // → answerer personal result
-    QUESTION_END: 'QUESTION_END',         // → host stats
+    QUESTION_END: 'QUESTION_END',
     LEADERBOARD_RESULT: 'LEADERBOARD_RESULT',
     GAME_OVER: 'GAME_OVER',
     ERROR: 'ERROR',
+
 } as const;
 
 // ============================================================================

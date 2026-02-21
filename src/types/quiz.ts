@@ -117,128 +117,145 @@ export interface LeaderboardEntry {
 // (Aligned with games.service.ts + games.controller.ts)
 // ============================================
 
-/** JOIN_ROOM: Client → Server */
-export interface WSJoinRoomPayload {
+/** Generic WebSocket event wrapper */
+export type WebSocketEventType =
+    | 'JOIN_ROOM'
+    | 'JOIN_SUCCESS'
+    | 'LOBBY_UPDATE'
+    | 'KICK_PLAYER'
+    | 'FORCE_DISCONNECT'
+    | 'START_GAME'
+    | 'GAME_STARTING'
+    | 'QUESTION_START'
+    | 'SUBMIT_ANSWER'
+    | 'QUESTION_END'
+    | 'SHOW_LEADERBOARD'
+    | 'LEADERBOARD_RESULT'
+    | 'NEXT_QUESTION'
+    | 'GAME_OVER'
+    | 'ERROR';
+
+// Client -> Server Events
+export interface JoinRoomPlayload {
     pin: string;
     nickname: string;
 }
 
-/** ROOM_JOINED: Server → joiner (handleJoinRoom) */
-export interface WSRoomJoinedPayload {
-    pin: string;
-    nickname: string;
-    playerCount: number;
-}
-
-/** PLAYER_JOINED: Server → broadcast (handleJoinRoom) */
-export interface WSPlayerJoinedPayload {
-    nickname: string;
-    playerCount: number;
-}
-
-/** LOBBY_UPDATE: Server → broadcast on disconnect (controller close) */
-export interface WSLobbyUpdatePayload {
-    players: Array<{ socketId: string; nickname: string }>;
-    recentPlayers: string[];
-    totalPlayers: number;
-}
-
-/** KICK_PLAYER: Host → Server */
-export interface WSKickPlayerPayload {
+export interface KickPlayerPlayload {
     socketId: string;
     ban: boolean;
 }
 
-/** PLAYER_KICKED: Server → broadcast (handleKickPlayer) */
-export interface WSPlayerKickedPayload {
-    nickname: string;
+export interface StartGamePlayload {
+    gameId: string;
 }
 
-/** FORCE_DISCONNECT: Server → Client (defensive, not actively sent) */
-export interface WSForceDisconnectPayload {
-    reason: string;
-}
-
-/** QUESTION_START: Server → All (sendQuestionStart, filterQuestionByMode) */
-export interface WSQuestionStartPayload {
-    qIndex: number;
-    time: number;
-    serverTime: number;
-    mode: 'PERSONAL' | 'STAGE';
-    // PERSONAL mode includes these:
-    text?: string;
-    mediaUrl?: string;
-    // Both modes include options (STAGE mode has text='')
-    options?: Array<{ text: string; color: string }>;
-}
-
-/** SUBMIT_ANSWER: Client → Server */
-export interface WSSubmitAnswerPayload {
+export interface SubmitAnswerPlayload {
     questionId: string;
     answerIndex: number;
 }
 
-/** ANSWER_RESULT: Server → answerer (handleSubmitAnswer) */
-export interface WSAnswerResultPayload {
+// PDF SPEC: NEW - Manual leaderboard trigger
+export interface ShowLeaderboardPlayload {
+    gameId: string;
+}
+
+export interface NextQuestionPlayload {
+    gameId: string;
+}
+
+// Server -> Client Playloads
+export interface JoinSuccessPlayload {
+    status: 'WAITING';
+    myNick: string;
+}
+
+// PDF SPEC: recentPlayers (last 28 only)
+export interface LobbyUpdatePlayload {
+    count: number;
+    recentPlayers: string[]; // Last players
+}
+
+export interface ForceDisconnectPlayload {
+    reason: string;
+}
+
+// PDF SPEC: Added serverTime
+export interface GameStartingPlayload {
+    countDown: number;
+    serverTime: number;
+}
+
+// PDF SPEC: Added serverTime, mode-based filtering
+export interface QuestionStartPlayload {
+    qIndex: number;
+    time: number;
+    serverTime: number;
+    text?: string;         // Included in PERSONAL mode
+    mediaUrl?: string;     // Included in PERSONAL mode
+    options?: Array<{ text: string; color: string }>; // Filtered by mode
+}
+
+// PDF SPEC: DIFFERENTIATED - To Host
+export interface QuestionEndHostPlayload {
+    correctOptionIndex: number;
+    stats: Record<string, number>; // { "0": 15, "1": 5, "2": 40, "3": 0 }
+}
+
+// PDF SPEC: DIFFERENTIATED - To Player
+export interface QuestionEndPlayerPlayload {
     correct: boolean;
-    points: number;
-    newScore: number;
-    rank: number;
-    rankChange: number; // positive = rank up
+    scoreEarned: number;
     streak: number;
+    correctOptionIndex: number;
 }
 
-/** QUESTION_END: Server → Host (showQuestionEnd) */
-export interface WSQuestionEndHostPayload {
-    qIndex: number;
-    answerStats: Record<string, number>; // { "0": 15, "1": 5, "2": 40, "3": 0 }
-    streakLeaders: Array<{ nick: string; streak: number }>;
-}
-
-/** QUESTION_END: Server → Players (showQuestionEnd) */
-export interface WSQuestionEndPlayerPayload {
-    qIndex: number;
-    streakLeaders: Array<{ nick: string; streak: number }>;
-}
-
-/** LEADERBOARD_RESULT: Server → Host (showLeaderboard) */
-export interface WSLeaderboardHostPayload {
+// PDF SPEC: DIFFERENTIATED - To Host
+export interface LeaderboardResultHostPlayload {
     top5: Array<{ nick: string; score: number }>;
-    recentPlayers: string[];
+    highStreaks: Array<{ nick: string; streak: number }>;
 }
 
-/** LEADERBOARD_RESULT: Server → Player (showLeaderboard) */
-export interface WSLeaderboardPlayerPayload {
+// PDF SPEC: DIFFERENTIATED - To Player
+export interface LeaderboardResultPlayerPlayload {
     top5: Array<{ nick: string; score: number }>;
+    myRank: number;
+    myTotalScore: number;
 }
 
-/** GAME_OVER: Server → All (handleNextQuestion) */
-export interface WSGameOverPayload {
-    finalScores: Array<{ nickname: string; score: number }>;
+export interface GameOverPlayload {
+    winner: string;
+    finalScores: LeaderboardEntry[];
 }
 
-/** Generic WebSocket event wrapper */
-export type WebSocketEventType =
-    | 'JOIN_ROOM'
-    | 'KICK_PLAYER'
-    | 'START_GAME'
-    | 'SUBMIT_ANSWER'
-    | 'SHOW_LEADERBOARD'
-    | 'NEXT_QUESTION'
-    | 'ROOM_JOINED'
-    | 'PLAYER_JOINED'
-    | 'PLAYER_KICKED'
-    | 'LOBBY_UPDATE'
-    | 'FORCE_DISCONNECT'
-    | 'QUESTION_START'
-    | 'ANSWER_RESULT'
-    | 'QUESTION_END'
-    | 'LEADERBOARD_RESULT'
-    | 'GAME_OVER'
-    | 'ERROR';
+export interface ErrorPlayload {
+    message: string;
+}
 
-export interface WebSocketEvent<T = any> {
+export type WebsocketPlayload =
+    | JoinRoomPlayload
+    | KickPlayerPlayload
+    | StartGamePlayload
+    | SubmitAnswerPlayload
+    | ShowLeaderboardPlayload
+    | NextQuestionPlayload
+    | JoinSuccessPlayload
+    | LobbyUpdatePlayload
+    | ForceDisconnectPlayload
+    | GameStartingPlayload
+    | QuestionStartPlayload
+    | QuestionEndHostPlayload
+    | QuestionEndPlayerPlayload
+    | LeaderboardResultHostPlayload
+    | LeaderboardResultPlayerPlayload
+    | GameOverPlayload
+    | ErrorPlayload;
+
+
+export interface WebSocketEvent {
     type: WebSocketEventType;
-    data: T;
+    data: WebsocketPlayload;
 }
+
+
 

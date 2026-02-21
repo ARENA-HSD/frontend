@@ -10,10 +10,13 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Check, X, TrendingUp } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import type {
-    WSQuestionStartPayload,
-    WSQuestionEndPlayerPayload,
-    WSLeaderboardPlayerPayload,
-    WSGameOverPayload,
+    QuestionStartPlayload,
+    QuestionEndPlayerPlayload,
+    LeaderboardResultPlayerPlayload,
+    GameOverPlayload,
+    LeaderboardEntry,
+    ForceDisconnectPlayload,
+    GameStartingPlayload,
 } from '@/types';
 
 type GamePhase = 'countdown' | 'question' | 'answered' | 'result' | 'leaderboard' | 'gameover';
@@ -45,12 +48,13 @@ const ParticipantGamePage = () => {
     const [questionId, setQuestionId] = useState('');
     const [questionText, setQuestionText] = useState('');
     const [questionMedia, setQuestionMedia] = useState('');
-    const [options, setOptions] = useState<string[]>([]);
-    const [timeLimit, setTimeLimit] = useState(30);
-    const [timeLeft, setTimeLeft] = useState(30);
+    const [options, setOptions] = useState<Array<{ text: string; color: string }>>([]);
+    const [time, setTime] = useState(0);
+    const [serverTime, setServerTime] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState(-1);
 
-    // Result state
+    // Result state 
     const [isCorrect, setIsCorrect] = useState(false);
     const [scoreEarned, setScoreEarned] = useState(0);
     const [streak, setStreak] = useState(0);
@@ -62,7 +66,8 @@ const ParticipantGamePage = () => {
     const [myTotalScore, setMyTotalScore] = useState(0);
 
     // Game over state
-    const [podium, setPodium] = useState<Array<{ nick: string; score: number }>>([]);
+    const [podium, setPodium] = useState<LeaderboardEntry[]>([]);
+    const [winner, setWinner] = useState('');
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -87,31 +92,30 @@ const ParticipantGamePage = () => {
 
         // GAME_STARTING
         unsubs.push(
-            gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: any) => {
+            gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
                 setCountdown(payload.countDown || 3);
+                setServerTime(payload.serverTime);
                 setPhase('countdown');
             })
         );
 
         // QUESTION_START
         unsubs.push(
-            gameSocket.on(WS_EVENTS.QUESTION_START, (payload: WSQuestionStartPayload) => {
+            gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
                 setQuestionIndex(payload.qIndex);
-                setQuestionId(payload.qId);
+                setTime(payload.time);
+                setServerTime(payload.serverTime);
                 setQuestionText(payload.text || '');
                 setQuestionMedia(payload.mediaUrl || '');
                 setOptions(payload.options || []);
-                setTimeLimit(payload.time);
-                setTimeLeft(payload.time);
-                setSelectedAnswer(-1);
+                startTimer(time, serverTime);
                 setPhase('question');
-                startTimer(payload.time);
             })
         );
 
         // QUESTION_END (player-specific)
         unsubs.push(
-            gameSocket.on(WS_EVENTS.QUESTION_END, (payload: WSQuestionEndPlayerPayload) => {
+            gameSocket.on(WS_EVENTS.QUESTION_END, (payload: QuestionEndPlayerPlayload) => {
                 if (timerRef.current) clearInterval(timerRef.current);
                 setIsCorrect(payload.correct);
                 setScoreEarned(payload.scoreEarned);
@@ -123,7 +127,7 @@ const ParticipantGamePage = () => {
 
         // LEADERBOARD_RESULT (player-specific)
         unsubs.push(
-            gameSocket.on(WS_EVENTS.LEADERBOARD_RESULT, (payload: WSLeaderboardPlayerPayload) => {
+            gameSocket.on(WS_EVENTS.LEADERBOARD_RESULT, (payload: LeaderboardResultPlayerPlayload) => {
                 setTop5(payload.top5 || []);
                 setMyRank(payload.myRank);
                 setMyTotalScore(payload.myTotalScore);
@@ -133,15 +137,16 @@ const ParticipantGamePage = () => {
 
         // GAME_OVER
         unsubs.push(
-            gameSocket.on(WS_EVENTS.GAME_OVER, (payload: WSGameOverPayload) => {
-                setPodium(payload.top3 || []);
+            gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
+                setWinner(payload.winner || '');
+                setPodium(payload.finalScores || []);
                 setPhase('gameover');
             })
         );
 
         // FORCE_DISCONNECT
         unsubs.push(
-            gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: any) => {
+            gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: ForceDisconnectPlayload) => {
                 gameSocket.disconnect();
                 navigate('/join', { state: { error: payload.reason } });
             })
@@ -156,17 +161,13 @@ const ParticipantGamePage = () => {
     // ========================================
     // Timer
     // ========================================
-    const startTimer = useCallback((duration: number) => {
+    const startTimer = useCallback((duration: number, serverTime: number) => {
         if (timerRef.current) clearInterval(timerRef.current);
 
         timerRef.current = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    if (timerRef.current) clearInterval(timerRef.current);
-                    return 0;
-                }
-                return prev - 1;
-            });
+            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
+            const timeLeft = Math.max(0, duration - elapsed);
+            setTimeLeft(timeLeft);
         }, 1000);
     }, []);
 
@@ -246,7 +247,7 @@ const ParticipantGamePage = () => {
                                     }`}
                             >
                                 <span className="mr-2">{OPTION_LABELS[idx]}.</span>
-                                {option}
+                                {option.text}
                             </button>
                         );
                     })}
@@ -407,7 +408,7 @@ const ParticipantGamePage = () => {
     // RENDER: Game Over
     // ========================================
     if (phase === 'gameover') {
-        const myPodiumIdx = podium.findIndex(p => p.nick === nickname);
+        const myPodiumIdx = podium.findIndex(p => p.nickname === nickname);
 
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 p-4">
@@ -434,16 +435,16 @@ const ParticipantGamePage = () => {
                             {podium.slice(0, 3).map((p, idx) => {
                                 const heights = ['h-20', 'h-16', 'h-12'];
                                 const colors = ['bg-yellow-400', 'bg-gray-400', 'bg-orange-400'];
-                                const isMe = p.nick === nickname;
+                                const isMe = p.nickname === nickname;
                                 return (
                                     <div key={idx} className="text-center flex-1">
                                         <div className={`${heights[idx]} ${colors[idx]} rounded-t-lg flex items-center justify-center ${isMe ? 'ring-2 ring-indigo-500' : ''}`}>
                                             <span className="text-white font-black text-lg">{idx + 1}</span>
                                         </div>
                                         <div className={`text-xs font-bold mt-1 ${isMe ? 'text-indigo-600' : 'text-gray-700'}`}>
-                                            {p.nick}
+                                            {p.nickname}
                                         </div>
-                                        <div className="text-xs text-gray-500">{p.score.toLocaleString()}</div>
+                                        <div className="text-xs text-gray-500">{p.points.toLocaleString()}</div>
                                     </div>
                                 );
                             })}

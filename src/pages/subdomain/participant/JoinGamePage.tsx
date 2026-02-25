@@ -11,6 +11,7 @@ import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { useManagerNavigate } from '@/hooks';
 import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload } from '@/types';
+import { useManagerNavigate } from '@/hooks';
 
 const JoinGamePage = () => {
     const navigate = useManagerNavigate();

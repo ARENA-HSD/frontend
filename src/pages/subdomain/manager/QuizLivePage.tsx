@@ -109,13 +109,19 @@ const QuizLivePage = () => {
         // QUESTION_START - new question arrives
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
-                setQuestionIndex(payload.qIndex);
-                setTime(payload.time);
-                setServerTime(payload.serverTime);
-                setQuestionText(payload.text || '');
-                setQuestionMedia(payload.mediaUrl || '');
+                const qIndex = payload.qIndex ?? payload.questionIndex ?? 0;
+                const duration = payload.time ?? payload.timeLimit ?? payload.timeLimitSeconds ?? 30;
+                const srvTime = payload.serverTime ?? payload.serverTimestamp ?? undefined;
+
+                setQuestionIndex(qIndex);
+                setTime(duration);
+                if (typeof srvTime !== 'undefined') setServerTime(srvTime);
+                setQuestionText(payload.text || payload.questionText || '');
+                setQuestionMedia(payload.mediaUrl || payload.imageUrl || '');
                 setOptions(payload.options || []);
-                startTimer(payload.time, payload.serverTime);
+
+                // Start timer using payload values (avoid stale state values)
+                startTimer(duration, srvTime as any);
                 setPhase('question');
             })
         );
@@ -159,15 +165,35 @@ const QuizLivePage = () => {
     // ========================================
     // Timer
     // ========================================
-    const startTimer = useCallback((duration: number, serverTime: number) => {
-        if (timerRef.current) clearInterval(timerRef.current);
+    const startTimer = useCallback((duration: number, serverTime?: number) => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+
+        // Determine elapsed seconds comparing serverTime (if provided) with local time
+        let elapsed = 0;
+        if (typeof serverTime === 'number' && serverTime > 0) {
+            // serverTime might be seconds or milliseconds — normalize to ms
+            const srvMs = serverTime > 1e12 ? serverTime : serverTime * 1000;
+            elapsed = Math.floor((Date.now() - srvMs) / 1000);
+            if (elapsed < 0) elapsed = 0;
+        }
+
+        setTimeLeft(Math.max(0, duration - elapsed));
 
         timerRef.current = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
-            const timeLeft = Math.max(0, duration - elapsed);
-            setTimeLeft(timeLeft);
+            setTimeLeft(prev => Math.max(0, prev - 1));
         }, 1000);
     }, []);
+
+    // When timeLeft reaches zero during a question, trigger time-up behavior
+    useEffect(() => {
+        if (phase === 'question' && timeLeft === 0) {
+            if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+            handleTimeUp();
+        }
+    }, [timeLeft, phase]);
 
     // ========================================
     // Actions

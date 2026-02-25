@@ -4,8 +4,9 @@
  * Navigation sidebar for subdomain layout
  */
 
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
+import { useManagerNavigate, useSubdomain } from '@/hooks';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -22,12 +23,14 @@ interface NavItem {
 
 const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     const location = useLocation();
+    const navigate = useManagerNavigate();
+    const subdomain = useSubdomain();
 
     const navItems: NavItem[] = [
         {
             label: 'Dashboard',
             icon: '📊',
-            path: '/',
+            path: '/manager/quizzes',
         },
         {
             label: 'Members',
@@ -44,10 +47,11 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
     ];
 
     const isActive = (path: string) => {
-        if (path === '/') {
-            return location.pathname === '/';
+        const finalPath = subdomain ? path : `/subdomain${path}`;
+        if (path === '/manager/quizzes') {
+            return location.pathname === finalPath || location.pathname === '/';
         }
-        return location.pathname.startsWith(path);
+        return location.pathname.startsWith(finalPath);
     };
 
     return (
@@ -72,17 +76,20 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
             >
                 <nav className="p-4 space-y-2">
                     {navItems.map((item) => (
-                        <Link
+                        <button
                             key={item.path}
-                            to={item.disabled ? '#' : item.path}
                             onClick={(e) => {
-                                if (item.disabled) e.preventDefault();
+                                if (item.disabled) {
+                                    e.preventDefault();
+                                } else {
+                                    navigate(item.path);
+                                }
                                 onClose?.();
                             }}
                             className={cn(
-                                'flex items-center gap-3 px-4 py-3 rounded-lg',
+                                'w-full flex items-center gap-3 px-4 py-3 rounded-lg',
                                 'transition-colors duration-150',
-                                'group relative',
+                                'group relative text-left',
                                 item.disabled && 'opacity-50 cursor-not-allowed',
                                 isActive(item.path) && !item.disabled
                                     ? 'bg-role-primary text-inverse'
@@ -97,7 +104,7 @@ const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
                                     {item.badge}
                                 </span>
                             )}
-                        </Link>
+                        </button>
                     ))}
                 </nav>
 

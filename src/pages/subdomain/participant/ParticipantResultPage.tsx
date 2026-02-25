@@ -8,7 +8,7 @@
 import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { Crown, RotateCw } from 'lucide-react';
-import type { LeaderboardEntry } from '@/types';
+import { useManagerNavigate } from '@/hooks';
 
 const ParticipantResultPage = () => {
     const navigate = useManagerNavigate();

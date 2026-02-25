@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
+import { useManagerNavigate } from '@/hooks';
 import type { ForceDisconnectPlayload, GameStartingPlayload } from '@/types';
 
 const ParticipantLobbyPage = () => {

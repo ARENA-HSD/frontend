@@ -56,9 +56,20 @@ const OrganizationsPage = () => {
     const handleAccessOrganization = (org: UserOrganization) => {
         selectOrganization(org);
 
-        // For development, navigate to manager dashboard
-        // In production: window.location.href = `https://${org.subdomain}.hsdarena.com`;
-        navigate('/subdomain/manager/quizzes');
+        const protocol = window.location.protocol;
+        const host = window.location.host; // includes port
+        
+        // Redirect to the actual subdomain
+        let newHost = host;
+        if (host.startsWith('www.')) {
+            newHost = host.replace('www.', `${org.subdomain}.`);
+        } else {
+            newHost = `${org.subdomain}.${host}`;
+        }
+        
+        // Pass organization payload via URL so subdomain can persist it (localStorage is origin-scoped)
+        const orgParam = encodeURIComponent(JSON.stringify({ id: org.id, name: org.name, subdomain: org.subdomain, role: org.role, branding: org.branding }));
+        window.location.href = `${protocol}//${newHost}/manager/quizzes?org=${orgParam}`;
     };
 
     const handleCreateNew = () => {

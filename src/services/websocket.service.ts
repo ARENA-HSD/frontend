@@ -200,8 +200,8 @@ class GameWebSocket {
     +NEXT_QUESTION: 'NEXT_QUESTION',*/
 
     /** Participant submits an answer */
-    submitAnswer(questionId: string, answerIndex: number): void {
-        this.emit(WS_EVENTS.SUBMIT_ANSWER, { questionId, answerIndex });
+    submitAnswer(answerIndex: number): void {
+        this.emit(WS_EVENTS.SUBMIT_ANSWER, { answerIndex });
     }
 
     /** Host requests leaderboard */

@@ -118,7 +118,7 @@ const ParticipantGamePage = () => {
         // GAME_OVER
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
-                navigate('/play/results', {
+                navigate('/subdomain/play/results', {
                     state: {
                         myRank: myRank,
                         myTotalScore: myTotalScore,

@@ -74,7 +74,7 @@ const ParticipantLobbyPage = () => {
             return () => clearInterval(interval);
         }
         if (countdown <= 0) {
-            navigate('/play/game', {
+            navigate('/subdomain/play/game', {
                 state: {
                     ...state,
                 }

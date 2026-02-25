@@ -10,9 +10,10 @@ import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload } from '@/types';
+import { useManagerNavigate } from '@/hooks';
 
 const JoinGamePage = () => {
-    const navigate = useNavigate();
+    const navigate = useManagerNavigate();
 
     const [pin, setPin] = useState('');
     const [nickname, setNickname] = useState('');
@@ -36,7 +37,8 @@ const JoinGamePage = () => {
             const successUnsub = gameSocket.on(WS_EVENTS.JOIN_SUCCESS, (payload: JoinSuccessPlayload) => {
                 successUnsub();
                 errorUnsub();
-                navigate('/subdomain/play/lobby', {
+                
+                navigate('/play/lobby', {
                     state: { pin, nickname: payload.myNick || nickname }
                 });
             });

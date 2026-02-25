@@ -76,7 +76,7 @@ const QuizLobbyPage = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     // ========================================
     // WebSocket event listeners

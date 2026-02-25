@@ -159,9 +159,7 @@ const subdomainRouter = createBrowserRouter([
         path: '/',
         element: (
             <SubdomainGuard>
-                <ProtectedRoute>
-                    <QuizListPage />
-                </ProtectedRoute>
+                <JoinGamePage />
             </SubdomainGuard>
         ),
     },

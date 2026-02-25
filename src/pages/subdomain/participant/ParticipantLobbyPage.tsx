@@ -8,9 +8,10 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
+import { useManagerNavigate } from '@/hooks';
 
 const ParticipantLobbyPage = () => {
-    const navigate = useNavigate();
+    const navigate = useManagerNavigate();
     const location = useLocation();
     const state = location.state as any;
     const nickname = state?.nickname || 'Player';
@@ -32,7 +33,7 @@ const ParticipantLobbyPage = () => {
 
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: any) => {
-                navigate('/subdomain/play/game', {
+                navigate('/play/game', {
                     state: {
                         ...state,
                         countDown: payload.countDown,

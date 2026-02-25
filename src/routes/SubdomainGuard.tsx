@@ -17,7 +17,15 @@ const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
 
     // If no subdomain, redirect to main domain
     if (!subdomain) {
-        window.location.href = window.location.origin.replace(/^https?:\/\/[^.]+\./, 'http://');
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        // This shouldn't happen normally because router.tsx only uses SubdomainGuard in subdomainRouter
+        // But just in case, strip the first subdomain part
+        const parts = host.split('.');
+        if (parts.length > 2 || host.endsWith('.localhost')) {
+            parts.shift();
+        }
+        window.location.href = `${protocol}//${parts.join('.')}`;
         return null;
     }
 

@@ -9,6 +9,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Check, X, TrendingUp } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
+import { useManagerNavigate } from '@/hooks';
+
 import type {
     QuestionStartPlayload,
     QuestionEndPlayerPlayload,
@@ -31,7 +33,7 @@ const OPTION_COLORS = [
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
 const ParticipantGamePage = () => {
-    const navigate = useNavigate();
+    const navigate = useManagerNavigate();
     const location = useLocation();
     const state = location.state as any;
     const nickname = state?.nickname || 'Player';
@@ -72,6 +74,30 @@ const ParticipantGamePage = () => {
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // ========================================
+    // Timer
+    // ========================================
+    const startTimer = useCallback((duration: number, serverTime?: number) => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+
+        // Normalize serverTime (could be seconds or ms)
+        let elapsed = 0;
+        if (typeof serverTime === 'number' && serverTime > 0) {
+            const srvMs = serverTime > 1e12 ? serverTime : serverTime * 1000;
+            elapsed = Math.floor((Date.now() - srvMs) / 1000);
+            if (elapsed < 0) elapsed = 0;
+        }
+
+        setTimeLeft(Math.max(0, duration - elapsed));
+
+        timerRef.current = setInterval(() => {
+            setTimeLeft(prev => Math.max(0, prev - 1));
+        }, 1000);
+    }, []);
+
+    // ========================================
     // Countdown
     // ========================================
     useEffect(() => {
@@ -102,13 +128,23 @@ const ParticipantGamePage = () => {
         // QUESTION_START
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
-                setQuestionIndex(payload.qIndex);
-                setTime(payload.time);
-                setServerTime(payload.serverTime);
-                setQuestionText(payload.text || '');
-                setQuestionMedia(payload.mediaUrl || '');
+                console.log('📥 Participant: QUESTION_START', payload);
+                const qIndex = payload.qIndex ?? payload.questionIndex ?? payload.questionIndex ?? 0;
+                const qId = payload.qId ?? payload.questionId ?? '';
+                const duration = payload.time ?? payload.timeLimit ?? payload.timeLimitSeconds ?? 30;
+                const srvTime = payload.serverTime ?? payload.serverTimestamp ?? undefined;
+
+                setQuestionIndex(qIndex);
+                setQuestionId(qId);
+                setTime(duration);
+                if (typeof srvTime !== 'undefined') setServerTime(srvTime as any);
+                setQuestionText(payload.text || payload.questionText || '');
+                setQuestionMedia(payload.mediaUrl || payload.imageUrl || '');
                 setOptions(payload.options || []);
-                startTimer(time, serverTime);
+                setSelectedAnswer(-1);
+
+                // Use payload values directly to start timer (avoid stale state)
+                startTimer(duration, srvTime as any);
                 setPhase('question');
             })
         );
@@ -158,18 +194,13 @@ const ParticipantGamePage = () => {
         };
     }, [navigate]);
 
-    // ========================================
-    // Timer
-    // ========================================
-    const startTimer = useCallback((duration: number, serverTime: number) => {
-        if (timerRef.current) clearInterval(timerRef.current);
-
-        timerRef.current = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
-            const timeLeft = Math.max(0, duration - elapsed);
-            setTimeLeft(timeLeft);
-        }, 1000);
-    }, []);
+    // If timeLeft reaches zero while in question phase, transition to result
+    useEffect(() => {
+        if (phase === 'question' && timeLeft === 0) {
+            if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+            setPhase('result');
+        }
+    }, [timeLeft, phase]);
 
     // ========================================
     // Submit Answer

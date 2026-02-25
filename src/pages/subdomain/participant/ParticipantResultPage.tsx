@@ -7,9 +7,10 @@
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Crown, RotateCw } from 'lucide-react';
+import { useManagerNavigate } from '@/hooks';
 
 const ParticipantResultPage = () => {
-    const navigate = useNavigate();
+    const navigate = useManagerNavigate();
     const location = useLocation();
     const state = location.state as any;
 

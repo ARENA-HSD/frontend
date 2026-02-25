@@ -42,6 +42,7 @@ export const WS_EVENTS = {
 
     // Server → All
     PLAYER_JOINED: 'PLAYER_JOINED',
+    PLAYER_KICKED: 'PLAYER_KICKED',
     GAME_STARTING: 'GAME_STARTING',
     QUESTION_START: 'QUESTION_START',
     QUESTION_END: 'QUESTION_END',
@@ -188,6 +189,15 @@ class GameWebSocket {
     startGame(gameId: string): void {
         this.emit(WS_EVENTS.START_GAME, { gameId });
     }
+    /*
+    +JOIN_ROOM: 'JOIN_ROOM',
+    +SUBMIT_ANSWER: 'SUBMIT_ANSWER',
+    */
+    /*
+    +KICK_PLAYER: 'KICK_PLAYER',
+    +START_GAME: 'START_GAME',
+    +SHOW_LEADERBOARD: 'SHOW_LEADERBOARD',
+    +NEXT_QUESTION: 'NEXT_QUESTION',*/
 
     /** Participant submits an answer */
     submitAnswer(questionId: string, answerIndex: number): void {

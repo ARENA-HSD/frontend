@@ -123,6 +123,8 @@ export type WebSocketEventType =
     | 'JOIN_SUCCESS'
     | 'LOBBY_UPDATE'
     | 'KICK_PLAYER'
+    | 'PLAYER_JOINED'
+    | 'PLAYER_KICKED'
     | 'FORCE_DISCONNECT'
     | 'START_GAME'
     | 'GAME_STARTING'
@@ -198,8 +200,8 @@ export interface QuestionStartPlayload {
 
 // PDF SPEC: DIFFERENTIATED - To Host
 export interface QuestionEndHostPlayload {
-    correctOptionIndex: number;
-    stats: Record<string, number>; // { "0": 15, "1": 5, "2": 40, "3": 0 }
+    qIndex: number;
+    answerStats: Record<string, number>; // { "0": 15, "1": 5, "2": 40, "3": 0 }
 }
 
 // PDF SPEC: DIFFERENTIATED - To Player
@@ -224,7 +226,6 @@ export interface LeaderboardResultPlayerPlayload {
 }
 
 export interface GameOverPlayload {
-    winner: string;
     finalScores: LeaderboardEntry[];
 }
 

@@ -12,7 +12,7 @@ import { useAuth, useManagerNavigate } from '@/hooks';
 import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
-import type { LobbyUpdatePlayload, Quiz } from '@/types';
+import type { GameStartingPlayload, LobbyUpdatePlayload, Quiz } from '@/types';
 
 const QuizLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -28,6 +28,9 @@ const QuizLobbyPage = () => {
     const [isStarting, setIsStarting] = useState(false);
     const [wsConnected, setWsConnected] = useState(false);
 
+    const [phase, setPhase] = useState<'lobby' | 'countdown'>('lobby');
+    const [countdown, setCountdown] = useState(1);
+
     // ========================================
     // Load quiz and create game session
     // ========================================
@@ -37,8 +40,8 @@ const QuizLobbyPage = () => {
         }
 
         return () => {
-            // Cleanup WebSocket on unmount
-            gameSocket.disconnect();
+            // Cleanup WebSocket on unmount - DISABLED to keep connection alive during transition
+            // gameSocket.disconnect();
         };
     }, [quizId, currentOrganization]);
 
@@ -95,6 +98,25 @@ const QuizLobbyPage = () => {
             })
         );
 
+        // Listen for game start
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
+                setPhase('countdown');
+                const diffSeconds = Math.floor((Date.now() - payload.serverTime) / 1000);
+                setCountdown(payload.countDown - diffSeconds);
+            })
+        );
+
+        // SYNC FIX: If question starts while in lobby, move to live page immediately
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.QUESTION_START, () => {
+                navigate(`/manager/quizzes/${quizId}/live`, {
+                    state: { gameId, gamePin, quiz },
+                    replace: true
+                });
+            })
+        );
+
         // Listen for errors
         unsubs.push(
             gameSocket.on(WS_EVENTS.ERROR, (payload: any) => {
@@ -107,19 +129,34 @@ const QuizLobbyPage = () => {
         };
     }, [wsConnected]);
 
+    useEffect(() => {
+        if (phase === 'countdown') {
+            const interval = setInterval(() => {
+                setCountdown(prev => prev - 1);
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+        if (countdown <= 0) {
+            navigate(`/manager/quizzes/${quizId}/live`, {
+                state: {
+                    gameId,
+                    gamePin,
+                    quiz,
+                }
+            });
+        }
+    }, [phase, countdown, navigate]);
+
     // ========================================
     // Actions
     // ========================================
     const handleStartGame = useCallback(() => {
         if (!gameId) return;
         setIsStarting(true);
+        // Host emits start. Navigation will happen via GAME_STARTING or QUESTION_START events
+        // to stay synchronized with participants.
         gameSocket.startGame(gameId);
-
-        // Navigate to live page after emitting start
-        setTimeout(() => {
-            navigate(`/manager/quizzes/${quizId}/live`, { state: { gameId, gamePin } });
-        }, 500);
-    }, [gameId, gamePin, quizId, navigate]);
+    }, [gameId]);
 
     const handleKickPlayer = useCallback((socketId: string, ban: boolean = false) => {
         gameSocket.kickPlayer(socketId, ban);

@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
+import { useManagerNavigate } from '@/hooks';
 import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload } from '@/types';
 import { useManagerNavigate } from '@/hooks';
 
@@ -33,27 +34,33 @@ const JoinGamePage = () => {
             // Önce bağlan
             await gameSocket.connect();
 
+            // Declare unsubs first to avoid TDZ
+            let successUnsub: () => void;
+            let errorUnsub: () => void;
+            let disconnectUnsub: () => void;
+
             // Listener'ları kur
-            const successUnsub = gameSocket.on(WS_EVENTS.JOIN_SUCCESS, (payload: JoinSuccessPlayload) => {
-                successUnsub();
-                errorUnsub();
-                
-                navigate('/play/lobby', {
+            successUnsub = gameSocket.on(WS_EVENTS.JOIN_SUCCESS, (payload: JoinSuccessPlayload) => {
+                if (successUnsub) successUnsub();
+                if (errorUnsub) errorUnsub();
+                if (disconnectUnsub) disconnectUnsub();
+                navigate('/subdomain/play/lobby', {
                     state: { pin, nickname: payload.myNick || nickname }
                 });
             });
 
-            const errorUnsub = gameSocket.on(WS_EVENTS.ERROR, (payload: ErrorPlayload) => {
-                successUnsub();
-                errorUnsub();
+            errorUnsub = gameSocket.on(WS_EVENTS.ERROR, (payload: ErrorPlayload) => {
+                if (successUnsub) successUnsub();
+                if (errorUnsub) errorUnsub();
+                if (disconnectUnsub) disconnectUnsub();
                 setError(payload.message || 'Failed to join game');
                 setIsJoining(false);
             });
 
-            const disconnectUnsub = gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: ForceDisconnectPlayload) => {
-                successUnsub();
-                errorUnsub();
-                disconnectUnsub();
+            disconnectUnsub = gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: ForceDisconnectPlayload) => {
+                if (successUnsub) successUnsub();
+                if (errorUnsub) errorUnsub();
+                if (disconnectUnsub) disconnectUnsub();
                 setError(payload.reason || 'You have been disconnected');
                 setIsJoining(false);
             });

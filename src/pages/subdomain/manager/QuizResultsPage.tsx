@@ -5,70 +5,21 @@
  * Fetches data from GET /games/:id endpoint.
  */
 
-import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Crown, LogOut } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
-import { gameService, quizService } from '@/services';
+import { useManagerNavigate } from '@/hooks';
 import type { Quiz } from '@/types';
 
 const QuizResultsPage = () => {
     const navigate = useManagerNavigate();
-    const { id: quizId } = useParams<{ id: string }>();
-    const { currentOrganization } = useAuth();
     const location = useLocation();
-    const gameIdFromState = (location.state as any)?.gameId || '';
 
-    const [quiz, setQuiz] = useState<Quiz | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [podium, setPodium] = useState<Array<{ nick: string; score: number }>>([]);
-
-    useEffect(() => {
-        if (quizId && currentOrganization) {
-            loadResults();
-        }
-    }, [quizId, currentOrganization]);
-
-    const loadResults = async () => {
-        if (!quizId || !currentOrganization) return;
-
-        try {
-            setIsLoading(true);
-
-            // Load quiz info
-            const qr = await quizService.getQuiz(currentOrganization.subdomain, quizId) as any;
-            setQuiz(qr?.data?.quiz || qr?.data || qr);
-
-            // Load game summary if gameId is available
-            if (gameIdFromState) {
-                try {
-                    const summary = await gameService.getGameSummary(gameIdFromState) as any;
-                    const scores = summary?.data?.finalScores || summary?.finalScores || [];
-                    if (Array.isArray(scores) && scores.length > 0) {
-                        setPodium(scores.slice(0, 3));
-                    }
-                } catch (err) {
-                    console.warn('Could not load game summary:', err);
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load results:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    const quiz = (location.state as any)?.quiz || null;
+    const podium = (location.state as any)?.podium || [];
 
     const handleExit = () => {
         navigate('/manager/quizzes');
     };
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-gray-500">Loading results...</div>
-            </div>
-        );
-    }
 
     const first = podium[0];
     const second = podium[1];

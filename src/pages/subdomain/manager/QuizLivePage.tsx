@@ -21,7 +21,7 @@ import type {
     LeaderboardEntry,
 } from '@/types';
 
-type GamePhase = 'connecting' | 'countdown' | 'question' | 'results' | 'leaderboard' | 'finished';
+type GamePhase = 'question' | 'results' | 'leaderboard' | 'finished';
 
 const OPTION_COLORS = ['bg-teal-500', 'bg-pink-500', 'bg-purple-500', 'bg-orange-500'];
 const OPTION_BORDER_COLORS = ['border-teal-400', 'border-pink-400', 'border-purple-400', 'border-orange-400'];
@@ -35,6 +35,7 @@ const QuizLivePage = () => {
     // Game state from lobby
     const gameId = (location.state as any)?.gameId || '';
     const gamePin = (location.state as any)?.gamePin || '';
+    const [quiz, setQuiz] = useState<Quiz | null>((location.state as any)?.quiz || null);
 
     // ========================================
     // State
@@ -43,11 +44,8 @@ const QuizLivePage = () => {
     const [questionText, setQuestionText] = useState('');
     const [questionMedia, setQuestionMedia] = useState('');
     const [options, setOptions] = useState<Array<{ text: string; color: string }>>([]);
-    const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
-    const [phase, setPhase] = useState<GamePhase>('connecting');
-    const [countdown, setCountdown] = useState(3);
-    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [phase, setPhase] = useState<GamePhase>('question');
     const [time, setTime] = useState(0);
     const [timeLeft, setTimeLeft] = useState(0);
     const [serverTime, setServerTime] = useState(0);
@@ -60,10 +58,6 @@ const QuizLivePage = () => {
     // Leaderboard state
     const [leaderboard, setLeaderboard] = useState<Array<{ nick: string; score: number }>>([]);
     const [highStreaks, setHighStreaks] = useState<Array<{ nick: string; streak: number }>>([]);
-
-    // Game over state
-    const [podium, setPodium] = useState<LeaderboardEntry[]>([]);
-    const [winner, setWinner] = useState('');
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -86,35 +80,21 @@ const QuizLivePage = () => {
 
         try {
             setIsLoading(true);
-            const [quizResponse, questionsResponse] = await Promise.all([
-                quizService.getQuiz(orgDomain, quizId),
-                questionService.getQuestions(orgDomain, quizId)
-            ]);
 
-            const qr = quizResponse as any;
+            // Fetch quiz if not in state (e.g. page refresh)
+            if (!quiz) {
+                const quizResponse = await quizService.getQuiz(orgDomain, quizId);
+                const qr = quizResponse as any;
+                setQuiz(qr?.data?.quiz || qr?.data || qr);
+            }
+
+            // Fetch questions
+            const questionsResponse = await questionService.getQuestions(orgDomain, quizId);
             const questionsr = questionsResponse as any;
-            setQuiz(qr?.data?.quiz || qr?.data || qr);
             const qList = questionsr?.data?.questions || (Array.isArray(questionsr?.data) ? questionsr.data : []);
             setQuestions(Array.isArray(qList) ? qList : []);
-
-            // If WS is already connected (from lobby), set up listeners
-            if (gameSocket.isConnected) {
-                setPhase('countdown');
-            } else {
-                // Connect and join as host
-                try {
-                    await gameSocket.connect();
-                    if (gamePin) {
-                        gameSocket.joinRoom(gamePin, '__HOST__');
-                    }
-                    setPhase('countdown');
-                } catch {
-                    // Start without WS — use local timer
-                    setPhase('countdown');
-                }
-            }
         } catch (error) {
-            console.error('Failed to load quiz:', error);
+            console.error('Failed to load quiz data:', error);
         } finally {
             setIsLoading(false);
         }
@@ -125,15 +105,6 @@ const QuizLivePage = () => {
     // ========================================
     useEffect(() => {
         const unsubs: Array<() => void> = [];
-
-        // GAME_STARTING - countdown before first question
-        unsubs.push(
-            gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
-                setCountdown(payload.countDown);
-                setServerTime(payload.serverTime);
-                setPhase('countdown');
-            })
-        );
 
         // QUESTION_START - new question arrives
         unsubs.push(
@@ -159,8 +130,8 @@ const QuizLivePage = () => {
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_END, (payload: QuestionEndHostPlayload) => {
                 if (timerRef.current) clearInterval(timerRef.current);
-                setCorrectOptionIndex(payload.correctOptionIndex);
-                setAnswerStats(payload.stats || {});
+                setCorrectOptionIndex(payload.qIndex);
+                setAnswerStats(payload.answerStats || {});
                 setPhase('results');
             })
         );
@@ -177,9 +148,12 @@ const QuizLivePage = () => {
         // GAME_OVER
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
-                setWinner(payload.winner || '');
-                setPodium(payload.finalScores || []);
-                setPhase('finished');
+                navigate(`/manager/quizzes/${quizId}/results`, {
+                    state: {
+                        quiz: quiz,
+                        podium: payload.finalScores,
+                    }
+                });
             })
         );
 
@@ -187,30 +161,6 @@ const QuizLivePage = () => {
             unsubs.forEach(unsub => unsub());
         };
     }, []);
-
-    // ========================================
-    // Countdown Effect (local fallback)
-    // ========================================
-    useEffect(() => {
-        if (phase === 'countdown') {
-            if (countdown <= 0) {
-                // Move to question phase
-                setPhase('question');
-                const q = questions[currentQuestionIndex];
-                if (q) {
-                    setTimeLeft(q.timeLimit || 30);
-                    startTimer(q.timeLimit || 30, serverTime);
-                }
-                return;
-            }
-
-            const timer = setTimeout(() => {
-                setCountdown(prev => prev - 1);
-            }, 1000);
-
-            return () => clearTimeout(timer);
-        }
-    }, [phase, countdown, currentQuestionIndex, questions]);
 
     // ========================================
     // Timer
@@ -248,15 +198,6 @@ const QuizLivePage = () => {
     // ========================================
     // Actions
     // ========================================
-    const handleTimeUp = () => {
-        // Show results with local question data if WS didn't send stats
-        const q = questions[currentQuestionIndex];
-        if (q && phase !== 'results') {
-            setCorrectOptionIndex(q.correctIndex);
-            setAnswerStats({});
-            setPhase('results');
-        }
-    };
 
     const handleShowLeaderboard = () => {
         if (gameId) {
@@ -267,25 +208,15 @@ const QuizLivePage = () => {
     };
 
     const handleNextQuestion = () => {
-        if (currentQuestionIndex < questions.length - 1) {
-            if (gameId) {
-                gameSocket.nextQuestion(gameId);
-            }
-            // Local state update (WS QUESTION_START will override if connected)
-            setCurrentQuestionIndex(prev => prev + 1);
-            setCountdown(3);
-            setPhase('countdown');
-            setCorrectOptionIndex(-1);
-            setAnswerStats({});
-        } else {
-            // Game over
-            setPhase('finished');
+        if (gameId) {
+            gameSocket.nextQuestion(gameId);
         }
+        setPhase('question');
     };
 
     const handleEndGame = () => {
         gameSocket.disconnect();
-        navigate(`/manager/quizzes/${quizId}/results`, { state: { gameId } });
+        navigate(`/manager/quizzes/${quizId}`);
     };
 
     // ========================================
@@ -299,7 +230,7 @@ const QuizLivePage = () => {
         );
     }
 
-    if (!quiz || questions.length === 0) {
+    if ((!quiz || questions.length === 0) && !isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-red-500 text-xl">Quiz not found or has no questions</div>
@@ -307,30 +238,10 @@ const QuizLivePage = () => {
         );
     }
 
-    const currentQuestion = questions[currentQuestionIndex];
-
-    // ========================================
-    // PHASE: Countdown / Transition
-    // ========================================
-    if (phase === 'connecting' || phase === 'countdown') {
-        return (
-            <div className="h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600">
-                <div className="text-center">
-                    <div className="text-white text-6xl font-bold mb-8 animate-pulse">
-                        Question incoming!
-                    </div>
-                    <div className="text-white text-9xl font-black">
-                        {countdown > 0 ? countdown : '🚀'}
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     // ========================================
     // PHASE: Live Question
     // ========================================
-    if (phase === 'question' && currentQuestion) {
+    if (phase === 'question') {
         return (
             <div className="h-screen flex flex-col">
                 {/* Top Bar */}
@@ -338,7 +249,7 @@ const QuizLivePage = () => {
                     <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium hover:bg-gray-200">
                         Manage Participants
                     </button>
-                    <div className="font-semibold text-gray-900">{quiz.title}</div>
+                    <div className="font-semibold text-gray-900">{quiz?.title}</div>
                     <div className="w-12 h-12 rounded-full border-4 border-indigo-600 flex items-center justify-center font-bold text-indigo-600">
                         {timeLeft}
                     </div>
@@ -348,25 +259,22 @@ const QuizLivePage = () => {
                 <div className="flex-1 flex items-center justify-center p-12">
                     <div className="max-w-5xl w-full">
                         <div className="mb-12">
-                            {currentQuestion.mediaUrl && (
+                            {questionMedia && (
                                 <div className="w-full h-96 bg-gray-200 rounded-2xl shadow-xl mb-8 flex items-center justify-center overflow-hidden">
-                                    <img src={currentQuestion.mediaUrl} alt="Question" className="max-h-full max-w-full object-contain" />
+                                    <img src={questionMedia} alt="Question" className="max-h-full max-w-full object-contain" />
                                 </div>
                             )}
                             <div className="text-5xl font-bold text-gray-900 text-center">
-                                {currentQuestion.text}
+                                {questionText}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-6">
-                            {(currentQuestion.options || []).map((answer: any, idx: number) => {
-                                const label = typeof answer === 'string' ? answer : (answer?.text ?? String(answer));
-                                return (
-                                    <div key={idx} className="bg-white p-8 rounded-2xl shadow-lg border-4 border-gray-200 hover:border-indigo-400 transition-colors">
-                                        <div className="text-3xl font-bold text-gray-900 text-center">{label}</div>
-                                    </div>
-                                );
-                            })}
+                            {(options || []).map((option, idx) => (
+                                <div key={idx} className="bg-white p-8 rounded-2xl shadow-lg border-4 border-gray-200 hover:border-indigo-400 transition-colors">
+                                    <div className="text-3xl font-bold text-gray-900 text-center">{option.text}</div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -377,8 +285,7 @@ const QuizLivePage = () => {
     // ========================================
     // PHASE: Answer Results
     // ========================================
-    if (phase === 'results' && currentQuestion) {
-        const options = currentQuestion.options || [];
+    if (phase === 'results') {
         const maxCount = Math.max(...Object.values(answerStats).map(Number), 1);
 
         return (
@@ -388,7 +295,7 @@ const QuizLivePage = () => {
                     <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium">
                         Manage Participants
                     </button>
-                    <div className="font-semibold text-gray-900">{quiz.title}</div>
+                    <div className="font-semibold text-gray-900">{quiz?.title}</div>
                     <button
                         onClick={handleShowLeaderboard}
                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
@@ -402,8 +309,7 @@ const QuizLivePage = () => {
                         {/* Bar Chart */}
                         <div className="bg-white rounded-2xl p-8 shadow-xl mb-8">
                             <div className="h-64 flex items-end justify-around gap-4">
-                                {options.map((answer: any, idx: number) => {
-                                    const label = typeof answer === 'string' ? answer : (answer?.text ?? String(answer));
+                                {options.map((option, idx: number) => {
                                     const count = Number(answerStats[String(idx)] || 0);
                                     const isCorrect = idx === correctOptionIndex;
                                     const heightPercent = maxCount > 0 ? (count / maxCount) * 100 : 0;
@@ -416,7 +322,7 @@ const QuizLivePage = () => {
                                             >
                                                 <div className="text-white font-bold text-2xl pt-2 text-center">{count}</div>
                                             </div>
-                                            <div className="mt-2 text-gray-700 font-medium">{label}</div>
+                                            <div className="mt-2 text-gray-700 font-medium">{idx}</div>
                                         </div>
                                     );
                                 })}
@@ -425,13 +331,12 @@ const QuizLivePage = () => {
 
                         {/* Question text */}
                         <div className="text-2xl font-bold text-gray-900 text-center mb-6">
-                            {currentQuestion.text}
+                            {questionText}
                         </div>
 
                         {/* Answer grid with correct highlighted */}
                         <div className="grid grid-cols-2 gap-6">
-                            {options.map((answer: any, idx: number) => {
-                                const label = typeof answer === 'string' ? answer : (answer?.text ?? String(answer));
+                            {options.map((option, idx: number) => {
                                 const isCorrect = idx === correctOptionIndex;
                                 return (
                                     <div
@@ -442,7 +347,7 @@ const QuizLivePage = () => {
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
-                                            <div className="text-2xl font-bold text-gray-900">{label}</div>
+                                            <div className="text-2xl font-bold text-gray-900">{option.text}</div>
                                             {isCorrect && <Check className="w-8 h-8 text-green-600" />}
                                         </div>
                                     </div>
@@ -459,7 +364,7 @@ const QuizLivePage = () => {
     // PHASE: Leaderboard
     // ========================================
     if (phase === 'leaderboard') {
-        const isLastQuestion = currentQuestionIndex >= questions.length - 1;
+        const isLastQuestion = questionIndex >= questions.length - 1;
 
         return (
             <div className="h-screen flex flex-col">
@@ -468,9 +373,9 @@ const QuizLivePage = () => {
                     <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium">
                         Manage Participants
                     </button>
-                    <div className="font-semibold text-gray-900">{quiz.title}</div>
+                    <div className="font-semibold text-gray-900">{quiz?.title}</div>
                     <button
-                        onClick={isLastQuestion ? handleEndGame : handleNextQuestion}
+                        onClick={handleNextQuestion}
                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
                     >
                         {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
@@ -556,7 +461,7 @@ const QuizLivePage = () => {
         return (
             <div className="h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-100">
                 <div className="bg-white px-6 py-3 flex items-center justify-center shadow-sm relative">
-                    <div className="font-semibold text-gray-900 text-xl">{quiz.title} - Quiz Complete</div>
+                    <div className="font-semibold text-gray-900 text-xl">{quiz?.title} - Quiz Complete</div>
                     <button
                         onClick={handleEndGame}
                         className="absolute right-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200"

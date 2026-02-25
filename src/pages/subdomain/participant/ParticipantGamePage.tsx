@@ -6,7 +6,8 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { useManagerNavigate } from '@/hooks';
 import { Check, X, TrendingUp } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { useManagerNavigate } from '@/hooks';
@@ -21,7 +22,7 @@ import type {
     GameStartingPlayload,
 } from '@/types';
 
-type GamePhase = 'countdown' | 'question' | 'answered' | 'result' | 'leaderboard' | 'gameover';
+type GamePhase = 'question' | 'answered' | 'result' | 'leaderboard' | 'gameover';
 
 const OPTION_COLORS = [
     { bg: 'bg-teal-500', hover: 'hover:bg-teal-600', border: 'border-teal-400' },
@@ -42,8 +43,7 @@ const ParticipantGamePage = () => {
     // ========================================
     // State
     // ========================================
-    const [phase, setPhase] = useState<GamePhase>('countdown');
-    const [countdown, setCountdown] = useState(state?.countDown || 3);
+    const [phase, setPhase] = useState<GamePhase>('question');
 
     // Question state
     const [questionIndex, setQuestionIndex] = useState(0);
@@ -61,69 +61,21 @@ const ParticipantGamePage = () => {
     const [scoreEarned, setScoreEarned] = useState(0);
     const [streak, setStreak] = useState(0);
     const [correctOptionIndex, setCorrectOptionIndex] = useState(-1);
+    const [correctAnswers, setCorrectAnswers] = useState(0);
+    const [wrongAnswers, setWrongAnswers] = useState(0);
 
     // Leaderboard state
     const [top5, setTop5] = useState<Array<{ nick: string; score: number }>>([]);
     const [myRank, setMyRank] = useState(0);
     const [myTotalScore, setMyTotalScore] = useState(0);
 
-    // Game over state
-    const [podium, setPodium] = useState<LeaderboardEntry[]>([]);
-    const [winner, setWinner] = useState('');
-
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    // ========================================
-    // Timer
-    // ========================================
-    const startTimer = useCallback((duration: number, serverTime?: number) => {
-        if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-        }
-
-        // Normalize serverTime (could be seconds or ms)
-        let elapsed = 0;
-        if (typeof serverTime === 'number' && serverTime > 0) {
-            const srvMs = serverTime > 1e12 ? serverTime : serverTime * 1000;
-            elapsed = Math.floor((Date.now() - srvMs) / 1000);
-            if (elapsed < 0) elapsed = 0;
-        }
-
-        setTimeLeft(Math.max(0, duration - elapsed));
-
-        timerRef.current = setInterval(() => {
-            setTimeLeft(prev => Math.max(0, prev - 1));
-        }, 1000);
-    }, []);
-
-    // ========================================
-    // Countdown
-    // ========================================
-    useEffect(() => {
-        if (phase === 'countdown') {
-            if (countdown <= 0) return;
-            const timer = setTimeout(() => {
-                setCountdown((prev: number) => prev - 1);
-            }, 1000);
-            return () => clearTimeout(timer);
-        }
-    }, [phase, countdown]);
 
     // ========================================
     // WebSocket Event Listeners
     // ========================================
     useEffect(() => {
         const unsubs: Array<() => void> = [];
-
-        // GAME_STARTING
-        unsubs.push(
-            gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
-                setCountdown(payload.countDown || 3);
-                setServerTime(payload.serverTime);
-                setPhase('countdown');
-            })
-        );
 
         // QUESTION_START
         unsubs.push(
@@ -141,10 +93,7 @@ const ParticipantGamePage = () => {
                 setQuestionText(payload.text || payload.questionText || '');
                 setQuestionMedia(payload.mediaUrl || payload.imageUrl || '');
                 setOptions(payload.options || []);
-                setSelectedAnswer(-1);
-
-                // Use payload values directly to start timer (avoid stale state)
-                startTimer(duration, srvTime as any);
+                startTimer(payload.time, payload.serverTime);
                 setPhase('question');
             })
         );
@@ -152,11 +101,15 @@ const ParticipantGamePage = () => {
         // QUESTION_END (player-specific)
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_END, (payload: QuestionEndPlayerPlayload) => {
-                if (timerRef.current) clearInterval(timerRef.current);
                 setIsCorrect(payload.correct);
                 setScoreEarned(payload.scoreEarned);
                 setStreak(payload.streak);
                 setCorrectOptionIndex(payload.correctOptionIndex);
+                if (payload.correct) {
+                    setCorrectAnswers(correctAnswers + 1);
+                } else {
+                    setWrongAnswers(wrongAnswers + 1);
+                }
                 setPhase('result');
             })
         );
@@ -174,9 +127,16 @@ const ParticipantGamePage = () => {
         // GAME_OVER
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
-                setWinner(payload.winner || '');
-                setPodium(payload.finalScores || []);
-                setPhase('gameover');
+                navigate('/subdomain/play/results', {
+                    state: {
+                        myRank: myRank,
+                        myTotalScore: myTotalScore,
+                        podium: payload.finalScores,
+                        correctAnswers: correctAnswers,
+                        wrongAnswers: wrongAnswers,
+                        gameMode: gameMode,
+                    }
+                });
             })
         );
 
@@ -211,27 +171,6 @@ const ParticipantGamePage = () => {
         setPhase('answered');
         gameSocket.submitAnswer(questionId, idx);
     };
-
-    // ========================================
-    // RENDER: Countdown
-    // ========================================
-    if (phase === 'countdown') {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
-                <div className="text-center">
-                    <div className="text-white text-2xl font-bold mb-6 animate-pulse">
-                        Get Ready!
-                    </div>
-                    <div className="text-white text-9xl font-black">
-                        {countdown > 0 ? countdown : '🚀'}
-                    </div>
-                    <div className="text-white/60 text-lg mt-6">
-                        Question {questionIndex + 1} is coming...
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     // ========================================
     // RENDER: Question (PERSONAL MODE - full question + options)
@@ -430,61 +369,6 @@ const ParticipantGamePage = () => {
                     <div className="text-6xl font-black text-indigo-600 mb-2">#{myRank}</div>
                     <div className="text-2xl font-bold text-gray-800 mb-4">{myTotalScore.toLocaleString()} points</div>
                     <div className="text-gray-400 text-sm">Look at the screen for full leaderboard</div>
-                </div>
-            </div>
-        );
-    }
-
-    // ========================================
-    // RENDER: Game Over
-    // ========================================
-    if (phase === 'gameover') {
-        const myPodiumIdx = podium.findIndex(p => p.nickname === nickname);
-
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 p-4">
-                <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-sm">
-                    <div className="text-center mb-8">
-                        <div className="text-4xl font-black text-gray-900 mb-2">Quiz Complete!</div>
-                        <div className="text-gray-600">Great job!</div>
-                    </div>
-
-                    <div className="space-y-4 mb-6">
-                        <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-xl">
-                            <div className="text-gray-700 font-semibold">Total Points</div>
-                            <div className="text-3xl font-black text-indigo-600">{myTotalScore.toLocaleString()}</div>
-                        </div>
-                        <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl">
-                            <div className="text-gray-700 font-semibold">Final Position</div>
-                            <div className="text-3xl font-black text-yellow-600">#{myRank || '-'}</div>
-                        </div>
-                    </div>
-
-                    {/* Podium miniature */}
-                    {podium.length > 0 && (
-                        <div className="flex items-end justify-center gap-3 mb-6">
-                            {podium.slice(0, 3).map((p, idx) => {
-                                const heights = ['h-20', 'h-16', 'h-12'];
-                                const colors = ['bg-yellow-400', 'bg-gray-400', 'bg-orange-400'];
-                                const isMe = p.nickname === nickname;
-                                return (
-                                    <div key={idx} className="text-center flex-1">
-                                        <div className={`${heights[idx]} ${colors[idx]} rounded-t-lg flex items-center justify-center ${isMe ? 'ring-2 ring-indigo-500' : ''}`}>
-                                            <span className="text-white font-black text-lg">{idx + 1}</span>
-                                        </div>
-                                        <div className={`text-xs font-bold mt-1 ${isMe ? 'text-indigo-600' : 'text-gray-700'}`}>
-                                            {p.nickname}
-                                        </div>
-                                        <div className="text-xs text-gray-500">{p.points.toLocaleString()}</div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
-
-                    <div className="text-center text-lg font-semibold text-gray-700">
-                        Thank you for playing! 🎓
-                    </div>
                 </div>
             </div>
         );

@@ -16,7 +16,7 @@ const EditQuestionPage = () => {
     const navigate = useManagerNavigate();
     const { id: quizId, questionId } = useParams<{ id: string; questionId: string }>();
     const { currentOrganization } = useAuth();
-    const [question, setQuestion] = useState<Question | null>(null);
+    const [question, setQuestion] = useState<Question | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {

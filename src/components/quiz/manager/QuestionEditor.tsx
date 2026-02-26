@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import type { Question, CreateQuestionData, UpdateQuestionData } from '@/types';
+import type { Question, CreateQuestionData, UpdateQuestionData, QuestionOption } from '@/types';
 import ImagePlaceholder from '@/components/quiz/shared/ImagePlaceholder';
 
 interface QuestionEditorProps {
@@ -23,16 +23,19 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
     const [mediaUrl, setMediaUrl] = useState(question?.mediaUrl || '');
     const [timeLimit, setTimeLimit] = useState(question?.timeLimit || 30);
     const [points, setPoints] = useState(question?.points || 1000);
-    const [options, setOptions] = useState<string[]>(
-        question?.options || ['', '', '', '']
+    const [options, setOptions] = useState<QuestionOption[]>(
+        question?.options || [{ text: '', color: 'red' }, { text: '', color: 'blue' }, { text: '', color: 'green' }, { text: '', color: 'yellow' }]
     );
     const [correctIndex, setCorrectIndex] = useState(question?.correctIndex ?? 0);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleOptionChange = (index: number, text: string) => {
         const newOptions = [...options];
-        newOptions[index] = text;
+        newOptions[index] = { text, color: options[index].color };
         setOptions(newOptions);
+        options.forEach((option, idx) => {
+            console.log(idx + ' ' + option.text);
+        });
     };
 
     const handleSave = async () => {
@@ -41,7 +44,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
             return;
         }
 
-        if (options.some(o => !o.trim())) {
+        if (options.some(o => !o.text.trim())) {
             alert('Please fill all options');
             return;
         }
@@ -165,7 +168,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                             </div>
                             <input
                                 type="text"
-                                value={option}
+                                value={option.text}
                                 onChange={(e) => handleOptionChange(idx, e.target.value)}
                                 onClick={(e) => e.stopPropagation()}
                                 placeholder={`Option ${String.fromCharCode(65 + idx)}`}

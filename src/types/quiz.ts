@@ -35,6 +35,13 @@ export interface UpdateQuizData {
 // QUESTION
 // ============================================
 
+export type color = "red" | "blue" | "green" | "yellow" | "orange" | "purple" | "pink" | "brown" | "black" | "white" | "gray";
+
+export interface QuestionOption {
+    text: string;
+    color: color;
+}
+
 export interface Question {
     id: string;
     quizId: string;
@@ -42,7 +49,7 @@ export interface Question {
     mediaUrl?: string;
     timeLimit: number;       // 10-120 seconds
     points: number;          // min 100
-    options: string[];       // exactly 4 options
+    options: QuestionOption[];       // exactly 4 options
     correctIndex: number;    // 0-3
     orderIndex: number;
 }
@@ -52,7 +59,7 @@ export interface CreateQuestionData {
     mediaUrl?: string;
     timeLimit: number;
     points: number;
-    options: string[];       // exactly 4
+    options: QuestionOption[];       // exactly 4 options
     correctIndex: number;    // 0-3
     orderIndex: number;
 }
@@ -62,7 +69,7 @@ export interface UpdateQuestionData {
     mediaUrl?: string;
     timeLimit?: number;
     points?: number;
-    options?: string[];
+    options?: QuestionOption[];
     correctIndex?: number;
     orderIndex?: number;
 }
@@ -195,7 +202,7 @@ export interface QuestionStartPlayload {
     serverTime: number;
     text?: string;         // Included in PERSONAL mode
     mediaUrl?: string;     // Included in PERSONAL mode
-    options?: Array<{ text: string; color: string }>; // Filtered by mode
+    options?: QuestionOption[]; // Filtered by mode
 }
 
 // PDF SPEC: DIFFERENTIATED - To Host

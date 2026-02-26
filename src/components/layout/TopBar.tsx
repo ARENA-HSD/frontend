@@ -45,38 +45,21 @@ const TopBar = () => {
     // Organization switcher items (only if user has orgs)
     const orgMenuItems: DropdownItem[] = user?.organizations
         ? [
-                    ...user.organizations.map(org => ({
+            ...user.organizations.map(org => ({
                 label: org.name,
                 sublabel: org.subdomain,
                 icon: org.id === currentOrganization?.id ? '✓' : '🏢',
                 onClick: () => {
-                            // Persist selection locally then redirect with org payload for subdomain
-                            selectOrganization(org);
-                            const protocol = window.location.protocol;
-                            const host = window.location.host;
-                            let newHost = host;
-                            if (host.startsWith('www.')) {
-                                newHost = host.replace('www.', `${org.subdomain}.`);
-                            } else if (subdomain) {
-                                newHost = host.replace(`${subdomain}.`, `${org.subdomain}.`);
-                            } else {
-                                newHost = `${org.subdomain}.${host}`;
-                            }
-                            const orgParam = encodeURIComponent(JSON.stringify({ id: org.id, name: org.name, subdomain: org.subdomain, role: org.role, branding: org.branding }));
-                            window.location.href = `${protocol}//${newHost}/manager/quizzes?org=${orgParam}`;
+                    selectOrganization(org);
+                    // In production, redirect to subdomain
+                    window.location.href = `https://${org.subdomain}.hsdarena.com`;
                 },
             })),
             {
                 label: 'Manage Organizations',
                 icon: '⚙️',
                 onClick: () => {
-                    const protocol = window.location.protocol;
-                    const host = window.location.host;
-                    let mainHost = host;
-                    if (subdomain) {
-                        mainHost = host.replace(`${subdomain}.`, '');
-                    }
-                    window.location.href = `${protocol}//${mainHost}/organizations`;
+                    window.location.href = '/organizations';
                 },
                 divider: true,
             },

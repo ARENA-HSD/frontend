@@ -19,7 +19,7 @@ import type {
     LeaderboardResultHostPlayload,
     GameOverPlayload,
     LeaderboardEntry,
-    QuestionOption,
+    QuestionOption
 } from '@/types';
 
 type GamePhase = 'question' | 'results' | 'leaderboard' | 'finished';

@@ -16,8 +16,8 @@ const LoginPage = () => {
 
     const handleSuccess = () => {
         if (isSubdomain) {
-            // Subdomain: go to manager dashboard
-            navigate('/manager/quizzes');
+            // Subdomain: go to dashboard
+            navigate('/');
         } else {
             // Main domain: go to organizations page
             navigate('/organizations');

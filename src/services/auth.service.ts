@@ -149,6 +149,11 @@ export const clearAuthData = (): void => {
     localStorage.removeItem(USER_DATA_KEY);
     localStorage.removeItem(CURRENT_ORG_KEY);
 };
+
+export const saveCurrentOrganization = (org: UserOrganization): void => {
+    localStorage.setItem(CURRENT_ORG_KEY, JSON.stringify(org));
+};
+
 export const getCurrentOrganization = (): UserOrganization | null => {
     const orgData = localStorage.getItem(CURRENT_ORG_KEY);
     if (!orgData) return null;

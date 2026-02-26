@@ -7,8 +7,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { AuthUser, UserOrganization, OrganizationRole } from '@/types';
 import { authService, organizationService } from '@/services';
-import { useSubdomain } from '@/hooks';
-import { CURRENT_ORG_KEY } from '@/lib/constants';
 
 interface LoginCredentials {
     email: string;
@@ -46,39 +44,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const [currentOrganization, setCurrentOrganization] = useState<UserOrganization | null>(null);
     const [role, setRole] = useState<OrganizationRole | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const subdomain = useSubdomain();
-    
-    const selectOrganization = (org: UserOrganization) => {
-        setCurrentOrganization(org);
-        setRole(org.role);
-        try {
-            localStorage.setItem(CURRENT_ORG_KEY, JSON.stringify(org));
-        } catch (e) {
-            // ignore storage errors
-        }
-    };
 
     const checkAuth = async () => {
         try {
-            // If an organization payload was passed via URL (redirect from main domain), persist it
-            try {
-                const urlInit = new URL(window.location.href);
-                const orgParamInit = urlInit.searchParams.get('org');
-                if (orgParamInit) {
-                    try {
-                        const parsedInit = JSON.parse(decodeURIComponent(orgParamInit));
-                        if (parsedInit && parsedInit.subdomain) {
-                            selectOrganization(parsedInit as UserOrganization);
-                        }
-                    } catch (e) {
-                        // ignore
-                    }
-                    urlInit.searchParams.delete('org');
-                    window.history.replaceState({}, '', urlInit.toString());
-                }
-            } catch (e) {
-                // ignore URL parse errors
-            }
             // Check if we have a token - that's enough to be authenticated
             const token = localStorage.getItem('hsd_arena_auth_token');
             const currentUser = authService.getCurrentUser();
@@ -98,42 +66,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             if (savedOrg) {
                 setCurrentOrganization(savedOrg);
                 setRole(savedOrg.role);
-            } else {
-                // If no saved organization and we're on a subdomain, try to auto-select
-                // the organization that matches the current hostname subdomain.
-                // First, check if an organization payload was passed via URL (redirect from main domain)
-                try {
-                    const url = new URL(window.location.href);
-                    const orgParam = url.searchParams.get('org');
-                    if (orgParam) {
-                        try {
-                            const parsed = JSON.parse(decodeURIComponent(orgParam));
-                            // basic validation
-                            if (parsed && parsed.subdomain) {
-                                selectOrganization(parsed as UserOrganization);
-                            }
-                        } catch (e) {
-                            // ignore parse errors
-                        }
-
-                        // remove the org param from the URL to clean up
-                        url.searchParams.delete('org');
-                        window.history.replaceState({}, '', url.toString());
-                    } else if (subdomain && currentUser?.organizations && Array.isArray(currentUser.organizations)) {
-                        const matched = currentUser.organizations.find((o: UserOrganization) => o.subdomain === subdomain);
-                        if (matched) {
-                            selectOrganization(matched);
-                        }
-                    }
-                } catch (e) {
-                    // ignore URL parsing errors and fallback to subdomain matching
-                    if (subdomain && currentUser?.organizations && Array.isArray(currentUser.organizations)) {
-                        const matched = currentUser.organizations.find((o: UserOrganization) => o.subdomain === subdomain);
-                        if (matched) {
-                            selectOrganization(matched);
-                        }
-                    }
-                }
             }
         } catch (error) {
             setUser(null);
@@ -171,7 +103,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
                     // Auto-select first organization if only one
                     if (orgsWithRole.length === 1) {
                         const org = orgsWithRole[0];
-                        selectOrganization(org);
+                        setCurrentOrganization(org);
+                        setRole(org.role);
+                        authService.saveCurrentOrganization(org);
                     }
                 }
             } catch {
@@ -203,6 +137,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const selectOrganization = (org: UserOrganization) => {
+        setCurrentOrganization(org);
+        setRole(org.role);
+        authService.saveCurrentOrganization(org);
     };
 
     const clearOrganizationContext = () => {

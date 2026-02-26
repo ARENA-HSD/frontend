@@ -22,8 +22,7 @@ const QuizListPage = () => {
     }, [currentOrganization]);
 
     const loadQuizzes = async () => {
-        if (!currentOrganization) return console.warn('No organization selected, cannot load quizzes');
-        console.log('Loading quizzes for organization:', currentOrganization.name);
+        if (!currentOrganization) return;
 
         try {
             setIsLoading(true);

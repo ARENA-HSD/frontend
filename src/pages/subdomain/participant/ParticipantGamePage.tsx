@@ -10,8 +10,6 @@ import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { Check, X, TrendingUp } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
-import { useManagerNavigate } from '@/hooks';
-
 import type {
     QuestionStartPlayload,
     QuestionEndPlayerPlayload,
@@ -80,18 +78,11 @@ const ParticipantGamePage = () => {
         // QUESTION_START
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
-                console.log('📥 Participant: QUESTION_START', payload);
-                const qIndex = payload.qIndex ?? payload.questionIndex ?? payload.questionIndex ?? 0;
-                const qId = payload.qId ?? payload.questionId ?? '';
-                const duration = payload.time ?? payload.timeLimit ?? payload.timeLimitSeconds ?? 30;
-                const srvTime = payload.serverTime ?? payload.serverTimestamp ?? undefined;
-
-                setQuestionIndex(qIndex);
-                setQuestionId(qId);
-                setTime(duration);
-                if (typeof srvTime !== 'undefined') setServerTime(srvTime as any);
-                setQuestionText(payload.text || payload.questionText || '');
-                setQuestionMedia(payload.mediaUrl || payload.imageUrl || '');
+                setQuestionIndex(payload.qIndex);
+                setTime(payload.time);
+                setServerTime(payload.serverTime);
+                setQuestionText(payload.text || '');
+                setQuestionMedia(payload.mediaUrl || '');
                 setOptions(payload.options || []);
                 startTimer(payload.time, payload.serverTime);
                 setPhase('question');
@@ -154,13 +145,18 @@ const ParticipantGamePage = () => {
         };
     }, [navigate]);
 
-    // If timeLeft reaches zero while in question phase, transition to result
-    useEffect(() => {
-        if (phase === 'question' && timeLeft === 0) {
-            if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-            setPhase('result');
-        }
-    }, [timeLeft, phase]);
+    // ========================================
+    // Timer
+    // ========================================
+    const startTimer = useCallback((duration: number, serverTime: number) => {
+        if (timerRef.current) clearInterval(timerRef.current);
+
+        timerRef.current = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
+            const timeLeft = Math.max(0, duration - elapsed);
+            setTimeLeft(timeLeft);
+        }, 1000);
+    }, []);
 
     // ========================================
     // Submit Answer
@@ -169,7 +165,7 @@ const ParticipantGamePage = () => {
         if (selectedAnswer !== -1 || phase !== 'question') return;
         setSelectedAnswer(idx);
         setPhase('answered');
-        gameSocket.submitAnswer(questionId, idx);
+        gameSocket.submitAnswer(idx);
     };
 
     // ========================================

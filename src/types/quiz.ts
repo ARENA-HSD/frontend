@@ -114,9 +114,9 @@ export interface Participant {
 export interface LeaderboardEntry {
     rank: number;
     nickname: string;
-    points: number;
+    score: number;
     correctAnswers?: number;
-    streak: number;
+    streak?: number;
 }
 
 // ============================================
@@ -207,29 +207,33 @@ export interface QuestionStartPlayload {
 
 // PDF SPEC: DIFFERENTIATED - To Host
 export interface QuestionEndHostPlayload {
-    qIndex: number;
+    correctIndex: number;
     answerStats: Record<string, number>; // { "0": 15, "1": 5, "2": 40, "3": 0 }
+    streakLeaders?: Array<{ nick: string; streak: number }>;
 }
 
 // PDF SPEC: DIFFERENTIATED - To Player
 export interface QuestionEndPlayerPlayload {
+    qIndex: number;
     correct: boolean;
-    scoreEarned: number;
-    streak: number;
-    correctOptionIndex: number;
+    correctIndex: number;
+    points: number;
+    streak?: number;
+    streakLeaders?: Array<{ nick: string; streak: number }>;
 }
 
 // PDF SPEC: DIFFERENTIATED - To Host
 export interface LeaderboardResultHostPlayload {
-    top5: Array<{ nick: string; score: number }>;
-    highStreaks: Array<{ nick: string; streak: number }>;
+    top5: Array<{ nickname: string; nick?: string; score: number }>;
+    recentPlayers?: Array<{ nickname: string; nick?: string; streak: number }>;
+    highStreaks?: Array<{ nickname: string; nick?: string; streak: number }>;
 }
 
 // PDF SPEC: DIFFERENTIATED - To Player
 export interface LeaderboardResultPlayerPlayload {
-    top5: Array<{ nick: string; score: number }>;
-    myRank: number;
-    myTotalScore: number;
+    top5: Array<{ nickname: string; score: number }>;
+    myRank?: number;
+    myTotalScore?: number;
 }
 
 export interface GameOverPlayload {

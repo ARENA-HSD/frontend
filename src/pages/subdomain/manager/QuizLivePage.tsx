@@ -8,7 +8,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { Users, Check, TrendingUp, Crown } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
+import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService, questionService } from '@/services';
 import type {
@@ -30,26 +30,27 @@ const OPTION_BORDER_COLORS = ['border-teal-400', 'border-pink-400', 'border-purp
 const QuizLivePage = () => {
     const navigate = useManagerNavigate();
     const { id: quizId } = useParams<{ id: string }>();
-    const { currentOrganization } = useAuth();
+    const subdomain = useSubdomain();
     const location = useLocation();
 
     // Game state from lobby
     const gameId = (location.state as any)?.gameId || '';
     const gamePin = (location.state as any)?.gamePin || '';
+    const initialQuestion = (location.state as any)?.initialQuestion as QuestionStartPlayload | undefined;
     const [quiz, setQuiz] = useState<Quiz | null>((location.state as any)?.quiz || null);
 
     // ========================================
     // State
     // ========================================
-    const [questionIndex, setQuestionIndex] = useState(0);
-    const [questionText, setQuestionText] = useState('');
-    const [questionMedia, setQuestionMedia] = useState('');
-    const [options, setOptions] = useState<QuestionOption[]>([]);
+    const [questionIndex, setQuestionIndex] = useState(initialQuestion?.qIndex ?? 0);
+    const [questionText, setQuestionText] = useState(initialQuestion?.text || '');
+    const [questionMedia, setQuestionMedia] = useState(initialQuestion?.mediaUrl || '');
+    const [options, setOptions] = useState<QuestionOption[]>(initialQuestion?.options || []);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [phase, setPhase] = useState<GamePhase>('question');
-    const [time, setTime] = useState(0);
+    const [time, setTime] = useState(initialQuestion?.time || 0);
     const [timeLeft, setTimeLeft] = useState(0);
-    const [serverTime, setServerTime] = useState(0);
+    const [serverTime, setServerTime] = useState(initialQuestion?.serverTime || 0);
     const [isLoading, setIsLoading] = useState(true);
 
     // Question End (results) state
@@ -57,27 +58,36 @@ const QuizLivePage = () => {
     const [answerStats, setAnswerStats] = useState<Record<string, number>>({});
 
     // Leaderboard state
-    const [leaderboard, setLeaderboard] = useState<Array<{ nick: string; score: number }>>([]);
+    const [leaderboard, setLeaderboard] = useState<Array<{ nickname: string; score: number }>>([]);
     const [highStreaks, setHighStreaks] = useState<Array<{ nick: string; streak: number }>>([]);
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // ========================================
+    // Boot: start timer for initial question forwarded from lobby
+    // ========================================
+    useEffect(() => {
+        if (initialQuestion) {
+            startTimer(initialQuestion.time, initialQuestion.serverTime);
+        }
+    }, []); // run once on mount
+
+    // ========================================
     // Initialize
     // ========================================
     useEffect(() => {
-        if (quizId && currentOrganization) {
+        if (quizId && subdomain) {
             loadQuizData();
         }
 
         return () => {
             if (timerRef.current) clearInterval(timerRef.current);
         };
-    }, [quizId, currentOrganization]);
+    }, [quizId, subdomain]);
 
     const loadQuizData = async () => {
-        if (!quizId || !currentOrganization) return;
-        const orgDomain = currentOrganization.subdomain;
+        if (!quizId || !subdomain) return;
+        const orgDomain = subdomain;
 
         try {
             setIsLoading(true);
@@ -126,8 +136,11 @@ const QuizLivePage = () => {
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_END, (payload: QuestionEndHostPlayload) => {
                 if (timerRef.current) clearInterval(timerRef.current);
-                setCorrectOptionIndex(payload.qIndex);
+                setCorrectOptionIndex(payload.correctIndex);
                 setAnswerStats(payload.answerStats || {});
+                // Update streaks from QUESTION_END; clear if empty
+                const sl = (payload.streakLeaders || []).map((s: any) => ({ nick: s.nick || s.nick, streak: s.streak }));
+                setHighStreaks(sl);
                 setPhase('results');
             })
         );
@@ -135,8 +148,8 @@ const QuizLivePage = () => {
         // LEADERBOARD_RESULT - leaderboard data
         unsubs.push(
             gameSocket.on(WS_EVENTS.LEADERBOARD_RESULT, (payload: LeaderboardResultHostPlayload) => {
-                setLeaderboard(payload.top5 || []);
-                setHighStreaks(payload.highStreaks || []);
+                const top5 = (payload.top5 || []).map((p: any) => ({ nick: p.nick || p.nickname, score: p.score }));
+                setLeaderboard(top5);
                 setPhase('leaderboard');
             })
         );
@@ -161,13 +174,20 @@ const QuizLivePage = () => {
     // ========================================
     // Timer
     // ========================================
-    const startTimer = useCallback((duration: number, serverTime: number) => {
+    const startTimer = useCallback((duration: number, srvTime: number) => {
         if (timerRef.current) clearInterval(timerRef.current);
 
+        // Set initial value immediately so UI doesn't flash 0
+        const initialElapsed = Math.floor((Date.now() - srvTime) / 1000);
+        setTimeLeft(Math.max(0, duration - initialElapsed));
+
         timerRef.current = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - serverTime) / 1000);
-            const timeLeft = Math.max(0, duration - elapsed);
-            setTimeLeft(timeLeft);
+            const elapsed = Math.floor((Date.now() - srvTime) / 1000);
+            const remaining = Math.max(0, duration - elapsed);
+            setTimeLeft(remaining);
+            if (remaining <= 0 && timerRef.current) {
+                clearInterval(timerRef.current);
+            }
         }, 1000);
     }, []);
 
@@ -380,17 +400,17 @@ const QuizLivePage = () => {
                                     </div>
                                     <div className="flex-1">
                                         <div className={`text-xl font-bold ${idx < 3 ? 'text-white' : 'text-gray-900'}`}>
-                                            {player.nick}
+                                            {player.nickname}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <div className={`text-2xl font-bold ${idx < 3 ? 'text-white' : 'text-gray-900'}`}>
                                             {player.score.toLocaleString()}
                                         </div>
-                                        {highStreaks.find(s => s.nick === player.nick && s.streak >= 3) && (
+                                        {highStreaks.find(s => s.nick === player.nickname && s.streak >= 3) && (
                                             <div className="text-2xl">
                                                 🔥
-                                                {(highStreaks.find(s => s.nick === player.nick)?.streak || 0) >= 7 && (
+                                                {(highStreaks.find(s => s.nick === player.nickname)?.streak || 0) >= 7 && (
                                                     <span className="text-3xl">🔥</span>
                                                 )}
                                             </div>
@@ -459,7 +479,7 @@ const QuizLivePage = () => {
                                         <div className="text-sm font-semibold">Silver</div>
                                     </div>
                                 </div>
-                                <div className="text-xl font-bold text-gray-900">{second?.nick || '-'}</div>
+                                <div className="text-xl font-bold text-gray-900">{second?.nickname || '-'}</div>
                                 <div className="text-lg text-gray-600">{second ? `${second.score.toLocaleString()} pts` : ''}</div>
                             </div>
 
@@ -472,7 +492,7 @@ const QuizLivePage = () => {
                                         <div className="text-sm font-semibold">Gold</div>
                                     </div>
                                 </div>
-                                <div className="text-2xl font-black text-gray-900">{first?.nick || '-'}</div>
+                                <div className="text-2xl font-black text-gray-900">{first?.nickname || '-'}</div>
                                 <div className="text-xl text-gray-600">{first ? `${first.score.toLocaleString()} pts` : ''}</div>
                             </div>
 
@@ -484,7 +504,7 @@ const QuizLivePage = () => {
                                         <div className="text-sm font-semibold">Bronze</div>
                                     </div>
                                 </div>
-                                <div className="text-xl font-bold text-gray-900">{third?.nick || '-'}</div>
+                                <div className="text-xl font-bold text-gray-900">{third?.nickname || '-'}</div>
                                 <div className="text-lg text-gray-600">{third ? `${third.score.toLocaleString()} pts` : ''}</div>
                             </div>
                         </div>

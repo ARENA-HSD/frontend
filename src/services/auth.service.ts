@@ -4,9 +4,10 @@
  * Real API implementation for authentication
  */
 
-import { post, setAuthToken, removeAuthToken } from '@/lib/axios';
-import { API_ROUTES, AUTH_TOKEN_KEY, USER_DATA_KEY, CURRENT_ORG_KEY } from '@/lib/constants';
-import type { AuthUser, UserOrganization, ApiResponse, User } from '@/types';
+import { post, setAuthToken, removeAuthToken, getCookieDomain } from '@/lib/axios';
+import Cookies from 'js-cookie';
+import { API_ROUTES, USER_DATA_KEY } from '@/lib/constants';
+import type { AuthUser } from '@/types';
 
 // ============================================================================
 // Auth API Calls
@@ -88,7 +89,7 @@ export const logout = async (): Promise<void> => {
  * Get current user from stored data
  */
 export const getCurrentUser = (): AuthUser | null => {
-    const userData = localStorage.getItem(USER_DATA_KEY);
+    const userData = Cookies.get(USER_DATA_KEY);
     if (!userData) return null;
 
     try {
@@ -132,7 +133,7 @@ const buildAuthUser = (apiUser: any): AuthUser => {
 };
 
 // ============================================================================
-// LocalStorage Management
+// Cookie Management
 // ============================================================================
 
 export const saveAuthData = (user: any, token: string): void => {
@@ -141,30 +142,10 @@ export const saveAuthData = (user: any, token: string): void => {
 };
 
 export const saveUserData = (user: any): void => {
-    localStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
+    Cookies.set(USER_DATA_KEY, JSON.stringify(user), { domain: getCookieDomain(), expires: 7 });
 };
 
 export const clearAuthData = (): void => {
     removeAuthToken();
-    localStorage.removeItem(USER_DATA_KEY);
-    localStorage.removeItem(CURRENT_ORG_KEY);
-};
-
-export const saveCurrentOrganization = (org: UserOrganization): void => {
-    localStorage.setItem(CURRENT_ORG_KEY, JSON.stringify(org));
-};
-
-export const getCurrentOrganization = (): UserOrganization | null => {
-    const orgData = localStorage.getItem(CURRENT_ORG_KEY);
-    if (!orgData) return null;
-
-    try {
-        return JSON.parse(orgData);
-    } catch {
-        return null;
-    }
-};
-
-export const clearCurrentOrganization = (): void => {
-    localStorage.removeItem(CURRENT_ORG_KEY);
+    Cookies.remove(USER_DATA_KEY, { domain: getCookieDomain() });
 };

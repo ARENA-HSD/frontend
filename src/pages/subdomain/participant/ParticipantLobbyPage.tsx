@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
-import type { ForceDisconnectPlayload, GameStartingPlayload } from '@/types';
+import type { ForceDisconnectPlayload, GameStartingPlayload, QuestionStartPlayload } from '@/types';
 
 const ParticipantLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -44,9 +44,9 @@ const ParticipantLobbyPage = () => {
 
         // SYNC FIX: If question starts while in lobby, move to game page immediately
         unsubs.push(
-            gameSocket.on(WS_EVENTS.QUESTION_START, () => {
+            gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
                 navigate('/play/game', {
-                    state: { ...state },
+                    state: { ...state, initialQuestion: payload },
                     replace: true
                 });
             })
@@ -74,7 +74,7 @@ const ParticipantLobbyPage = () => {
             return () => clearInterval(interval);
         }
         if (countdown <= 0) {
-            navigate('/subdomain/play/game', {
+            navigate('/play/game', {
                 state: {
                     ...state,
                 }

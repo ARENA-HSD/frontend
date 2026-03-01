@@ -14,6 +14,7 @@ import {
     MOCK_API_DELAY,
     ERROR_MESSAGES,
 } from './constants';
+import Cookies from 'js-cookie';
 
 // ============================================================================
 // Axios Instance
@@ -70,24 +71,48 @@ export const getSubdomain = (): string | null => {
 };
 
 /**
- * Get auth token from localStorage
+ * Get cookie domain for cross-subdomain sharing
  */
-const getAuthToken = (): string | null => {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+export const getCookieDomain = (): string | undefined => {
+    const hostname = window.location.hostname;
+    
+    // Tarayıcıların "localhost" domaininde cookie reddetmesini önlemek için
+    // dev ortamında (localhost veya IP ise) domain belirtecini undefined bırakıyoruz.
+    if (hostname.includes('localhost') || hostname === '127.0.0.1') {
+        return undefined; // undefined bırakırsak mevcutta bulunduğu origin'e yazar
+    }
+
+    // Production senaryosu (örn: subdomain.domain.com -> .domain.com)
+    const parts = hostname.split('.');
+    if (parts.length > 2) {
+        return '.' + parts.slice(-2).join('.');
+    }
+    
+    return undefined;
 };
 
 /**
- * Set auth token in localStorage
+ * Get auth token from cookies
+ */
+const getAuthToken = (): string | undefined => {
+    return Cookies.get(AUTH_TOKEN_KEY);
+};
+
+/**
+ * Set auth token in cookies
  */
 export const setAuthToken = (token: string): void => {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    Cookies.set(AUTH_TOKEN_KEY, token, { 
+        domain: getCookieDomain(),
+        expires: 7 // 7 days
+    });
 };
 
 /**
- * Remove auth token from localStorage
+ * Remove auth token from cookies
  */
 export const removeAuthToken = (): void => {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
+    Cookies.remove(AUTH_TOKEN_KEY, { domain: getCookieDomain() });
 };
 
 /**

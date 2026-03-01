@@ -10,18 +10,14 @@ export const useSubdomain = (): string | null => {
     return useMemo(() => {
         const hostname = window.location.hostname;
 
-        // Development mode: support ?subdomain=xxx parameter
+        // Check for .localhost pattern (e.g. org1.localhost)
+        const localhostMatch = hostname.match(/^([a-z0-9-]+)\.localhost$/i);
+        if (localhostMatch) {
+            return localhostMatch[1];
+        }
+
+        // Development mode: main localhost or IP
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            const urlParams = new URLSearchParams(window.location.search);
-            const devSubdomain = urlParams.get('subdomain');
-
-            // If subdomain parameter exists, use it
-            if (devSubdomain) {
-                return devSubdomain;
-            }
-
-            // Otherwise, check if there's a subdomain prefix (e.g., org1.localhost)
-            // This won't work in most browsers without hosts file modification
             return null;
         }
 

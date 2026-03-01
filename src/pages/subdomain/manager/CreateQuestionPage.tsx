@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
+import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { questionService } from '@/services';
 import type { CreateQuestionData } from '@/types';
 import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
@@ -15,13 +15,13 @@ import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
 const CreateQuestionPage = () => {
     const navigate = useManagerNavigate();
     const { id: quizId } = useParams<{ id: string }>();
-    const { currentOrganization } = useAuth();
+    const subdomain = useSubdomain();
 
     const handleSave = async (data: CreateQuestionData) => {
-        if (!quizId || !currentOrganization) return;
+        if (!quizId || !subdomain) return;
 
         await questionService.createQuestion(
-            currentOrganization.subdomain,
+            subdomain,
             quizId,
             data
         );

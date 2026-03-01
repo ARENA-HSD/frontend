@@ -14,7 +14,7 @@ import type { UserOrganization, Organization } from '@/types';
 
 const OrganizationsPage = () => {
     const navigate = useNavigate();
-    const { user, selectOrganization } = useAuth();
+    const { user } = useAuth();
     const [organizations, setOrganizations] = useState<UserOrganization[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -54,11 +54,24 @@ const OrganizationsPage = () => {
     };
 
     const handleAccessOrganization = (org: UserOrganization) => {
-        selectOrganization(org);
-
-        // For development, navigate to manager dashboard
-        // In production: window.location.href = `https://${org.subdomain}.hsdarena.com`;
-        navigate('/subdomain/manager/quizzes');
+        // Redirect to the real subdomain
+        const port = window.location.port ? `:${window.location.port}` : '';
+        const host = window.location.hostname;
+        
+        let newHost = '';
+        if (host.includes('localhost')) {
+            newHost = `${org.subdomain}.localhost`;
+        } else {
+            // production
+            const parts = host.split('.');
+            if (parts.length > 2) {
+                newHost = `${org.subdomain}.${parts.slice(-2).join('.')}`;
+            } else {
+                newHost = `${org.subdomain}.${host}`;
+            }
+        }
+        
+        window.location.href = `${window.location.protocol}//${newHost}${port}/manager/quizzes`;
     };
 
     const handleCreateNew = () => {

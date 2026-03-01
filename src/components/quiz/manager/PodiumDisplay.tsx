@@ -60,7 +60,7 @@ const PodiumDisplay = ({ topThree }: PodiumDisplayProps) => {
                                         {entry.nickname}
                                     </div>
                                     <div className="text-2xl font-bold text-indigo-600">
-                                        {entry.points} pts
+                                        {(entry.score ?? 0).toLocaleString()} pts
                                     </div>
                                 </div>
                             </div>

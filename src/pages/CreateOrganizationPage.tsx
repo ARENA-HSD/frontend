@@ -8,13 +8,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useAuth } from '@/hooks';
-import { organizationService, authService } from '@/services';
+import { organizationService } from '@/services';
 import { MainLayout, Button } from '@/components';
 import type { CreateOrganizationData, UserOrganization } from '@/types';
 
 const CreateOrganizationPage = () => {
     const navigate = useNavigate();
-    const { user, selectOrganization, checkAuth } = useAuth();
+    const { user, checkAuth } = useAuth();
     const [formData, setFormData] = useState<CreateOrganizationData>({
         name: '',
         subdomain: '',
@@ -61,7 +61,6 @@ const CreateOrganizationPage = () => {
                     role: 'SUPER_ADMIN',
                     branding: response.data.branding,
                 };
-                selectOrganization(newOrg);
 
                 // Refresh user data
                 await checkAuth();

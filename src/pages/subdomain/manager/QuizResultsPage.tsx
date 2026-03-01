@@ -56,7 +56,7 @@ const QuizResultsPage = () => {
                                     <div className="text-sm font-semibold">Silver</div>
                                 </div>
                             </div>
-                            <div className="text-xl font-bold text-gray-900">{second?.nick || '-'}</div>
+                            <div className="text-xl font-bold text-gray-900">{second?.nickname || second?.nick || '-'}</div>
                             <div className="text-lg text-gray-600">{second ? `${second.score.toLocaleString()} pts` : ''}</div>
                         </div>
 
@@ -69,7 +69,7 @@ const QuizResultsPage = () => {
                                     <div className="text-sm font-semibold">Gold</div>
                                 </div>
                             </div>
-                            <div className="text-2xl font-black text-gray-900">{first?.nick || '-'}</div>
+                            <div className="text-2xl font-black text-gray-900">{first?.nickname || first?.nick || '-'}</div>
                             <div className="text-xl text-gray-600">{first ? `${first.score.toLocaleString()} pts` : ''}</div>
                         </div>
 
@@ -81,7 +81,7 @@ const QuizResultsPage = () => {
                                     <div className="text-sm font-semibold">Bronze</div>
                                 </div>
                             </div>
-                            <div className="text-xl font-bold text-gray-900">{third?.nick || '-'}</div>
+                            <div className="text-xl font-bold text-gray-900">{third?.nickname || third?.nick || '-'}</div>
                             <div className="text-lg text-gray-600">{third ? `${third.score.toLocaleString()} pts` : ''}</div>
                         </div>
                     </div>

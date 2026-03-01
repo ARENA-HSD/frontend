@@ -6,13 +6,13 @@
 
 import { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
+import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { CreateQuizData, QuizMode } from '@/types';
 
 const CreateQuizPage = () => {
     const navigate = useManagerNavigate();
-    const { currentOrganization } = useAuth();
+    const subdomain = useSubdomain();
     const [formData, setFormData] = useState<CreateQuizData>({
         title: '',
         defaultMode: 'STAGE'
@@ -27,12 +27,12 @@ const CreateQuizPage = () => {
             return;
         }
 
-        if (!currentOrganization) return;
+        if (!subdomain) return;
 
         try {
             setIsLoading(true);
             const response = await quizService.createQuiz(
-                currentOrganization.subdomain,
+                subdomain,
                 formData
             );
 

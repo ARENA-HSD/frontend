@@ -7,27 +7,27 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Plus, MoreVertical, Edit2, Trash2 } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
+import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService, questionService } from '@/services';
 import type { Quiz, Question } from '@/types';
 
 const QuizDetailPage = () => {
     const navigate = useManagerNavigate();
     const { id: quizId } = useParams<{ id: string }>();
-    const { currentOrganization } = useAuth();
+    const subdomain = useSubdomain();
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (quizId && currentOrganization) {
+        if (quizId && subdomain) {
             loadQuizData();
         }
-    }, [quizId, currentOrganization]);
+    }, [quizId, subdomain]);
 
     const loadQuizData = async () => {
-        if (!quizId || !currentOrganization) return;
-        const orgDomain = currentOrganization.subdomain;
+        if (!quizId || !subdomain) return;
+        const orgDomain = subdomain;
 
         try {
             setIsLoading(true);
@@ -68,10 +68,10 @@ const QuizDetailPage = () => {
 
     const handleDeleteQuestion = async (questionId: string) => {
         if (!confirm('Are you sure you want to delete this question?')) return;
-        if (!currentOrganization || !quizId) return;
+        if (!subdomain || !quizId) return;
 
         try {
-            await questionService.deleteQuestion(currentOrganization.subdomain, quizId, questionId);
+            await questionService.deleteQuestion(subdomain, quizId, questionId);
             await loadQuizData();
         } catch (error) {
             console.error('Failed to delete question:', error);

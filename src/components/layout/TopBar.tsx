@@ -14,7 +14,7 @@ import type { DropdownItem } from '@/components';
 const TopBar = () => {
     const navigate = useNavigate();
     const subdomain = useSubdomain();
-    const { logout, user, currentOrganization, selectOrganization } = useAuth();
+    const { logout, user } = useAuth();
     const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     const handleLogout = async () => {
@@ -48,18 +48,50 @@ const TopBar = () => {
             ...user.organizations.map(org => ({
                 label: org.name,
                 sublabel: org.subdomain,
-                icon: org.id === currentOrganization?.id ? '✓' : '🏢',
+                icon: org.subdomain === subdomain ? '✓' : '🏢',
                 onClick: () => {
-                    selectOrganization(org);
-                    // In production, redirect to subdomain
-                    window.location.href = `https://${org.subdomain}.hsdarena.com`;
+                    const port = window.location.port ? `:${window.location.port}` : '';
+                    const host = window.location.hostname;
+                    
+                    let newHost = '';
+                    if (host.includes('localhost')) {
+                        // Strip existing subdomain if any, then add new one
+                        const baseHost = host.replace(/^([a-z0-9-]+)\./i, '');
+                        if (baseHost === 'localhost') {
+                            newHost = `${org.subdomain}.localhost`;
+                        } else {
+                            newHost = `${org.subdomain}.${baseHost}`;
+                        }
+                    } else {
+                        // production
+                        const parts = host.split('.');
+                        if (parts.length > 2) {
+                            newHost = `${org.subdomain}.${parts.slice(-2).join('.')}`;
+                        } else {
+                            newHost = `${org.subdomain}.${host}`;
+                        }
+                    }
+                    
+                    window.location.href = `${window.location.protocol}//${newHost}${port}/manager/quizzes`;
                 },
             })),
             {
                 label: 'Manage Organizations',
                 icon: '⚙️',
                 onClick: () => {
-                    window.location.href = '/organizations';
+                    const port = window.location.port ? `:${window.location.port}` : '';
+                    let baseHost = window.location.hostname;
+                    
+                    if (baseHost.includes('localhost')) {
+                        baseHost = baseHost.replace(/^([a-z0-9-]+)\./i, '');
+                    } else {
+                        const parts = baseHost.split('.');
+                        if (parts.length > 2) {
+                            baseHost = parts.slice(-2).join('.');
+                        }
+                    }
+                    
+                    window.location.href = `${window.location.protocol}//${baseHost}${port}/organizations`;
                 },
                 divider: true,
             },
@@ -67,7 +99,8 @@ const TopBar = () => {
         : [];
 
     const displayName = user?.username || 'User';
-    const displayOrgName = currentOrganization?.name || 'HSD Arena';
+    const currentOrg = user?.organizations?.find(o => o.subdomain === subdomain);
+    const displayOrgName = currentOrg?.name || subdomain || 'HSD Arena';
 
     return (
         <header className="bg-card border-b border-divider sticky top-0 z-40">
@@ -88,7 +121,7 @@ const TopBar = () => {
                     <div className="text-2xl flex-shrink-0">🎮</div>
 
                     {/* Organization Info + Switcher */}
-                    {subdomain && currentOrganization && orgMenuItems.length > 0 ? (
+                    {subdomain && currentOrg && orgMenuItems.length > 0 ? (
                         <Dropdown
                             trigger={
                                 <button className="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
@@ -99,7 +132,7 @@ const TopBar = () => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </div>
-                                        <p className="text-xs text-tertiary truncate">{currentOrganization.subdomain}.hsdarena.com</p>
+                                        <p className="text-xs text-tertiary truncate">{subdomain}.hsdarena.com</p>
                                     </div>
                                 </button>
                             }

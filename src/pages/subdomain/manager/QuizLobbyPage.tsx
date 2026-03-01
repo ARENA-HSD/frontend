@@ -8,16 +8,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Users, Zap } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
+import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
-import type { GameStartingPlayload, LobbyUpdatePlayload, Quiz } from '@/types';
+import type { GameStartingPlayload, LobbyUpdatePlayload, QuestionStartPlayload, Quiz } from '@/types';
 
 const QuizLobbyPage = () => {
     const navigate = useManagerNavigate();
     const { id: quizId } = useParams<{ id: string }>();
-    const { currentOrganization } = useAuth();
+    const subdomain = useSubdomain();
 
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [gameId, setGameId] = useState<string>('');
@@ -35,7 +35,7 @@ const QuizLobbyPage = () => {
     // Load quiz and create game session
     // ========================================
     useEffect(() => {
-        if (quizId && currentOrganization) {
+        if (quizId && subdomain) {
             initializeLobby();
         }
 
@@ -43,16 +43,16 @@ const QuizLobbyPage = () => {
             // Cleanup WebSocket on unmount - DISABLED to keep connection alive during transition
             // gameSocket.disconnect();
         };
-    }, [quizId, currentOrganization]);
+    }, [quizId, subdomain]);
 
     const initializeLobby = async () => {
-        if (!quizId || !currentOrganization) return;
+        if (!quizId || !subdomain) return;
 
         try {
             setIsLoading(true);
 
             // 1. Fetch quiz info
-            const quizResponse = await quizService.getQuiz(currentOrganization.subdomain, quizId);
+            const quizResponse = await quizService.getQuiz(subdomain, quizId);
             const qr = quizResponse as any;
             setQuiz(qr?.data?.quiz || qr?.data || qr);
 
@@ -109,9 +109,9 @@ const QuizLobbyPage = () => {
 
         // SYNC FIX: If question starts while in lobby, move to live page immediately
         unsubs.push(
-            gameSocket.on(WS_EVENTS.QUESTION_START, () => {
+            gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
                 navigate(`/manager/quizzes/${quizId}/live`, {
-                    state: { gameId, gamePin, quiz },
+                    state: { gameId, gamePin, quiz, initialQuestion: payload },
                     replace: true
                 });
             })

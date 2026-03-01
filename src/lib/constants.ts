@@ -39,7 +39,6 @@ export const MOCK_API_DELAY = {
 
 export const AUTH_TOKEN_KEY = 'hsd_arena_auth_token';
 export const USER_DATA_KEY = 'hsd_arena_user_data';
-export const CURRENT_ORG_KEY = 'hsd_arena_current_org';
 
 /**
  * JWT token expiration time (7 days in milliseconds)

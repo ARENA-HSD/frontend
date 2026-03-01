@@ -43,7 +43,7 @@ const JoinGamePage = () => {
                 if (successUnsub) successUnsub();
                 if (errorUnsub) errorUnsub();
                 if (disconnectUnsub) disconnectUnsub();
-                navigate('/subdomain/play/lobby', {
+                navigate('/play/lobby', {
                     state: { pin, nickname: payload.myNick || nickname }
                 });
             });

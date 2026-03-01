@@ -71,7 +71,7 @@ const ParticipantResultPage = () => {
                                         <div className={`text-xs font-bold mt-1 ${isMe ? 'text-indigo-600' : 'text-gray-700'}`}>
                                             {p.nickname}
                                         </div>
-                                        <div className="text-xs text-gray-500">{p.points.toLocaleString()}</div>
+                                        <div className="text-xs text-gray-500">{(p.score ?? 0).toLocaleString()}</div>
                                     </div>
                                 );
                             })}

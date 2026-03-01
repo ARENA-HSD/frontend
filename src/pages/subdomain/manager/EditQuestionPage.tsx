@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { MoreVertical } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
+import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { questionService } from '@/services';
 import type { Question, UpdateQuestionData } from '@/types';
 import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
@@ -15,23 +15,23 @@ import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
 const EditQuestionPage = () => {
     const navigate = useManagerNavigate();
     const { id: quizId, questionId } = useParams<{ id: string; questionId: string }>();
-    const { currentOrganization } = useAuth();
+    const subdomain = useSubdomain();
     const [question, setQuestion] = useState<Question | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (questionId && quizId && currentOrganization) {
+        if (questionId && quizId && subdomain) {
             loadQuestion();
         }
-    }, [questionId, quizId, currentOrganization]);
+    }, [questionId, quizId, subdomain]);
 
     const loadQuestion = async () => {
-        if (!questionId || !quizId || !currentOrganization) return;
+        if (!questionId || !quizId || !subdomain) return;
 
         try {
             setIsLoading(true);
             const response = await questionService.getQuestion(
-                currentOrganization.subdomain,
+                subdomain,
                 quizId,
                 questionId
             );
@@ -44,10 +44,10 @@ const EditQuestionPage = () => {
     };
 
     const handleSave = async (data: UpdateQuestionData) => {
-        if (!questionId || !quizId || !currentOrganization) return;
+        if (!questionId || !quizId || !subdomain) return;
 
         await questionService.updateQuestion(
-            currentOrganization.subdomain,
+            subdomain,
             quizId,
             questionId,
             data

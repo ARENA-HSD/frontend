@@ -6,27 +6,36 @@
 
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
-import { useAuth, useManagerNavigate } from '@/hooks';
+import { useAuth, useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { Quiz } from '@/types';
 import QuizCard from '@/components/quiz/manager/QuizCard';
 
 const QuizListPage = () => {
     const navigate = useManagerNavigate();
-    const { user, currentOrganization } = useAuth();
+    const { user } = useAuth();
+    const subdomain = useSubdomain();
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        loadQuizzes();
-    }, [currentOrganization]);
+        if (subdomain) {
+            loadQuizzes();
+        } else {
+            console.warn('No subdomain detected, cannot load quizzes');
+            setIsLoading(false);
+        }
+    }, [subdomain]);
 
     const loadQuizzes = async () => {
-        if (!currentOrganization) return;
+        if (!subdomain) {
+            setIsLoading(false);
+            return;
+        }
 
         try {
             setIsLoading(true);
-            const response = await quizService.getQuizzes(currentOrganization.subdomain);
+            const response = await quizService.getQuizzes(subdomain);
             const r = response as any;
             const quizzesList = r?.data?.quizzes || (Array.isArray(r?.data) ? r.data : []);
             setQuizzes(Array.isArray(quizzesList) ? quizzesList : []);
@@ -71,7 +80,7 @@ const QuizListPage = () => {
                     </div>
                 </div>
                 <div className="text-lg font-semibold text-gray-700">
-                    {currentOrganization?.name}
+                    {subdomain}
                 </div>
             </div>
 

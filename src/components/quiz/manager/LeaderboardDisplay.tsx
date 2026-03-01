@@ -54,8 +54,8 @@ const LeaderboardDisplay = ({ entries, maxEntries = 5 }: LeaderboardDisplayProps
                         <div className="flex-1">
                             <div className="font-bold text-gray-900">{entry.nickname}</div>
                             <div className="text-sm text-gray-500">
-                                {entry.correctAnswers} correct
-                                {entry.streak > 0 && (
+                                {entry.correctAnswers ?? 0} correct
+                                {(entry.streak ?? 0) > 0 && (
                                     <span className="ml-2 text-orange-600 flex items-center gap-1 inline-flex">
                                         <TrendingUp className="w-3 h-3" />
                                         {entry.streak} streak
@@ -66,7 +66,7 @@ const LeaderboardDisplay = ({ entries, maxEntries = 5 }: LeaderboardDisplayProps
 
                         {/* Points */}
                         <div className="text-2xl font-bold text-indigo-600">
-                            {entry.points}
+                            {(entry.score ?? 0).toLocaleString()}
                         </div>
                     </div>
                 ))}

@@ -21,17 +21,17 @@ const MainLayout = ({ children, sidebar = true }: MainLayoutProps) => {
         {
             label: 'Organizations',
             icon: '📊',
-            path: `${window.location.host}/`,
+            path: '/organizations',
         },
         {
             label: 'Profile',
             icon: '👥',
-            path: `${window.location.host}/profile`,
+            path: '/profile',
         },
         {
             label: 'Payments',
             icon: '💳',
-            path: `${window.location.host}/payments`,
+            path: '/payments',
             disabled: true,
             badge: 'V2',
         },

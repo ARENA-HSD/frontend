@@ -27,23 +27,23 @@ const Sidebar = ({ isOpen = true, onClose, navItems: navItemsProp }: SidebarProp
         {
             label: 'Dashboard',
             icon: '📊',
-            path: `${window.location.host}/`,
+            path: '/organizations',
         },
         {
             label: 'Members',
             icon: '👥',
-            path: `${window.location.host}/members`,
+            path: '/members',
         },
         {
             label: 'Logs',
             icon: '📋',
-            path: `${window.location.host}/logs`,
+            path: '/logs',
         },
     ];
 
     const isActive = (path: string) => {
-        if (path === `${window.location.host}/`) {
-            return location.pathname === `${window.location.host}/`;
+        if (path === '/') {
+            return location.pathname === '/';
         }
         return location.pathname.startsWith(path);
     };

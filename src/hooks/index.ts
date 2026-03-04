@@ -10,3 +10,5 @@ export { useRegister } from './useRegister';
 export { useCreateOrganization } from './useCreateOrganization';
 export { useManagerNavigate } from './useManagerNavigate';
 export { useTheme } from './useTheme';
+export { useUsers } from './useUsers';
+export { useUser } from './useUsers';

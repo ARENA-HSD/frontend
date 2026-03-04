@@ -235,6 +235,10 @@ export const API_ROUTES = {
     LOGIN: '/login',
     REGISTER: '/users',
 
+    // Users
+    USERS: '/users',
+    USER_BY_ID: (userId: string) => `/users/${userId}`,
+
     // Organizations
     ORGANIZATIONS: '/org',
     ORGANIZATION_BY_DOMAIN: (domain: string) => `/org/${domain}`,

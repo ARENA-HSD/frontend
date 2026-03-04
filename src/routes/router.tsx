@@ -29,6 +29,7 @@ import JoinGamePage from '@/pages/subdomain/participant/JoinGamePage';
 import ParticipantLobbyPage from '@/pages/subdomain/participant/ParticipantLobbyPage';
 import ParticipantGamePage from '@/pages/subdomain/participant/ParticipantGamePage';
 import ParticipantResultPage from '@/pages/subdomain/participant/ParticipantResultPage';
+import ProfilePage from '@/pages/ProfilePage';
 
 /**
  * Main Domain Router
@@ -59,6 +60,14 @@ const mainDomainRouter = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <CreateOrganizationPage />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/profile',
+        element: (
+            <ProtectedRoute>
+                <ProfilePage />
             </ProtectedRoute>
         ),
     },

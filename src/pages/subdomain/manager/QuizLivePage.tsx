@@ -311,14 +311,14 @@ const QuizLivePage = () => {
                                     const heightPercent = maxCount > 0 ? (count / maxCount) * 100 : 0;
 
                                     return (
-                                        <div key={idx} className="flex-1 flex flex-col items-center">
+                                        <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full">
                                             <div
-                                                className={`w-full rounded-t-lg transition-all duration-500 ${isCorrect ? 'bg-green-500' : 'bg-gray-300'}`}
-                                                style={{ height: `${Math.max(heightPercent, 8)}%` }}
+                                                className={`w-full flex items-end justify-center rounded-t-lg transition-all duration-500 ${isCorrect ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                style={{ height: `${Math.max(heightPercent, 12)}%` }}
                                             >
-                                                <div className="text-white font-bold text-2xl pt-2 text-center">{count}</div>
+                                                <div className="text-white font-bold text-2xl text-center">{count}</div>
                                             </div>
-                                            <div className="mt-2 text-gray-700 font-medium">{idx}</div>
+                                            <div className="mt-2 text-gray-700 font-medium">{["A", "B", "C", "D"][idx]}</div>
                                         </div>
                                     );
                                 })}

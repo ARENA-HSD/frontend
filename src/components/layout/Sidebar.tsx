@@ -25,19 +25,19 @@ const Sidebar = ({ isOpen = true, onClose, navItems: navItemsProp }: SidebarProp
     const location = useLocation();
     const navItems = navItemsProp || [
         {
-            label: 'Dashboard',
+            label: 'Quizzes',
             icon: '📊',
-            path: '/organizations',
+            path: '/manager/quizzes',
         },
         {
             label: 'Members',
             icon: '👥',
-            path: '/members',
+            path: '/manager/members',
         },
         {
             label: 'Logs',
             icon: '📋',
-            path: '/logs',
+            path: '/manager/logs',
         },
     ];
 

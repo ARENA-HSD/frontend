@@ -24,6 +24,9 @@ import QuizLobbyPage from '@/pages/subdomain/manager/QuizLobbyPage';
 import QuizLivePage from '@/pages/subdomain/manager/QuizLivePage';
 import QuizResultsPage from '@/pages/subdomain/manager/QuizResultsPage';
 
+// Manager Pages
+import MembersPage from '@/pages/subdomain/manager/MembersPage';
+
 // Participant Pages
 import JoinGamePage from '@/pages/subdomain/participant/JoinGamePage';
 import ParticipantLobbyPage from '@/pages/subdomain/participant/ParticipantLobbyPage';
@@ -177,6 +180,16 @@ const subdomainRouter = createBrowserRouter([
             <SubdomainGuard>
                 <ProtectedRoute>
                     <EditQuestionPage />
+                </ProtectedRoute>
+            </SubdomainGuard>
+        ),
+    },
+    {
+        path: '/manager/members',
+        element: (
+            <SubdomainGuard>
+                <ProtectedRoute>
+                    <MembersPage />
                 </ProtectedRoute>
             </SubdomainGuard>
         ),

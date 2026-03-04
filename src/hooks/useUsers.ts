@@ -29,7 +29,7 @@ export const useUsers = () => {
         try {
             const response = await userService.getAllUsers();
             if (response.success && response.data) {
-                setUsers(response.data);
+                setUsers(response.data.users);
             } else {
                 setError(response.message || 'Failed to fetch users');
             }

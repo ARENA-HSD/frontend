@@ -6,7 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Plus, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { Plus, MoreVertical, Edit2, Trash2, ArrowBigLeft, Settings } from 'lucide-react';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService, questionService } from '@/services';
 import type { Quiz, Question } from '@/types';
@@ -18,6 +18,10 @@ const QuizDetailPage = () => {
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+
+    const backToQuizzes = () => {
+        navigate('/manager/quizzes');
+    };
 
     useEffect(() => {
         if (quizId && subdomain) {
@@ -56,6 +60,17 @@ const QuizDetailPage = () => {
 
     const handleStartQuiz = () => {
         navigate(`/manager/quizzes/${quizId}/lobby`);
+    };
+
+    const handleSettingsQuiz = (quizId: string) => {
+        navigate(`/manager/quizzes/${quizId}/settings`);
+    };
+
+    const handleDeleteQuiz = async (quizId: string) => {
+        if (confirm('Are you sure you want to delete this quiz?')) {
+            await quizService.deleteQuiz(subdomain!, quizId);
+            navigate('/manager/quizzes');
+        }
     };
 
     const handleAddQuestion = () => {
@@ -98,11 +113,21 @@ const QuizDetailPage = () => {
         <div className="max-w-5xl mx-auto p-6">
             {/* Header */}
             <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
-                        <div className="text-gray-600">
-                            {questions.length} questions • {quiz.defaultMode} mode
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div>
+                            <button
+                                onClick={backToQuizzes}
+                                className="text-gray-400 hover:text-gray-600"
+                            >
+                                <ArrowBigLeft className="w-6 h-6 mr-2" />
+                            </button>
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
+                            <div className="text-gray-600">
+                                {questions.length} questions • {quiz.defaultMode} mode
+                            </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -112,9 +137,20 @@ const QuizDetailPage = () => {
                         >
                             Start
                         </button>
-                        <button className="text-gray-400 hover:text-gray-600">
-                            <MoreVertical className="w-6 h-6" />
-                        </button>
+                        <div className="flex flex-col items-center">
+                            <button
+                                onClick={() => handleSettingsQuiz(quiz.id)}
+                                className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                            >
+                                <Settings className="w-5 h-5" />
+                            </button>
+                            <button
+                                onClick={() => handleDeleteQuiz(quiz.id)}
+                                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

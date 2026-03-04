@@ -202,6 +202,27 @@ const QuizLobbyPage = () => {
         );
     }
 
+    // ========================================
+    // RENDER: Countdown
+    // ========================================
+    if (phase === 'countdown') {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
+                <div className="text-center">
+                    <div className="text-white text-2xl font-bold mb-6 animate-pulse">
+                        Get Ready!
+                    </div>
+                    <div className="text-white text-9xl font-black">
+                        {countdown > 0 ? countdown : '🚀'}
+                    </div>
+                    <div className="text-white/60 text-lg mt-6">
+                        Question is coming...
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     // Split players into tiers for the cascade display
     const largePlayers = recentPlayers.slice(0, 3);
     const mediumPlayers = recentPlayers.slice(3, 8);

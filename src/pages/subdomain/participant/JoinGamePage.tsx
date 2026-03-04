@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { useManagerNavigate } from '@/hooks';
@@ -14,8 +14,9 @@ import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload } from
 
 const JoinGamePage = () => {
     const navigate = useManagerNavigate();
+    const [searchParams] = useSearchParams();
 
-    const [pin, setPin] = useState('');
+    const [pin, setPin] = useState(searchParams.get('pin') || '');
     const [nickname, setNickname] = useState('');
     const [isJoining, setIsJoining] = useState(false);
     const [error, setError] = useState('');

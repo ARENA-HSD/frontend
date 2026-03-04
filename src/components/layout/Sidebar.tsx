@@ -10,6 +10,7 @@ import { cn } from '@/utils/cn';
 interface SidebarProps {
     isOpen?: boolean;
     onClose?: () => void;
+    navItems?: NavItem[];
 }
 
 interface NavItem {
@@ -20,32 +21,29 @@ interface NavItem {
     badge?: string;
 }
 
-const Sidebar = ({ isOpen = true, onClose }: SidebarProps) => {
+const Sidebar = ({ isOpen = true, onClose, navItems: navItemsProp }: SidebarProps) => {
     const location = useLocation();
-
-    const navItems: NavItem[] = [
+    const navItems = navItemsProp || [
         {
             label: 'Dashboard',
             icon: '📊',
-            path: '/',
+            path: `${window.location.host}/`,
         },
         {
             label: 'Members',
             icon: '👥',
-            path: '/members',
-            disabled: true,
-            badge: 'v2.0',
+            path: `${window.location.host}/members`,
         },
         {
             label: 'Logs',
             icon: '📋',
-            path: '/logs',
+            path: `${window.location.host}/logs`,
         },
     ];
 
     const isActive = (path: string) => {
-        if (path === '/') {
-            return location.pathname === '/';
+        if (path === `${window.location.host}/`) {
+            return location.pathname === `${window.location.host}/`;
         }
         return location.pathname.startsWith(path);
     };

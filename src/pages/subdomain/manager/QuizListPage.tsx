@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
+import Sidebar from '@/components/layout/Sidebar';
 import { useAuth, useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { Quiz } from '@/types';
@@ -17,6 +18,8 @@ const QuizListPage = () => {
     const subdomain = useSubdomain();
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleSidebar = () => setIsOpen(!isOpen);
 
     useEffect(() => {
         if (subdomain) {
@@ -67,7 +70,7 @@ const QuizListPage = () => {
     }
 
     return (
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-7xl mx-auto p-6 h-screen flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between mb-8 bg-white p-4 rounded-lg shadow-sm">
                 <div className="flex items-center gap-3">
@@ -83,46 +86,50 @@ const QuizListPage = () => {
                     {subdomain}
                 </div>
             </div>
+            <div className="flex flex-1">
+                <Sidebar isOpen={isOpen} onClose={toggleSidebar} />
 
-            {/* Quiz Grid */}
-            <div className="grid grid-cols-4 gap-6">
-                {/* Create Quiz Card */}
-                <div
-                    onClick={handleCreateQuiz}
-                    className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-8 flex items-center justify-center cursor-pointer hover:from-indigo-600 hover:to-indigo-700 transition-all shadow-lg"
-                >
-                    <div className="text-center text-white">
-                        <Plus className="w-12 h-12 mx-auto mb-3" />
-                        <div className="text-xl font-bold">Create Quiz</div>
-                    </div>
-                </div>
+                {/* Quiz Grid */}
+                {quizzes.length > 0 ? (
+                    <div className="grid grid-cols-4 gap-6 content-start overflow-y-auto pl-4 pb-4">
+                        {/* Create Quiz Card */}
+                        <div
+                            onClick={handleCreateQuiz}
+                            className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-8 flex items-center justify-center cursor-pointer hover:from-indigo-600 hover:to-indigo-700 transition-all shadow-lg h-content"
+                        >
+                            <div className="text-center text-white">
+                                <Plus className="w-12 h-12 mx-auto mb-3" />
+                                <div className="text-xl font-bold">Create Quiz</div>
+                            </div>
+                        </div>
 
-                {/* Quiz Cards */}
-                {quizzes.map(quiz => (
-                    <div key={quiz.id} onClick={() => handleViewQuiz(quiz.id)}>
-                        <QuizCard
-                            quiz={quiz}
-                            onStart={(e) => {
-                                e?.stopPropagation();
-                                handleStartQuiz(quiz.id);
-                            }}
-                        />
+                        {/* Quiz Cards */}
+                        {quizzes.map(quiz => (
+                            <div key={quiz.id} onClick={() => handleViewQuiz(quiz.id)}>
+                                <QuizCard
+                                    quiz={quiz}
+                                    onStart={(e) => {
+                                        e?.stopPropagation();
+                                        handleStartQuiz(quiz.id);
+                                    }}
+                                />
+                            </div>
+                        ))}
                     </div>
-                ))}
+                ) : (
+                    <div className="w-full flex items-center justify-center">
+                        <div className="text-center py-12">
+                            <div className="text-gray-400 text-lg mb-4">No quizzes yet</div>
+                            <button
+                                onClick={handleCreateQuiz}
+                                className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
+                            >
+                                Create Your First Quiz
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {/* Empty State */}
-            {quizzes.length === 0 && (
-                <div className="text-center py-12">
-                    <div className="text-gray-400 text-lg mb-4">No quizzes yet</div>
-                    <button
-                        onClick={handleCreateQuiz}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
-                    >
-                        Create Your First Quiz
-                    </button>
-                </div>
-            )}
         </div>
     );
 };

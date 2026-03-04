@@ -233,7 +233,7 @@ export const ANIMATION_DURATIONS = {
 export const API_ROUTES = {
     // Auth
     LOGIN: '/login',
-    REGISTER: '/login/register',
+    REGISTER: '/users',
 
     // Organizations
     ORGANIZATIONS: '/org',

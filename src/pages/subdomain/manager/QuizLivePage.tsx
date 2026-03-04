@@ -59,7 +59,7 @@ const QuizLivePage = () => {
 
     // Leaderboard state
     const [leaderboard, setLeaderboard] = useState<Array<{ nickname: string; score: number }>>([]);
-    const [highStreaks, setHighStreaks] = useState<Array<{ nick: string; streak: number }>>([]);
+    const [highStreaks, setHighStreaks] = useState<Array<{ nickname: string; streak: number }>>([]);
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -139,7 +139,7 @@ const QuizLivePage = () => {
                 setCorrectOptionIndex(payload.correctIndex);
                 setAnswerStats(payload.answerStats || {});
                 // Update streaks from QUESTION_END; clear if empty
-                const sl = (payload.streakLeaders || []).map((s: any) => ({ nick: s.nick || s.nick, streak: s.streak }));
+                const sl = (payload.streakLeaders || []).map((s: any) => ({ nickname: s.nickname || s.nickname, streak: s.streak }));
                 setHighStreaks(sl);
                 setPhase('results');
             })
@@ -148,7 +148,7 @@ const QuizLivePage = () => {
         // LEADERBOARD_RESULT - leaderboard data
         unsubs.push(
             gameSocket.on(WS_EVENTS.LEADERBOARD_RESULT, (payload: LeaderboardResultHostPlayload) => {
-                const top5 = (payload.top5 || []).map((p: any) => ({ nick: p.nick || p.nickname, score: p.score }));
+                const top5 = (payload.top5 || []).map((p: any) => ({ nickname: p.nickname || p.nickname, score: p.score }));
                 setLeaderboard(top5);
                 setPhase('leaderboard');
             })
@@ -407,10 +407,10 @@ const QuizLivePage = () => {
                                         <div className={`text-2xl font-bold ${idx < 3 ? 'text-white' : 'text-gray-900'}`}>
                                             {player.score.toLocaleString()}
                                         </div>
-                                        {highStreaks.find(s => s.nick === player.nickname && s.streak >= 3) && (
+                                        {highStreaks.find(s => s.nickname === player.nickname && s.streak >= 3) && (
                                             <div className="text-2xl">
                                                 🔥
-                                                {(highStreaks.find(s => s.nick === player.nickname)?.streak || 0) >= 7 && (
+                                                {(highStreaks.find(s => s.nickname === player.nickname)?.streak || 0) >= 7 && (
                                                     <span className="text-3xl">🔥</span>
                                                 )}
                                             </div>
@@ -433,7 +433,7 @@ const QuizLivePage = () => {
                                     <div className="flex-1">
                                         <div className="text-sm font-semibold text-indigo-900 mb-1">Top Streaks</div>
                                         <div className="text-lg font-bold text-indigo-700">
-                                            {highStreaks.slice(0, 3).map(s => `${s.nick} (🔥${s.streak})`).join(', ')}
+                                            {highStreaks.slice(0, 3).map(s => `${s.nickname} (🔥${s.streak})`).join(', ')}
                                         </div>
                                     </div>
                                 </div>

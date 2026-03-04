@@ -7,7 +7,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { Users, Zap } from 'lucide-react';
+import { Users, Zap, Copy, Check } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
@@ -30,6 +31,18 @@ const QuizLobbyPage = () => {
 
     const [phase, setPhase] = useState<'lobby' | 'countdown'>('lobby');
     const [countdown, setCountdown] = useState(1);
+    const [copied, setCopied] = useState(false);
+
+    // Build join URL using subdomain
+    const joinUrl = subdomain ? `${window.location.host}/join?pin=${gamePin}` : '';
+
+    const copyToClipboard = useCallback(() => {
+        if (!joinUrl) return;
+        navigator.clipboard.writeText(joinUrl).then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        });
+    }, [joinUrl]);
 
     // ========================================
     // Load quiz and create game session
@@ -208,69 +221,96 @@ const QuizLobbyPage = () => {
                 </div>
             </div>
 
-            {/* PIN Display */}
-            <div className="flex justify-center text-center mb-4">
-                <div className="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg">
-                    <div className="text-sm text-gray-500 font-medium mb-2">Game PIN</div>
-                    <div className="text-6xl font-black text-indigo-600 tracking-widest mb-4">
-                        {gamePin || '------'}
+            {/* PIN & QR Display */}
+            <div className="flex">
+                {/* QR Code */}
+                {joinUrl && (
+                    <div className="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg">
+                        <div className="text-sm text-gray-500 font-medium mb-2">Game PIN</div>
+                        <div className="text-6xl font-black text-indigo-600 tracking-widest mb-4">
+                            {gamePin || '------'}
+                        </div>
+                        <div className="text-sm text-gray-500 font-medium mb-3">Scan to Join</div>
+                        <div className="bg-white p-3 rounded-xl border-2 border-indigo-100">
+                            <QRCodeSVG
+                                value={joinUrl}
+                                size={160}
+                                level="H"
+                                bgColor="#ffffff"
+                                fgColor="#4f46e5"
+                            />
+                        </div>
+                        <div className="mt-3 flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 max-w-xs">
+                            <span className="text-xs text-gray-600 truncate select-all font-mono">
+                                {joinUrl}
+                            </span>
+                            <button
+                                onClick={copyToClipboard}
+                                className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors"
+                                title="Copy link"
+                            >
+                                {copied ? (
+                                    <Check className="w-4 h-4 text-green-500" />
+                                ) : (
+                                    <Copy className="w-4 h-4 text-gray-400" />
+                                )}
+                            </button>
+                        </div>
                     </div>
-                    <div className="text-gray-500 text-sm">
-                        Share this PIN with participants to join
-                    </div>
+                )}
+
+                {/* Participants */}
+                <div className="mb-6 w-full p-4">
+                    <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <Users className="w-5 h-5" />
+                        Participants ({participantCount})
+                    </h3>
+
+                    {participantCount === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="text-gray-400 text-lg animate-pulse">
+                                Waiting for participants to join...
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Large tiles - first 3 */}
+                            {largePlayers.length > 0 && (
+                                <div className="flex flex-wrap justify-evenly items-center mb-3">
+                                    {largePlayers.map((name, idx) => (
+                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-white p-4 rounded-lg shadow-sm animate-fadeIn hover:bg-gray-200 hover:line-through">
+                                            <div className="text-xl font-semibold text-gray-900">{name}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Medium tiles - next 5 */}
+                            {mediumPlayers.length > 0 && (
+                                <div className="flex flex-wrap justify-evenly items-center mb-3">
+                                    {mediumPlayers.map((name, idx) => (
+                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-white p-3 rounded-lg shadow-sm hover:bg-gray-200 hover:line-through">
+                                            <div className="text-lg font-medium text-gray-800">{name}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Small tiles - remaining */}
+                            {smallPlayers.length > 0 && (
+                                <div className="flex flex-wrap justify-evenly items-center pb-2 gap-2">
+                                    {smallPlayers.map((name, idx) => (
+                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-white px-4 py-2 rounded-lg shadow-sm whitespace-nowrap hover:bg-gray-200 hover:line-through">
+                                            <div className="text-sm font-medium text-gray-700">{name}</div>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
 
-            {/* Participants */}
-            <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Participants ({participantCount})
-                </h3>
-
-                {participantCount === 0 ? (
-                    <div className="text-center py-12">
-                        <div className="text-gray-400 text-lg animate-pulse">
-                            Waiting for participants to join...
-                        </div>
-                    </div>
-                ) : (
-                    <>
-                        {/* Large tiles - first 3 */}
-                        {largePlayers.length > 0 && (
-                            <div className="flex justify-evenly items-center mb-3">
-                                {largePlayers.map((name, idx) => (
-                                    <div key={idx} className="bg-white p-4 rounded-lg shadow-sm animate-fadeIn">
-                                        <div className="text-xl font-semibold text-gray-900">{name}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Medium tiles - next 5 */}
-                        {mediumPlayers.length > 0 && (
-                            <div className="flex justify-evenly items-center mb-3">
-                                {mediumPlayers.map((name, idx) => (
-                                    <div key={idx} className="bg-white p-3 rounded-lg shadow-sm">
-                                        <div className="text-lg font-medium text-gray-800">{name}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-
-                        {/* Small tiles - remaining */}
-                        {smallPlayers.length > 0 && (
-                            <div className="flex justify-evenly items-center overflow-x-auto pb-2 gap-2">
-                                {smallPlayers.map((name, idx) => (
-                                    <div key={idx} className="bg-white px-4 py-2 rounded-lg shadow-sm whitespace-nowrap">
-                                        <div className="text-sm font-medium text-gray-700">{name}</div>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
 
             {/* Start Button */}
             <div className="flex justify-center">

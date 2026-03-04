@@ -4,13 +4,39 @@
  * Simple layout for main domain (public pages like register/login)
  */
 
+import { Sidebar } from '@/components';
 import { type ReactNode } from 'react';
+import { useState } from 'react';
 
 interface MainLayoutProps {
     children: ReactNode;
+    sidebar?: boolean;
 }
 
-const MainLayout = ({ children }: MainLayoutProps) => {
+const MainLayout = ({ children, sidebar = true }: MainLayoutProps) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const toggleSidebar = () => setIsOpen(!isOpen);
+
+    const navItems = [
+        {
+            label: 'Organizations',
+            icon: '📊',
+            path: `${window.location.host}/`,
+        },
+        {
+            label: 'Profile',
+            icon: '👥',
+            path: `${window.location.host}/profile`,
+        },
+        {
+            label: 'Payments',
+            icon: '💳',
+            path: `${window.location.host}/payments`,
+            disabled: true,
+            badge: 'V2',
+        },
+    ];
+
     return (
         <div className="min-h-screen bg-page flex flex-col">
             {/* Header */}
@@ -27,12 +53,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="flex-1 flex items-center justify-center p-4">
-                <div className="w-full max-w-md">
-                    {children}
-                </div>
-            </main>
+            <div className="flex flex-1">
+                {sidebar && <Sidebar isOpen={isOpen} onClose={toggleSidebar} navItems={navItems} />}
+                {/* Main Content */}
+                <main className="flex-1 flex items-center justify-center p-4">
+                    <div className="w-full h-full">
+                        {children}
+                    </div>
+                </main>
+            </div>
 
             {/* Footer */}
             <footer className="bg-card border-t border-light">

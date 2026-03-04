@@ -13,7 +13,7 @@ import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
-import type { GameStartingPlayload, LobbyUpdatePlayload, QuestionStartPlayload, Quiz } from '@/types';
+import type { GameStartingPlayload, LobbyUpdatePlayload, PlayerKickedPlayload, QuestionStartPlayload, Quiz } from '@/types';
 
 const QuizLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -130,6 +130,14 @@ const QuizLobbyPage = () => {
             })
         );
 
+        // Listen for player kicked confirmation
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.PLAYER_KICKED, (payload: PlayerKickedPlayload) => {
+                setRecentPlayers(prev => prev.filter(name => name !== payload.nickname));
+                setParticipantCount(prev => Math.max(0, prev - 1));
+            })
+        );
+
         // Listen for errors
         unsubs.push(
             gameSocket.on(WS_EVENTS.ERROR, (payload: any) => {
@@ -171,8 +179,8 @@ const QuizLobbyPage = () => {
         gameSocket.startGame(gameId);
     }, [gameId]);
 
-    const handleKickPlayer = useCallback((socketId: string, ban: boolean = false) => {
-        gameSocket.kickPlayer(socketId, ban);
+    const handleKickPlayer = useCallback((nickname: string, ban: boolean = false) => {
+        gameSocket.kickPlayer(nickname, ban);
     }, []);
 
     // ========================================

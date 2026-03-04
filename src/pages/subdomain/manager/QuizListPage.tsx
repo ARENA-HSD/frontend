@@ -105,7 +105,7 @@ const QuizListPage = () => {
 
                         {/* Quiz Cards */}
                         {quizzes.map(quiz => (
-                            <div key={quiz.id} onClick={() => handleViewQuiz(quiz.id)}>
+                            <div className="h-full" key={quiz.id} onClick={() => handleViewQuiz(quiz.id)}>
                                 <QuizCard
                                     quiz={quiz}
                                     onStart={(e) => {

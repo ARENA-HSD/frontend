@@ -16,8 +16,8 @@ interface QuizCardProps {
 
 const QuizCard = ({ quiz, onStart, onEdit, onDelete }: QuizCardProps) => {
     return (
-        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
-            <div className="p-6">
+        <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden h-full">
+            <div className="p-6 flex flex-col justify-between h-full">
                 <div className="flex items-start justify-between mb-4">
                     <h3 className="font-bold text-lg text-gray-900">{quiz.title}</h3>
                     <button

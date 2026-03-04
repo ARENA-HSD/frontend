@@ -251,7 +251,7 @@ class MockWebSocket {
     /**
      * Simulate KICK_PLAYER
      */
-    private simulateKickPlayer(data: { socketId: string; ban: boolean }): void {
+    private simulateKickPlayer(data: { nickname: string; ban: boolean }): void {
         setTimeout(() => {
             // Send force disconnect to the kicked player
             this.emitMessage({

@@ -215,8 +215,8 @@ class GameWebSocket {
     }
 
     /** Host kicks a player */
-    kickPlayer(socketId: string, ban: boolean = false): void {
-        this.emit(WS_EVENTS.KICK_PLAYER, { socketId, ban });
+    kickPlayer(nickname: string, ban: boolean = false): void {
+        this.emit(WS_EVENTS.KICK_PLAYER, { nickname, ban });
     }
 
     // ============================

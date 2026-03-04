@@ -151,7 +151,7 @@ export interface JoinRoomPlayload {
 }
 
 export interface KickPlayerPlayload {
-    socketId: string;
+    nickname: string;
     ban: boolean;
 }
 
@@ -183,6 +183,10 @@ export interface JoinSuccessPlayload {
 export interface LobbyUpdatePlayload {
     count: number;
     recentPlayers: string[]; // Last players
+}
+
+export interface PlayerKickedPlayload {
+    nickname: string;
 }
 
 export interface ForceDisconnectPlayload {
@@ -253,6 +257,7 @@ export type WebsocketPlayload =
     | NextQuestionPlayload
     | JoinSuccessPlayload
     | LobbyUpdatePlayload
+    | PlayerKickedPlayload
     | ForceDisconnectPlayload
     | GameStartingPlayload
     | QuestionStartPlayload

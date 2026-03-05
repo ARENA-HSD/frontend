@@ -57,7 +57,7 @@ const OrganizationsPage = () => {
         // Redirect to the real subdomain
         const port = window.location.port ? `:${window.location.port}` : '';
         const host = window.location.hostname;
-        
+
         let newHost = '';
         if (host.includes('localhost')) {
             newHost = `${org.subdomain}.localhost`;
@@ -70,7 +70,7 @@ const OrganizationsPage = () => {
                 newHost = `${org.subdomain}.${host}`;
             }
         }
-        
+
         window.location.href = `${window.location.protocol}//${newHost}${port}/manager/quizzes`;
     };
 
@@ -129,6 +129,7 @@ const OrganizationsPage = () => {
                                     key={org.id}
                                     organization={org}
                                     onAccess={handleAccessOrganization}
+                                    onRefresh={fetchOrganizations}
                                 />
                             ))}
                         </div>

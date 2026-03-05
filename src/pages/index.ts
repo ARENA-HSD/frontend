@@ -7,3 +7,4 @@ export { default as LoginPage } from './LoginPage';
 export { default as RegisterPage } from './RegisterPage';
 export { default as OrganizationsPage } from './OrganizationsPage';
 export { default as CreateOrganizationPage } from './CreateOrganizationPage';
+export { default as UpdateOrganizationPage } from './UpdateOrganizationPage';

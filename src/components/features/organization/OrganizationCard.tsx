@@ -4,16 +4,43 @@
  * Card display for organization with access button
  */
 
+import { useState } from 'react';
 import type { UserOrganization } from '@/types';
 import { Button } from '@/components';
+import { organizationService } from '@/services';
+import { useNavigate } from 'react-router-dom';
+import { Edit2, Trash2 } from 'lucide-react';
 
 interface OrganizationCardProps {
     organization: UserOrganization;
     onAccess: (org: UserOrganization) => void;
+    onRefresh: () => void;
 }
 
-const OrganizationCard = ({ organization, onAccess }: OrganizationCardProps) => {
-    const { name, subdomain, package: pkg, role } = organization;
+const OrganizationCard = ({ organization, onAccess, onRefresh }: OrganizationCardProps) => {
+    const { id, name, subdomain, package: pkg, role } = organization;
+    const { deleteOrganization } = organizationService;
+    const navigate = useNavigate();
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const handleUpdateOrganization = () => {
+        navigate(`/organizations/${subdomain}/update`);
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
+
+        try {
+            setIsDeleting(true);
+            await deleteOrganization(subdomain);
+            onRefresh();
+        } catch (error) {
+            console.error('Failed to delete organization:', error);
+            alert('Failed to delete organization');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     const roleColors = {
         SUPER_ADMIN: 'text-role-danger',
@@ -37,10 +64,27 @@ const OrganizationCard = ({ organization, onAccess }: OrganizationCardProps) => 
                         {subdomain}.hsdarena.com
                     </p>
                 </div>
+                <div className="flex flex-col items-end gap-2">
+                    <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase whitespace-nowrap ${packageColors[pkg]}`}>
+                        {pkg}
+                    </span>
+                    <div>
+                        <button
+                            className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                            onClick={handleUpdateOrganization}
+                        >
+                            <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-50"
+                            onClick={handleDelete}
+                            disabled={isDeleting}
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
 
-                <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase whitespace-nowrap ${packageColors[pkg]}`}>
-                    {pkg}
-                </span>
             </div>
 
             {/* Footer with role and access button */}

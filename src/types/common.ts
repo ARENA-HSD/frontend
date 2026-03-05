@@ -53,24 +53,25 @@ export type OrganizationRole = 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER';
 
 export interface OrganizationBranding {
     logoUrl?: string;
-    css?: string;
+    primary?: string;
+    secondary?: string;
 }
 
 export interface Organization {
-    id: string;
-    name: string;
-    subdomain: string;
-    package: PackageType;
-    createdAt: string;
-    branding?: OrganizationBranding;
-    ownerId?: string;
+    organization: {
+        id: string;
+        name: string;
+        subdomain: string;
+        createdAt: string;
+        branding?: OrganizationBranding;
+        ownerId?: string;
+    }
 }
 
 export interface UserOrganization {
     id: string;
     name: string;
     subdomain: string;
-    package: PackageType;
     role: OrganizationRole;
     branding?: OrganizationBranding;
 }

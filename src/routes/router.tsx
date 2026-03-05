@@ -12,27 +12,30 @@ import {
     RegisterPage,
     OrganizationsPage,
     CreateOrganizationPage,
+    UpdateOrganizationPage,
 } from '@/pages';
 
-// Quiz Pages
-import QuizListPage from '@/pages/subdomain/manager/QuizListPage';
-import QuizDetailPage from '@/pages/subdomain/manager/QuizDetailPage';
-import CreateQuizPage from '@/pages/subdomain/manager/CreateQuizPage';
-import CreateQuestionPage from '@/pages/subdomain/manager/CreateQuestionPage';
-import EditQuestionPage from '@/pages/subdomain/manager/EditQuestionPage';
-import QuizLobbyPage from '@/pages/subdomain/manager/QuizLobbyPage';
-import QuizLivePage from '@/pages/subdomain/manager/QuizLivePage';
-import QuizResultsPage from '@/pages/subdomain/manager/QuizResultsPage';
-
 // Manager Pages
-import MembersPage from '@/pages/subdomain/manager/MembersPage';
-import InvitationsPage from '@/pages/subdomain/manager/InvitationsPage';
+import {
+    QuizListPage,
+    QuizDetailPage,
+    CreateQuizPage,
+    CreateQuestionPage,
+    EditQuestionPage,
+    QuizLobbyPage,
+    QuizLivePage,
+    QuizResultsPage,
+    MembersPage,
+    InvitationsPage,
+} from '@/pages/subdomain/manager';
 
 // Participant Pages
-import JoinGamePage from '@/pages/subdomain/participant/JoinGamePage';
-import ParticipantLobbyPage from '@/pages/subdomain/participant/ParticipantLobbyPage';
-import ParticipantGamePage from '@/pages/subdomain/participant/ParticipantGamePage';
-import ParticipantResultPage from '@/pages/subdomain/participant/ParticipantResultPage';
+import {
+    JoinGamePage,
+    ParticipantLobbyPage,
+    ParticipantGamePage,
+    ParticipantResultPage,
+} from '@/pages/subdomain/participant';
 import ProfilePage from '@/pages/ProfilePage';
 
 /**
@@ -64,6 +67,14 @@ const mainDomainRouter = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <CreateOrganizationPage />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/organizations/:subdomain/update',
+        element: (
+            <ProtectedRoute>
+                <UpdateOrganizationPage />
             </ProtectedRoute>
         ),
     },

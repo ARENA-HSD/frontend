@@ -70,6 +70,30 @@ export const getMembers = async (orgDomain: string): Promise<ApiResponse<MemberW
 };
 
 /**
+ * Change member role
+ */
+export const changeMemberRole = async (
+    orgDomain: string,
+    memberId: string,
+    role: string
+): Promise<ApiResponse<MemberWithUser>> => {
+    return await patch<ApiResponse<MemberWithUser>>(
+        API_ROUTES.MEMBER_BY_ID(orgDomain, memberId),
+        { role }
+    );
+};
+
+/**
+ * Remove member from organization
+ */
+export const removeMember = async (
+    orgDomain: string,
+    memberId: string
+): Promise<ApiResponse<void>> => {
+    return await del<ApiResponse<void>>(API_ROUTES.MEMBER_BY_ID(orgDomain, memberId));
+};
+
+/**
  * Invite user to organization
  */
 export const createInvitation = async (

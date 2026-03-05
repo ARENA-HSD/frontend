@@ -245,6 +245,8 @@ export const API_ROUTES = {
 
     // Members
     MEMBERS: (orgDomain: string) => `/org/${orgDomain}/members`,
+    MEMBER_BY_ID: (orgDomain: string, memberId: string) =>
+        `/org/${orgDomain}/members/${memberId}`,
     INVITATIONS: (orgDomain: string) => `/org/${orgDomain}/invitations`,
     INVITATION_BY_ID: (orgDomain: string, invitationId: string) =>
         `/org/${orgDomain}/invitations/${invitationId}`,

@@ -84,7 +84,7 @@ const QuizListPage = () => {
 
             {/* Quiz Grid */}
             {quizzes.length > 0 ? (
-                <div className="grid grid-cols-4 gap-6 content-start overflow-y-auto pl-4 pb-4">
+                <div className="grid grid-cols-4 gap-6 content-start overflow-y-auto p-4">
                     {/* Create Quiz Card */}
                     <div
                         onClick={handleCreateQuiz}

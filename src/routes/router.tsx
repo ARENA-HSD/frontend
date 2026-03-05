@@ -26,6 +26,7 @@ import QuizResultsPage from '@/pages/subdomain/manager/QuizResultsPage';
 
 // Manager Pages
 import MembersPage from '@/pages/subdomain/manager/MembersPage';
+import InvitationsPage from '@/pages/subdomain/manager/InvitationsPage';
 
 // Participant Pages
 import JoinGamePage from '@/pages/subdomain/participant/JoinGamePage';
@@ -190,6 +191,16 @@ const subdomainRouter = createBrowserRouter([
             <SubdomainGuard>
                 <ProtectedRoute>
                     <MembersPage />
+                </ProtectedRoute>
+            </SubdomainGuard>
+        ),
+    },
+    {
+        path: '/manager/invitations',
+        element: (
+            <SubdomainGuard>
+                <ProtectedRoute>
+                    <InvitationsPage />
                 </ProtectedRoute>
             </SubdomainGuard>
         ),

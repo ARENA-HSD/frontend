@@ -92,16 +92,15 @@ export interface UpdateOrganizationData {
 // ============================================
 
 export interface Member {
-    id: string;
+    id?: string;
     userId: string;
-    organizationId: string;
+    username: string;
+    email: string;
     role: OrganizationRole;
     joinedAt: string;
 }
 
-export interface MemberWithUser extends Member {
-    user: User;
-}
+export interface MemberWithUser extends Member { }
 
 // ============================================
 // INVITATION
@@ -109,8 +108,12 @@ export interface MemberWithUser extends Member {
 
 export interface Invitation {
     id: string;
-    inviteeUsername: string;
+    orgId: string;
+    inviterId: string;
+    inviteeId: string;
+    inviteeUsername?: string;
     status: string;
+    createdAt: string;
 }
 
 // ============================================

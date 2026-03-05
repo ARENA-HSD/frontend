@@ -80,11 +80,11 @@ const OrganizationsPage = () => {
 
     return (
         <MainLayout>
-            <div className="space-y-6">
+            <div className="max-w-5xl mx-auto px-4 py-12 space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-primary mb-2">
+                        <h1 className="text-2xl font-semibold text-gray-900">
                             Your Organizations
                         </h1>
                         <p className="text-secondary">

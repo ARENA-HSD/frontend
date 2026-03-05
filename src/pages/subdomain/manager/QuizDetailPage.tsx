@@ -1,15 +1,109 @@
 /**
  * HSD Arena - Quiz Detail Page
  * 
- * View and manage questions in a quiz
+ * View and manage questions in a quiz with drag-and-drop reordering
  */
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Plus, MoreVertical, Edit2, Trash2, ArrowBigLeft, Settings } from 'lucide-react';
+import { Plus, Edit2, Trash2, ArrowBigLeft, Settings, GripVertical } from 'lucide-react';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService, questionService } from '@/services';
 import type { Quiz, Question } from '@/types';
+
+// ============================================================================
+// Sortable Question Card Component
+// ============================================================================
+
+interface SortableQuestionCardProps {
+    question: Question;
+    index: number;
+    onEdit: (questionId: string) => void;
+    onDelete: (questionId: string) => void;
+}
+
+const SortableQuestionCard = ({ question, index, onEdit, onDelete }: SortableQuestionCardProps) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: question.id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+        zIndex: isDragging ? 50 : 'auto' as const,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`bg-white p-5 rounded-lg shadow-sm flex items-center justify-between transition-shadow ${isDragging ? 'shadow-lg ring-2 ring-indigo-300' : 'hover:shadow-md'
+                }`}
+        >
+            <div className="flex items-center gap-4 flex-1">
+                {/* Drag Handle */}
+                <button
+                    {...attributes}
+                    {...listeners}
+                    className="p-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing touch-none"
+                    title="Sırayı değiştirmek için sürükle"
+                >
+                    <GripVertical className="w-5 h-5" />
+                </button>
+                <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
+                    {index + 1}
+                </div>
+                <div>
+                    <div className="text-gray-900 font-medium">{question.text}</div>
+                    <div className="text-sm text-gray-500 mt-1">
+                        {question.timeLimit}s • {question.points} pts • {question.options.length} options
+                    </div>
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                <button
+                    onClick={() => onEdit(question.id)}
+                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                >
+                    <Edit2 className="w-5 h-5" />
+                </button>
+                <button
+                    onClick={() => onDelete(question.id)}
+                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                >
+                    <Trash2 className="w-5 h-5" />
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// ============================================================================
+// Quiz Detail Page
+// ============================================================================
 
 const QuizDetailPage = () => {
     const navigate = useManagerNavigate();
@@ -18,6 +112,17 @@ const QuizDetailPage = () => {
     const [quiz, setQuiz] = useState<Quiz | null>(null);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSavingOrder, setIsSavingOrder] = useState(false);
+
+    // DnD sensors — pointer (mouse/touch) + keyboard
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: { distance: 8 }, // 8px movement before drag starts
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const backToQuizzes = () => {
         navigate('/manager/quizzes');
@@ -50,13 +155,52 @@ const QuizDetailPage = () => {
                 (Array.isArray(questionsr?.data) ? questionsr.data : []);
 
             setQuiz(quizData);
-            setQuestions(Array.isArray(questionsData) ? questionsData : []);
+
+            // Sort by orderIndex on load
+            const sortedQuestions = Array.isArray(questionsData)
+                ? [...questionsData].sort((a: Question, b: Question) => a.orderIndex - b.orderIndex)
+                : [];
+            setQuestions(sortedQuestions);
         } catch (error) {
             console.error('Failed to load quiz:', error);
         } finally {
             setIsLoading(false);
         }
     };
+
+    // ── Drag & Drop Handler ──────────────────────────────────────────────
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        if (!subdomain || !quizId) return;
+
+        const oldIndex = questions.findIndex(q => q.id === active.id);
+        const newIndex = questions.findIndex(q => q.id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return;
+
+        // Optimistic update — UI'ı hemen güncelle
+        const reordered = arrayMove(questions, oldIndex, newIndex);
+        setQuestions(reordered);
+
+        // Backend'e kaydet
+        try {
+            setIsSavingOrder(true);
+            await questionService.reorderQuestions(
+                subdomain,
+                quizId,
+                reordered.map(q => q.id)
+            );
+        } catch (error) {
+            console.error('Failed to reorder questions:', error);
+            // Hata durumunda eski sıralamaya geri dön
+            setQuestions(questions);
+        } finally {
+            setIsSavingOrder(false);
+        }
+    };
+
+    // ── Other Handlers ───────────────────────────────────────────────────
 
     const handleStartQuiz = () => {
         navigate(`/manager/quizzes/${quizId}/lobby`);
@@ -93,6 +237,8 @@ const QuizDetailPage = () => {
         }
     };
 
+    // ── Render ───────────────────────────────────────────────────────────
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -127,6 +273,11 @@ const QuizDetailPage = () => {
                             <h1 className="text-3xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
                             <div className="text-gray-600">
                                 {questions.length} questions • {quiz.defaultMode} mode
+                                {isSavingOrder && (
+                                    <span className="ml-2 text-indigo-500 text-sm animate-pulse">
+                                        Sıralama kaydediliyor...
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -155,41 +306,29 @@ const QuizDetailPage = () => {
                 </div>
             </div>
 
-            {/* Question List */}
-            <div className="space-y-3 mb-20">
-                {questions.map((question, idx) => (
-                    <div
-                        key={question.id}
-                        className="bg-white p-5 rounded-lg shadow-sm flex items-center justify-between hover:shadow-md transition-shadow"
-                    >
-                        <div className="flex items-center gap-4 flex-1">
-                            <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
-                                {idx + 1}
-                            </div>
-                            <div>
-                                <div className="text-gray-900 font-medium">{question.text}</div>
-                                <div className="text-sm text-gray-500 mt-1">
-                                    {question.timeLimit}s • {question.points} pts • {question.options.length} options
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => handleEditQuestion(question.id)}
-                                className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
-                            >
-                                <Edit2 className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => handleDeleteQuestion(question.id)}
-                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
-                            >
-                                <Trash2 className="w-5 h-5" />
-                            </button>
-                        </div>
+            {/* Question List — Drag & Drop */}
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+            >
+                <SortableContext
+                    items={questions.map(q => q.id)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <div className="space-y-3 mb-20">
+                        {questions.map((question, idx) => (
+                            <SortableQuestionCard
+                                key={question.id}
+                                question={question}
+                                index={idx}
+                                onEdit={handleEditQuestion}
+                                onDelete={handleDeleteQuestion}
+                            />
+                        ))}
                     </div>
-                ))}
-            </div>
+                </SortableContext>
+            </DndContext>
 
             {/* Empty State */}
             {questions.length === 0 && (

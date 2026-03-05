@@ -90,7 +90,7 @@ const MembersPage = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
                                                 <Shield className="w-4 h-4 text-indigo-500" />
-                                                {currentUser.id === member.userId ? (
+                                                {currentUser?.id === member.userId ? (
                                                     <div className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer hover:text-indigo-600 p-0">
                                                         {member.role === "SUPER_ADMIN" ? (
                                                             <span>Super Admin</span>

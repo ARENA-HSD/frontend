@@ -7,11 +7,13 @@
 import { useNavigate } from 'react-router-dom';
 import { SubdomainLayout } from "@/components";
 import { useMembers } from "@/hooks";
+import { authService } from '@/services';
 import { Trash2, UserPlus, Shield } from "lucide-react";
 
 const MembersPage = () => {
     const navigate = useNavigate();
     const { members, isLoading, error, changeRole, remove } = useMembers();
+    const currentUser = authService.getCurrentUser();
 
     const handleInviteClick = () => {
         navigate('/manager/invitations');
@@ -77,31 +79,56 @@ const MembersPage = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold">
-                                                    {(member as any).username?.substring(0, 2).toUpperCase()}
+                                                    {member.username?.substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <div className="font-semibold text-gray-900">{(member as any).username}</div>
-                                                    <div className="text-sm text-gray-500">{(member as any).email}</div>
+                                                    <div className="font-semibold text-gray-900">{member.username}</div>
+                                                    <div className="text-sm text-gray-500">{member.email}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
                                                 <Shield className="w-4 h-4 text-indigo-500" />
-                                                <select
-                                                    value={member.role}
-                                                    onChange={(e) => handleRoleChange((member as any).userId || member.id, e.target.value)}
-                                                    className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer hover:text-indigo-600 p-0"
-                                                >
-                                                    <option value="MANAGER">Manager</option>
-                                                    <option value="ADMIN">Admin</option>
-                                                    <option value="SUPER_ADMIN">Super Admin</option>
-                                                </select>
+                                                {currentUser.id === member.userId ? (
+                                                    <div className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer hover:text-indigo-600 p-0">
+                                                        {member.role === "SUPER_ADMIN" ? (
+                                                            <span>Super Admin</span>
+                                                        ) : member.role === "ADMIN" ? (
+                                                            <span>Admin</span>
+                                                        ) : (
+                                                            <span>Manager</span>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <select
+                                                        value={member.role}
+                                                        onChange={(e) => handleRoleChange(member.userId, e.target.value)}
+                                                        className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer hover:text-indigo-600 p-0"
+                                                    >
+                                                        {member.role === "SUPER_ADMIN" ? (
+                                                            <>
+                                                                <option value="SUPER_ADMIN">Super Admin</option>
+                                                                <option value="ADMIN">Admin</option>
+                                                                <option value="MANAGER">Manager</option>
+                                                            </>
+                                                        ) : member.role === "ADMIN" ? (
+                                                            <>
+                                                                <option value="ADMIN">Admin</option>
+                                                                <option value="MANAGER">Manager</option>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <option value="MANAGER">Manager</option>
+                                                            </>
+                                                        )}
+                                                    </select>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
                                             <button
-                                                onClick={() => handleRemoveMember((member as any).userId || member.id, (member as any).username)}
+                                                onClick={() => handleRemoveMember(member.userId, member.username)}
                                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                 title="Remove Member"
                                             >

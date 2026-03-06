@@ -242,11 +242,10 @@ const ParticipantGamePage = () => {
                 {/* Timer */}
                 <div className="flex justify-center mb-4">
                     <div
-                        className={`w-16 h-16 rounded-full border-4 flex items-center justify-center text-2xl font-black transition-colors ${
-                            timeLeft <= 3
+                        className={`w-16 h-16 rounded-full border-4 flex items-center justify-center text-2xl font-black transition-colors ${timeLeft <= 3
                                 ? 'border-red-400 text-red-400 animate-pulse'
                                 : 'border-white/60 text-white'
-                        }`}
+                            }`}
                     >
                         {timeLeft}
                     </div>
@@ -279,13 +278,12 @@ const ParticipantGamePage = () => {
                                 key={idx}
                                 onClick={() => handleSelectAnswer(idx)}
                                 disabled={phase === 'answered'}
-                                className={`w-full p-4 rounded-xl font-bold text-white text-lg transition-all ${color.bg} ${
-                                    phase === 'answered'
+                                className={`w-full p-4 rounded-xl font-bold text-white text-lg transition-all ${color.bg} ${phase === 'answered'
                                         ? isSelected
                                             ? 'ring-4 ring-white scale-[1.03]'
                                             : 'opacity-40'
                                         : `${color.hover} active:scale-95`
-                                }`}
+                                    }`}
                             >
                                 <span className="mr-2">{OPTION_LABELS[idx]}.</span>
                                 {option.text}
@@ -313,11 +311,10 @@ const ParticipantGamePage = () => {
                 {/* Timer */}
                 <div className="flex justify-center mb-4">
                     <div
-                        className={`w-16 h-16 rounded-full border-4 flex items-center justify-center text-2xl font-black transition-colors ${
-                            timeLeft <= 3
+                        className={`w-16 h-16 rounded-full border-4 flex items-center justify-center text-2xl font-black transition-colors ${timeLeft <= 3
                                 ? 'border-red-400 text-red-400 animate-pulse'
                                 : 'border-white/60 text-white'
-                        }`}
+                            }`}
                     >
                         {timeLeft}
                     </div>
@@ -334,13 +331,12 @@ const ParticipantGamePage = () => {
                                 key={idx}
                                 onClick={() => handleSelectAnswer(idx)}
                                 disabled={phase === 'answered'}
-                                className={`rounded-2xl font-black text-white text-6xl transition-all flex items-center justify-center ${color.bg} ${
-                                    phase === 'answered'
+                                className={`rounded-2xl font-black text-white text-6xl transition-all flex items-center justify-center ${color.bg} ${phase === 'answered'
                                         ? isSelected
                                             ? 'ring-4 ring-white scale-[1.03]'
                                             : 'opacity-30'
                                         : `${color.hover} active:scale-95`
-                                }`}
+                                    }`}
                             >
                                 {OPTION_LABELS[idx]}
                             </button>
@@ -363,11 +359,10 @@ const ParticipantGamePage = () => {
     if (phase === 'result') {
         return (
             <div
-                className={`min-h-screen flex items-center justify-center p-4 ${
-                    isCorrect
+                className={`min-h-screen flex items-center justify-center p-4 ${isCorrect
                         ? 'bg-gradient-to-br from-green-500 to-emerald-600'
                         : 'bg-gradient-to-br from-red-500 to-rose-600'
-                }`}
+                    }`}
             >
                 <div className="text-center">
                     <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white/20 flex items-center justify-center">
@@ -423,11 +418,10 @@ const ParticipantGamePage = () => {
                         {top5.map((player, idx) => (
                             <div
                                 key={idx}
-                                className={`flex items-center gap-3 p-4 rounded-xl ${
-                                    player.nickname === nickname
+                                className={`flex items-center gap-3 p-4 rounded-xl ${player.nickname === nickname
                                         ? 'bg-white/30 ring-2 ring-white'
                                         : 'bg-white/10'
-                                }`}
+                                    }`}
                             >
                                 <div className="text-white font-black text-xl w-8">
                                     {idx + 1}
@@ -444,12 +438,12 @@ const ParticipantGamePage = () => {
 
                     {/* Your position */}
                     {rank > 0 && (
-                        <div className="bg-white rounded-2xl p-5 text-center">
-                            <div className="text-gray-500 text-sm mb-1">Your Position</div>
-                            <div className="text-4xl font-black text-indigo-600 mb-1">
+                        <div className="bg-card rounded-2xl p-5 text-center">
+                            <div className="text-tertiary text-sm mb-1">Your Position</div>
+                            <div className="text-4xl font-black text-role-primary mb-1">
                                 #{rank}
                             </div>
-                            <div className="text-lg font-bold text-gray-800">
+                            <div className="text-lg font-bold text-primary">
                                 {totalScore.toLocaleString()} points
                             </div>
                         </div>
@@ -471,14 +465,14 @@ const ParticipantGamePage = () => {
 
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
-                <div className="bg-white rounded-3xl p-8 shadow-2xl text-center max-w-sm w-full">
+                <div className="bg-card rounded-3xl p-8 shadow-2xl text-center max-w-sm w-full">
                     {rank > 0 ? (
                         <>
-                            <div className="text-gray-500 text-sm mb-2">Your Current Position</div>
-                            <div className="text-6xl font-black text-indigo-600 mb-2">
+                            <div className="text-tertiary text-sm mb-2">Your Current Position</div>
+                            <div className="text-6xl font-black text-role-primary mb-2">
                                 #{rank}
                             </div>
-                            <div className="text-2xl font-bold text-gray-800 mb-4">
+                            <div className="text-2xl font-bold text-primary mb-4">
                                 {totalScore.toLocaleString()} points
                             </div>
                         </>
@@ -487,7 +481,7 @@ const ParticipantGamePage = () => {
                             Waiting for results...
                         </div>
                     )}
-                    <div className="text-gray-400 text-sm">
+                    <div className="text-tertiary text-sm">
                         Look at the screen for full leaderboard
                     </div>
                 </div>

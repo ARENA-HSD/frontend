@@ -49,8 +49,8 @@ const Avatar = ({
         <div
             className={cn(
                 'relative inline-flex items-center justify-center rounded-full',
-                'bg-gradient-to-br from-primary-500 to-secondary-500',
-                'text-white font-semibold',
+                'bg-role-primary',
+                'text-inverse font-semibold',
                 'overflow-hidden',
                 sizeStyles[size],
                 className

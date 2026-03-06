@@ -1,57 +1,45 @@
 /**
  * HSD Arena - Theme Switcher Component
  * 
- * Button to toggle between light, dark, and system themes
+ * Gorgeous 3-way toggle: Light ☀️ / Dark 🌙 / Ocean 🌊
  */
 
-import { useTheme } from '@/hooks';
+import { useTheme, type Theme } from '@/hooks/useTheme';
+import { Sun, Moon, Waves } from 'lucide-react';
+
+const themes: Array<{ key: Theme; label: string; icon: typeof Sun }> = [
+    { key: 'light', label: 'Light', icon: Sun },
+    { key: 'dark', label: 'Dark', icon: Moon },
+    { key: 'ocean', label: 'Ocean', icon: Waves },
+];
 
 const ThemeSwitcher = () => {
     const { theme, changeTheme } = useTheme();
 
-    const cycleTheme = () => {
-        if (theme === 'light') changeTheme('dark');
-        else if (theme === 'dark') changeTheme('system');
-        else changeTheme('light');
-    };
-
-    const getIcon = () => {
-        if (theme === 'light') {
-            return (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-            );
-        } else if (theme === 'dark') {
-            return (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-            );
-        } else {
-            return (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-            );
-        }
-    };
-
-    const getLabel = () => {
-        if (theme === 'light') return 'Light';
-        if (theme === 'dark') return 'Dark';
-        return 'System';
-    };
-
     return (
-        <button
-            onClick={cycleTheme}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:scale-105 bg-card text-primary border border-light"
-            title={`Current theme: ${getLabel()}. Click to cycle.`}
-        >
-            {getIcon()}
-            <span className="text-sm font-medium">{getLabel()}</span>
-        </button>
+        <div className="flex items-center bg-page rounded-full p-1 border border-light gap-0.5">
+            {themes.map(({ key, label, icon: Icon }) => {
+                const isActive = theme === key;
+                return (
+                    <button
+                        key={key}
+                        onClick={() => changeTheme(key)}
+                        className={`
+                            flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+                            transition-all duration-200 ease-in-out
+                            ${isActive
+                                ? 'bg-role-primary text-inverse shadow-sm scale-105'
+                                : 'text-tertiary hover:text-primary hover:bg-card'
+                            }
+                        `}
+                        title={label}
+                    >
+                        <Icon className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{label}</span>
+                    </button>
+                );
+            })}
+        </div>
     );
 };
 

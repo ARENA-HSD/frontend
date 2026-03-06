@@ -83,7 +83,7 @@ const Modal = ({
             {/* Modal Content */}
             <div
                 className={cn(
-                    'relative bg-white rounded-xl shadow-2xl',
+                    'relative bg-card rounded-xl shadow-2xl',
                     'transform transition-all',
                     'animate-in fade-in zoom-in-95 duration-200',
                     'w-full',
@@ -96,7 +96,7 @@ const Modal = ({
             >
                 {/* Header */}
                 {(title || showCloseButton) && (
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-light">
                         {title && (
                             <h2 id="modal-title" className="text-primary text-xl font-semibold">
                                 {title}

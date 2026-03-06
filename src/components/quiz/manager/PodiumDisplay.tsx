@@ -38,7 +38,7 @@ const PodiumDisplay = ({ topThree }: PodiumDisplayProps) => {
 
     return (
         <div className="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-12">
-            <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">
+            <h2 className="text-4xl font-bold text-center text-primary mb-12">
                 🎉 Winners! 🎉
             </h2>
 
@@ -52,14 +52,14 @@ const PodiumDisplay = ({ topThree }: PodiumDisplayProps) => {
                         <div key={entry.nickname} className="flex flex-col items-center">
                             {/* Avatar */}
                             <div className="mb-4">
-                                <div className="w-24 h-24 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-3xl mb-2">
+                                <div className="w-24 h-24 bg-role-primary rounded-full flex items-center justify-center text-inverse font-bold text-3xl mb-2">
                                     {entry.nickname.substring(0, 2).toUpperCase()}
                                 </div>
                                 <div className="text-center">
-                                    <div className="font-bold text-gray-900 text-lg">
+                                    <div className="font-bold text-primary text-lg">
                                         {entry.nickname}
                                     </div>
-                                    <div className="text-2xl font-bold text-indigo-600">
+                                    <div className="text-2xl font-bold text-role-primary">
                                         {(entry.score ?? 0).toLocaleString()} pts
                                     </div>
                                 </div>
@@ -67,10 +67,10 @@ const PodiumDisplay = ({ topThree }: PodiumDisplayProps) => {
 
                             {/* Podium */}
                             <div className={`w-32 ${getPodiumHeight(entry.rank)} bg-gradient-to-t ${entry.rank === 1
-                                    ? 'from-yellow-400 to-yellow-500'
-                                    : entry.rank === 2
-                                        ? 'from-gray-300 to-gray-400'
-                                        : 'from-amber-600 to-amber-700'
+                                ? 'from-yellow-400 to-yellow-500'
+                                : entry.rank === 2
+                                    ? 'from-gray-300 to-gray-400'
+                                    : 'from-amber-600 to-amber-700'
                                 } rounded-t-xl flex items-center justify-center`}>
                                 <div className="text-6xl">
                                     {getMedalEmoji(entry.rank)}

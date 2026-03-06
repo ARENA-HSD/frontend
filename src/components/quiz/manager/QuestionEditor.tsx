@@ -16,7 +16,7 @@ interface QuestionEditorProps {
     onCancel: () => void;
 }
 
-const OPTION_COLORS = ['bg-teal-500', 'bg-pink-500', 'bg-purple-500', 'bg-orange-500'];
+const OPTION_COLORS = ['answer-btn-teal', 'answer-btn-pink', 'answer-btn-purple', 'answer-btn-orange'];
 
 const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCancel }: QuestionEditorProps) => {
     const [questionText, setQuestionText] = useState(question?.text || '');
@@ -81,7 +81,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
     };
 
     return (
-        <div className="bg-white p-8 rounded-lg shadow-sm">
+        <div className="bg-card p-8 rounded-lg shadow-sm">
             {/* Image Placeholder */}
             <div className="mb-6">
                 <div className="relative mb-3">
@@ -95,16 +95,16 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                             placeholder="Media URL (optional)"
                             value={mediaUrl}
                             onChange={(e) => setMediaUrl(e.target.value)}
-                            className="px-3 py-1.5 bg-white rounded shadow-sm text-sm font-medium border border-gray-300"
+                            className="px-3 py-1.5 bg-card rounded shadow-sm text-sm font-medium border border-light"
                         />
                     </div>
                 </div>
 
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-secondary mb-2">
                     Question Text *
                 </label>
                 <textarea
-                    className="w-full border border-gray-300 rounded-lg p-4 text-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full border border-light rounded-lg p-4 text-lg resize-none"
                     rows={3}
                     value={questionText}
                     onChange={(e) => setQuestionText(e.target.value)}
@@ -115,7 +115,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
             {/* Settings Row */}
             <div className="grid grid-cols-2 gap-6 mb-6">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-secondary mb-2">
                         Time Limit (seconds)
                     </label>
                     <div className="flex items-center gap-3">
@@ -128,13 +128,13 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                             onChange={(e) => setTimeLimit(parseInt(e.target.value))}
                             className="flex-1"
                         />
-                        <span className="text-xl font-bold text-indigo-600 w-16 text-center">
+                        <span className="text-xl font-bold text-role-primary w-16 text-center">
                             {timeLimit}s
                         </span>
                     </div>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-secondary mb-2">
                         Points
                     </label>
                     <input
@@ -143,14 +143,14 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                         step="100"
                         value={points}
                         onChange={(e) => setPoints(parseInt(e.target.value) || 100)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2 text-lg focus:ring-2 focus:ring-indigo-500"
+                        className="w-full border border-light rounded-lg px-4 py-2 text-lg"
                     />
                 </div>
             </div>
 
             {/* Options */}
             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">
+                <label className="block text-sm font-semibold text-secondary mb-3">
                     Options (select the correct one)
                 </label>
                 <div className="grid grid-cols-2 gap-4">
@@ -159,11 +159,11 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                             key={idx}
                             onClick={() => setCorrectIndex(idx)}
                             className={`flex items-center gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${correctIndex === idx
-                                ? 'border-green-500 bg-green-50'
-                                : 'border-gray-200 hover:border-gray-300'
+                                ? 'border-role-success bg-role-success-light'
+                                : 'border-light hover:border-medium'
                                 }`}
                         >
-                            <div className={`w-8 h-8 rounded-full ${OPTION_COLORS[idx]} flex items-center justify-center text-white font-bold text-sm`}>
+                            <div className={`w-8 h-8 rounded-full ${OPTION_COLORS[idx]} flex items-center justify-center text-inverse font-bold text-sm`}>
                                 {String.fromCharCode(65 + idx)}
                             </div>
                             <input
@@ -175,7 +175,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                                 className="flex-1 text-lg border-none focus:outline-none bg-transparent"
                             />
                             {correctIndex === idx && (
-                                <span className="text-green-600 font-semibold text-sm">✓ Correct</span>
+                                <span className="text-role-success font-semibold text-sm">✓ Correct</span>
                             )}
                         </div>
                     ))}
@@ -187,14 +187,14 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                 <button
                     onClick={onCancel}
                     disabled={isSaving}
-                    className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50"
+                    className="px-6 py-2.5 bg-page text-secondary rounded-lg font-medium hover:opacity-80 disabled:opacity-50"
                 >
                     Cancel
                 </button>
                 <button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="px-8 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50"
+                    className="px-8 py-2.5 btn-primary rounded-lg font-semibold disabled:opacity-50"
                 >
                     {isSaving ? 'Saving...' : 'Save'}
                 </button>

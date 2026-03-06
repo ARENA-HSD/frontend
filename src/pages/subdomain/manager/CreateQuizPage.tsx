@@ -62,20 +62,20 @@ const CreateQuizPage = () => {
             <div className="mb-6">
                 <button
                     onClick={handleCancel}
-                    className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+                    className="flex items-center gap-2 text-secondary hover:text-primary mb-4"
                 >
                     <ArrowLeft className="w-5 h-5" />
                     Back to Quizzes
                 </button>
-                <h1 className="text-3xl font-bold text-gray-900">Create New Quiz</h1>
+                <h1 className="text-3xl font-bold text-primary">Create New Quiz</h1>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-sm">
+            <form onSubmit={handleSubmit} className="bg-card p-8 rounded-lg shadow-sm">
                 <div className="space-y-6">
                     {/* Quiz Title */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-sm font-semibold text-secondary mb-2">
                             Quiz Title *
                         </label>
                         <input
@@ -83,14 +83,14 @@ const CreateQuizPage = () => {
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                             placeholder="Enter quiz title..."
-                            className="w-full border border-gray-300 rounded-lg px-4 py-3 text-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                            className="w-full border border-light rounded-lg px-4 py-3 text-lg"
                             required
                         />
                     </div>
 
                     {/* Quiz Mode */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label className="block text-sm font-semibold text-secondary mb-2">
                             Quiz Mode
                         </label>
                         <div className="grid grid-cols-2 gap-4">
@@ -98,12 +98,12 @@ const CreateQuizPage = () => {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, defaultMode: 'STAGE' })}
                                 className={`p-4 rounded-lg border-2 text-left transition-all ${formData.defaultMode === 'STAGE'
-                                    ? 'border-indigo-500 bg-indigo-50'
-                                    : 'border-gray-200 hover:border-gray-300'
+                                    ? 'border-focus bg-role-primary-light'
+                                    : 'border-light hover:border-medium'
                                     }`}
                             >
-                                <div className="font-semibold text-gray-900">🎤 Stage Mode</div>
-                                <div className="text-sm text-gray-500 mt-1">
+                                <div className="font-semibold text-primary">🎤 Stage Mode</div>
+                                <div className="text-sm text-tertiary mt-1">
                                     Questions on big screen, answers on phones
                                 </div>
                             </button>
@@ -111,12 +111,12 @@ const CreateQuizPage = () => {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, defaultMode: 'PERSONAL' })}
                                 className={`p-4 rounded-lg border-2 text-left transition-all ${formData.defaultMode === 'PERSONAL'
-                                    ? 'border-indigo-500 bg-indigo-50'
-                                    : 'border-gray-200 hover:border-gray-300'
+                                    ? 'border-focus bg-role-primary-light'
+                                    : 'border-light hover:border-medium'
                                     }`}
                             >
-                                <div className="font-semibold text-gray-900">📱 Personal Mode</div>
-                                <div className="text-sm text-gray-500 mt-1">
+                                <div className="font-semibold text-primary">📱 Personal Mode</div>
+                                <div className="text-sm text-tertiary mt-1">
                                     Questions and answers on participant's phone
                                 </div>
                             </button>
@@ -130,14 +130,14 @@ const CreateQuizPage = () => {
                         type="button"
                         onClick={handleCancel}
                         disabled={isLoading}
-                        className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 disabled:opacity-50"
+                        className="px-6 py-2.5 bg-page text-secondary rounded-lg font-medium hover:opacity-80 disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="px-8 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:opacity-50"
+                        className="px-8 py-2.5 btn-primary rounded-lg font-semibold disabled:opacity-50"
                     >
                         {isLoading ? 'Creating...' : 'Create Quiz'}
                     </button>

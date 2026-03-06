@@ -5,6 +5,7 @@
  */
 
 import { Sidebar } from '@/components';
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 import { type ReactNode } from 'react';
 import { useState } from 'react';
 
@@ -47,8 +48,11 @@ const MainLayout = ({ children, sidebar = true }: MainLayoutProps) => {
                         <h1 className="text-2xl font-bold text-gradient">HSD Arena</h1>
                     </div>
 
-                    <div className="text-sm text-secondary">
-                        Quiz & Game Platform
+                    <div className="flex items-center gap-4">
+                        <ThemeSwitcher />
+                        <div className="text-sm text-secondary hidden sm:block">
+                            Quiz & Game Platform
+                        </div>
                     </div>
                 </div>
             </header>

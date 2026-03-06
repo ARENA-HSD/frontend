@@ -90,11 +90,19 @@
         opacity: var(--state-disabled-opacity);
     }
 
-    /* Form elements */
+    /* Form elements — Global base styles for theme support */
     input,
     textarea,
     select {
         @apply outline-none;
+        background-color: var(--input-bg);
+        color: var(--input-text);
+        border-color: var(--input-border);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--input-placeholder);
     }
 
     input:focus,
@@ -102,6 +110,15 @@
     select:focus {
         outline: var(--state-focus-ring-width) solid var(--border-focus);
         outline-offset: var(--state-focus-ring-offset);
+        border-color: var(--input-border-focus);
+    }
+
+    input:disabled,
+    textarea:disabled,
+    select:disabled {
+        background-color: var(--input-disabled-bg);
+        opacity: var(--state-disabled-opacity);
+        cursor: not-allowed;
     }
 }
 
@@ -221,6 +238,10 @@
         background-color: var(--surface-sidebar-bg);
     }
 
+    .bg-grey {
+        background-color: var(--surface-grey-bg);
+    }
+
     .bg-footer {
         background-color: var(--surface-footer-bg);
     }
@@ -307,6 +328,10 @@
     /* ==========================================================================
        INPUT UTILITIES
        ========================================================================== */
+
+    .bg-input {
+        background-color: var(--input-bg);
+    }
 
     .input-error-border {
         border-color: var(--input-error-border);

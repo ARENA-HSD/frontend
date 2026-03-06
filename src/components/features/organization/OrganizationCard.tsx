@@ -49,9 +49,9 @@ const OrganizationCard = ({ organization, onAccess, onRefresh }: OrganizationCar
     };
 
     const packageColors = {
-        FREE: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-        PRO: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-        ENTERPRISE: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
+        FREE: 'bg-page text-secondary',
+        PRO: 'bg-role-secondary-light text-role-secondary',
+        ENTERPRISE: 'bg-role-warning-light text-role-warning',
     };
 
     return (
@@ -70,13 +70,13 @@ const OrganizationCard = ({ organization, onAccess, onRefresh }: OrganizationCar
                     </span>
                     <div>
                         <button
-                            className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                            className="p-1 text-tertiary hover:text-role-primary hover:bg-role-primary-light rounded"
                             onClick={handleUpdateOrganization}
                         >
                             <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                            className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded disabled:opacity-50"
+                            className="p-1 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded disabled:opacity-50"
                             onClick={handleDelete}
                             disabled={isDeleting}
                         >

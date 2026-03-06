@@ -28,13 +28,13 @@ const QuizResultsPage = () => {
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-100">
             {/* Top Bar */}
-            <div className="bg-white px-6 py-3 flex items-center justify-center shadow-sm relative">
-                <div className="font-semibold text-gray-900 text-xl">
+            <div className="bg-card px-6 py-3 flex items-center justify-center shadow-sm relative">
+                <div className="font-semibold text-primary text-xl">
                     {quiz?.title || 'Quiz'} - Quiz Complete
                 </div>
                 <button
                     onClick={handleExit}
-                    className="absolute right-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 flex items-center gap-2"
+                    className="absolute right-6 px-4 py-2 bg-page text-secondary rounded-lg font-medium hover:opacity-80 flex items-center gap-2"
                 >
                     <LogOut className="w-4 h-4" />
                     Exit
@@ -44,7 +44,7 @@ const QuizResultsPage = () => {
             {/* Content */}
             <div className="flex-1 flex items-center justify-center p-12">
                 <div className="text-center">
-                    <div className="text-5xl font-black text-gray-900 mb-12">🎉 Quiz Complete! 🎉</div>
+                    <div className="text-5xl font-black text-primary mb-12">🎉 Quiz Complete! 🎉</div>
 
                     {/* Podium */}
                     <div className="flex items-end justify-center gap-8 mb-12">
@@ -56,8 +56,8 @@ const QuizResultsPage = () => {
                                     <div className="text-sm font-semibold">Silver</div>
                                 </div>
                             </div>
-                            <div className="text-xl font-bold text-gray-900">{second?.nickname || second?.nick || '-'}</div>
-                            <div className="text-lg text-gray-600">{second ? `${second.score.toLocaleString()} pts` : ''}</div>
+                            <div className="text-xl font-bold text-primary">{second?.nickname || second?.nick || '-'}</div>
+                            <div className="text-lg text-secondary">{second ? `${second.score.toLocaleString()} pts` : ''}</div>
                         </div>
 
                         {/* 1st Place */}
@@ -69,8 +69,8 @@ const QuizResultsPage = () => {
                                     <div className="text-sm font-semibold">Gold</div>
                                 </div>
                             </div>
-                            <div className="text-2xl font-black text-gray-900">{first?.nickname || first?.nick || '-'}</div>
-                            <div className="text-xl text-gray-600">{first ? `${first.score.toLocaleString()} pts` : ''}</div>
+                            <div className="text-2xl font-black text-primary">{first?.nickname || first?.nick || '-'}</div>
+                            <div className="text-xl text-secondary">{first ? `${first.score.toLocaleString()} pts` : ''}</div>
                         </div>
 
                         {/* 3rd Place */}
@@ -81,12 +81,12 @@ const QuizResultsPage = () => {
                                     <div className="text-sm font-semibold">Bronze</div>
                                 </div>
                             </div>
-                            <div className="text-xl font-bold text-gray-900">{third?.nickname || third?.nick || '-'}</div>
-                            <div className="text-lg text-gray-600">{third ? `${third.score.toLocaleString()} pts` : ''}</div>
+                            <div className="text-xl font-bold text-primary">{third?.nickname || third?.nick || '-'}</div>
+                            <div className="text-lg text-secondary">{third ? `${third.score.toLocaleString()} pts` : ''}</div>
                         </div>
                     </div>
 
-                    <div className="text-2xl font-semibold text-gray-700">
+                    <div className="text-2xl font-semibold text-secondary">
                         Thank you for participating! 🎓
                     </div>
                 </div>

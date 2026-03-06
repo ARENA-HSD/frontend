@@ -83,40 +83,40 @@ const JoinGamePage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
-            <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-sm">
+            <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                         <Zap className="w-10 h-10 text-white" />
                     </div>
-                    <h1 className="text-3xl font-black text-gray-900 mb-2">Join Quiz</h1>
-                    <p className="text-gray-500">Enter your game PIN to start</p>
+                    <h1 className="text-3xl font-black text-primary mb-2">Join Quiz</h1>
+                    <p className="text-tertiary">Enter your game PIN to start</p>
                 </div>
 
                 {/* Form */}
                 <div className="space-y-4 mb-6">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Game PIN</label>
+                        <label className="block text-sm font-semibold text-secondary mb-2">Game PIN</label>
                         <input
                             type="text"
                             value={pin}
                             onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
                             placeholder="Enter 6-digit PIN"
                             maxLength={6}
-                            className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl text-center text-3xl font-bold tracking-widest focus:border-indigo-500 focus:outline-none transition-colors"
+                            className="w-full px-4 py-4 border-2 border-light rounded-xl text-center text-3xl font-bold tracking-widest focus:border-focus focus:outline-none transition-colors"
                             disabled={isJoining}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">Nickname</label>
+                        <label className="block text-sm font-semibold text-secondary mb-2">Nickname</label>
                         <input
                             type="text"
                             value={nickname}
                             onChange={(e) => setNickname(e.target.value)}
                             placeholder="Choose a nickname"
                             maxLength={20}
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-lg font-medium focus:border-indigo-500 focus:outline-none transition-colors"
+                            className="w-full px-4 py-3 border-2 border-light rounded-xl text-lg font-medium focus:border-focus focus:outline-none transition-colors"
                             disabled={isJoining}
                         />
                     </div>
@@ -124,7 +124,7 @@ const JoinGamePage = () => {
 
                 {/* Error */}
                 {error && (
-                    <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium text-center">
+                    <div className="mb-4 p-3 bg-role-danger-light border border-role-danger rounded-xl text-role-danger text-sm font-medium text-center">
                         {error}
                     </div>
                 )}
@@ -134,8 +134,8 @@ const JoinGamePage = () => {
                     onClick={handleJoin}
                     disabled={isJoining || !pin.trim() || !nickname.trim()}
                     className={`w-full py-4 rounded-xl text-xl font-bold transition-all ${isJoining || !pin.trim() || !nickname.trim()
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:shadow-xl'
+                        ? 'bg-page text-tertiary cursor-not-allowed'
+                        : 'btn-primary hover:shadow-xl'
                         }`}
                 >
                     {isJoining ? (

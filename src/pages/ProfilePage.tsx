@@ -99,7 +99,7 @@ const ProfilePage = () => {
         return (
             <MainLayout>
                 <div className="flex items-center justify-center min-h-[60vh]">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-focus"></div>
                 </div>
             </MainLayout>
         );
@@ -109,16 +109,16 @@ const ProfilePage = () => {
         <MainLayout>
             <div className="max-w-5xl mx-auto px-4 py-12">
                 {/* Header */}
-                <div className="mb-4 border-b border-gray-100 pb-2">
-                    <h1 className="text-2xl font-semibold text-gray-900">Profile Settings</h1>
-                    <p className="text-gray-500 mt-1">Manage your account and preferences.</p>
+                <div className="mb-4 border-b border-light pb-2">
+                    <h1 className="text-2xl font-semibold text-primary">Profile Settings</h1>
+                    <p className="text-tertiary mt-1">Manage your account and preferences.</p>
                 </div>
 
                 {/* Status Message */}
                 {updateStatus.type && (
                     <div className={`mb-8 p-4 rounded-lg flex items-center gap-3 border ${updateStatus.type === 'success'
-                        ? 'bg-emerald-50 border-emerald-100 text-emerald-700'
-                        : 'bg-rose-50 border-rose-100 text-rose-700'
+                        ? 'bg-role-success-light border-role-success text-role-success'
+                        : 'bg-role-danger-light border-role-danger text-role-danger'
                         }`}>
                         {updateStatus.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
                         <p className="text-sm font-medium">{updateStatus.message}</p>
@@ -129,30 +129,30 @@ const ProfilePage = () => {
                     {/* Account Information */}
                     <section>
                         <div className="mb-6">
-                            <h2 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-                                <User className="w-4 h-4 text-gray-400" />
+                            <h2 className="text-lg font-medium text-primary flex items-center gap-2">
+                                <User className="w-4 h-4 text-tertiary" />
                                 Account Information
                             </h2>
                         </div>
 
-                        <form onSubmit={handleAccountUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-100 rounded-xl p-6">
+                        <form onSubmit={handleAccountUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-card border border-light rounded-xl p-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">name</label>
+                                <label className="text-sm font-medium text-secondary">name</label>
                                 <input
                                     type="text"
                                     value={accountData.name}
                                     onChange={(e) => setAccountData({ ...accountData, name: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary outline-none transition-all"
                                     disabled={isUpdating}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Email Address</label>
+                                <label className="text-sm font-medium text-secondary">Email Address</label>
                                 <input
                                     type="email"
                                     value={accountData.email}
                                     onChange={(e) => setAccountData({ ...accountData, email: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary focus:ring-2 focus:ring-focus outline-none transition-all"
                                     disabled={isUpdating}
                                 />
                             </div>
@@ -173,32 +173,32 @@ const ProfilePage = () => {
                     {/* Security */}
                     <section>
                         <div className="mb-6">
-                            <h2 className="text-lg font-medium text-gray-900 flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-gray-400" />
+                            <h2 className="text-lg font-medium text-primary flex items-center gap-2">
+                                <Lock className="w-4 h-4 text-tertiary" />
                                 Security
                             </h2>
                         </div>
 
-                        <form onSubmit={handlePasswordUpdate} className="space-y-6 bg-white border border-gray-100 rounded-xl p-6 max-w-xl">
+                        <form onSubmit={handlePasswordUpdate} className="space-y-6 bg-card border border-light rounded-xl p-6 max-w-xl">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">New Password</label>
+                                <label className="text-sm font-medium text-secondary">New Password</label>
                                 <input
                                     type="password"
                                     placeholder="••••••••"
                                     value={passwordData.newPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary focus:ring-2 focus:ring-focus outline-none transition-all"
                                     disabled={isSecurityUpdating}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Confirm Password</label>
+                                <label className="text-sm font-medium text-secondary">Confirm Password</label>
                                 <input
                                     type="password"
                                     placeholder="••••••••"
                                     value={passwordData.confirmPassword}
                                     onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-900 focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary focus:ring-2 focus:ring-focus outline-none transition-all"
                                     disabled={isSecurityUpdating}
                                 />
                             </div>
@@ -216,17 +216,17 @@ const ProfilePage = () => {
                     </section>
 
                     {/* Danger Zone */}
-                    <section className="pt-8 border-t border-gray-100">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-rose-50 border border-rose-100 rounded-xl p-6">
+                    <section className="pt-8 border-t border-light">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-role-danger-light border border-role-danger rounded-xl p-6">
                             <div>
-                                <h3 className="text-lg font-medium text-rose-900">Danger Zone</h3>
-                                <p className="text-sm text-rose-700 mt-1">
+                                <h3 className="text-lg font-medium text-role-danger">Danger Zone</h3>
+                                <p className="text-sm text-role-danger mt-1" style={{ opacity: 0.8 }}>
                                     Deleting your account will permanently remove all your data.
                                 </p>
                             </div>
                             <button
                                 onClick={handleDeleteAccount}
-                                className="px-6 py-2 bg-rose-600 text-white rounded-lg font-medium hover:bg-rose-700 transition-colors shadow-sm"
+                                className="px-6 py-2 btn-danger rounded-lg font-medium transition-colors shadow-sm"
                             >
                                 Delete Account
                             </button>

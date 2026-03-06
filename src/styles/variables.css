@@ -110,6 +110,8 @@
     /* White header */
     --surface-sidebar-bg: var(--color-9);
     /* White sidebar */
+    --surface-grey-bg: var(--color-11);
+    /* Gray background */
     --surface-footer-bg: var(--color-2);
     /* Gray footer */
 
@@ -405,9 +407,9 @@
     --color-2: #e5e7eb;
     /* Medium light */
     --color-9: #111827;
-    /* Dark bg */
-    --color-10: #1f2937;
-    /* Dark page bg */
+    /* Dark bg (cards) */
+    --color-10: #0b0f19;
+    /* Darker page bg */
     --color-11: #374151;
     /* Dark borders */
     --color-12: #6b7280;
@@ -415,7 +417,60 @@
     --color-13: #9ca3af;
     /* Dark tertiary */
 
+    /* Recalculate light variants for dark mode (mix with dark instead of white) */
+    --role-primary-light: color-mix(in srgb, var(--color-3), var(--color-10) 80%);
+    --role-secondary-light: color-mix(in srgb, var(--color-4), var(--color-10) 80%);
+    --role-success-light: color-mix(in srgb, var(--color-5), var(--color-10) 80%);
+    --role-warning-light: color-mix(in srgb, var(--color-6), var(--color-10) 80%);
+    --role-danger-light: color-mix(in srgb, var(--color-7), var(--color-10) 80%);
+    --role-info-light: color-mix(in srgb, var(--color-8), var(--color-10) 80%);
+
     --surface-overlay: rgba(0, 0, 0, 0.8);
+
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================================================
+   OCEAN THEME OVERRIDES
+   A warm midnight-blue aesthetic — neither light nor dark.
+   Deep navy surfaces with teal/cyan accents for a premium feel.
+   Triggered by data-theme="ocean" attribute on <html>
+   ========================================================================== */
+
+[data-theme="ocean"] {
+    /* Palette Overrides */
+    --color-1: #e2e8f0;
+    /* Soft white text */
+    --color-2: #cbd5e1;
+    /* Lighter steel */
+    --color-3: #06b6d4;
+    /* Cyan primary */
+    --color-4: #8b5cf6;
+    /* Purple secondary */
+    --color-9: #1e293b;
+    /* Slate-800 (cards) */
+    --color-10: #0f172a;
+    /* Slate-900 (page bg) */
+    --color-11: #334155;
+    /* Slate-700 (borders) */
+    --color-12: #64748b;
+    /* Slate-500 (secondary text) */
+    --color-13: #94a3b8;
+    /* Slate-400 (tertiary) */
+
+    /* Recalculate light variants for ocean mode */
+    --role-primary-light: color-mix(in srgb, var(--color-3), var(--color-10) 80%);
+    --role-secondary-light: color-mix(in srgb, var(--color-4), var(--color-10) 80%);
+    --role-success-light: color-mix(in srgb, var(--color-5), var(--color-10) 80%);
+    --role-warning-light: color-mix(in srgb, var(--color-6), var(--color-10) 80%);
+    --role-danger-light: color-mix(in srgb, var(--color-7), var(--color-10) 80%);
+    --role-info-light: color-mix(in srgb, var(--color-8), var(--color-10) 80%);
+
+    --surface-overlay: rgba(0, 0, 0, 0.7);
+
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
 }
 
 /* ============================================================================

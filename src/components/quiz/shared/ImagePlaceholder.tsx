@@ -12,7 +12,7 @@ interface ImagePlaceholderProps {
 const ImagePlaceholder = ({ alt, className = '' }: ImagePlaceholderProps) => {
     return (
         <div
-            className={`bg-gray-200 flex items-center justify-center text-gray-500 text-sm font-medium ${className}`}
+            className={`bg-page flex items-center justify-center text-tertiary text-sm font-medium ${className}`}
             title={alt}
         >
             {alt || 'Image'}

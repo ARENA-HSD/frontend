@@ -60,7 +60,7 @@ const SortableQuestionCard = ({ question, index, onEdit, onDelete }: SortableQue
         <div
             ref={setNodeRef}
             style={style}
-            className={`bg-white p-5 rounded-lg shadow-sm flex items-center justify-between transition-shadow ${isDragging ? 'shadow-lg ring-2 ring-indigo-300' : 'hover:shadow-md'
+            className={`bg-card p-5 rounded-lg shadow-sm flex items-center justify-between transition-shadow ${isDragging ? 'shadow-lg ring-2 ring-focus' : 'hover:shadow-md'
                 }`}
         >
             <div className="flex items-center gap-4 flex-1">
@@ -68,17 +68,17 @@ const SortableQuestionCard = ({ question, index, onEdit, onDelete }: SortableQue
                 <button
                     {...attributes}
                     {...listeners}
-                    className="p-1 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing touch-none"
+                    className="p-1 text-tertiary hover:text-secondary cursor-grab active:cursor-grabbing touch-none"
                     title="Sırayı değiştirmek için sürükle"
                 >
                     <GripVertical className="w-5 h-5" />
                 </button>
-                <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-bold">
+                <div className="w-10 h-10 bg-role-primary-light rounded-full flex items-center justify-center text-role-primary font-bold">
                     {index + 1}
                 </div>
                 <div>
-                    <div className="text-gray-900 font-medium">{question.text}</div>
-                    <div className="text-sm text-gray-500 mt-1">
+                    <div className="text-primary font-medium">{question.text}</div>
+                    <div className="text-sm text-tertiary mt-1">
                         {question.timeLimit}s • {question.points} pts • {question.options.length} options
                     </div>
                 </div>
@@ -86,13 +86,13 @@ const SortableQuestionCard = ({ question, index, onEdit, onDelete }: SortableQue
             <div className="flex items-center gap-2">
                 <button
                     onClick={() => onEdit(question.id)}
-                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                    className="p-2 text-tertiary hover:text-role-primary hover:bg-role-primary-light rounded"
                 >
                     <Edit2 className="w-5 h-5" />
                 </button>
                 <button
                     onClick={() => onDelete(question.id)}
-                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                    className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded"
                 >
                     <Trash2 className="w-5 h-5" />
                 </button>
@@ -242,7 +242,7 @@ const QuizDetailPage = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-gray-500">Loading quiz...</div>
+                <div className="text-tertiary">Loading quiz...</div>
             </div>
         );
     }
@@ -250,7 +250,7 @@ const QuizDetailPage = () => {
     if (!quiz) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-red-500">Quiz not found</div>
+                <div className="text-role-danger">Quiz not found</div>
             </div>
         );
     }
@@ -258,23 +258,23 @@ const QuizDetailPage = () => {
     return (
         <div className="max-w-5xl mx-auto p-6">
             {/* Header */}
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div>
                             <button
                                 onClick={backToQuizzes}
-                                className="text-gray-400 hover:text-gray-600"
+                                className="text-tertiary hover:text-secondary"
                             >
                                 <ArrowBigLeft className="w-6 h-6 mr-2" />
                             </button>
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-2">{quiz.title}</h1>
-                            <div className="text-gray-600">
+                            <h1 className="text-3xl font-bold text-primary mb-2">{quiz.title}</h1>
+                            <div className="text-secondary">
                                 {questions.length} questions • {quiz.defaultMode} mode
                                 {isSavingOrder && (
-                                    <span className="ml-2 text-indigo-500 text-sm animate-pulse">
+                                    <span className="ml-2 text-role-primary text-sm animate-pulse">
                                         Sıralama kaydediliyor...
                                     </span>
                                 )}
@@ -284,20 +284,20 @@ const QuizDetailPage = () => {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={handleStartQuiz}
-                            className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
+                            className="px-6 py-2.5 btn-primary rounded-lg font-semibold"
                         >
                             Start
                         </button>
                         <div className="flex flex-col items-center">
                             <button
                                 onClick={() => handleSettingsQuiz(quiz.id)}
-                                className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded"
+                                className="p-1 text-tertiary hover:text-role-primary hover:bg-role-primary-light rounded"
                             >
                                 <Settings className="w-5 h-5" />
                             </button>
                             <button
                                 onClick={() => handleDeleteQuiz(quiz.id)}
-                                className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                                className="p-1 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded"
                             >
                                 <Trash2 className="w-5 h-5" />
                             </button>
@@ -332,11 +332,11 @@ const QuizDetailPage = () => {
 
             {/* Empty State */}
             {questions.length === 0 && (
-                <div className="bg-white p-12 rounded-lg text-center">
-                    <div className="text-gray-400 text-lg mb-4">No questions yet</div>
+                <div className="bg-card p-12 rounded-lg text-center">
+                    <div className="text-tertiary text-lg mb-4">No questions yet</div>
                     <button
                         onClick={handleAddQuestion}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
+                        className="px-8 py-3.5 btn-primary rounded-lg font-semibold shadow-lg flex items-center gap-2"
                     >
                         Add First Question
                     </button>
@@ -348,7 +348,7 @@ const QuizDetailPage = () => {
                 <div className="fixed bottom-6 left-0 right-0 flex justify-center">
                     <button
                         onClick={handleAddQuestion}
-                        className="px-8 py-3.5 bg-indigo-600 text-white rounded-lg font-semibold shadow-lg hover:bg-indigo-700 flex items-center gap-2"
+                        className="px-8 py-3.5 btn-primary rounded-lg font-semibold shadow-lg flex items-center gap-2"
                     >
                         <Plus className="w-5 h-5" />
                         Add Question

@@ -62,7 +62,7 @@ const EditQuestionPage = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-gray-500">Loading question...</div>
+                <div className="text-tertiary">Loading question...</div>
             </div>
         );
     }
@@ -70,7 +70,7 @@ const EditQuestionPage = () => {
     if (!question) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-red-500">Question not found</div>
+                <div className="text-role-danger">Question not found</div>
             </div>
         );
     }
@@ -78,11 +78,11 @@ const EditQuestionPage = () => {
     return (
         <div className="max-w-4xl mx-auto p-6">
             {/* Header */}
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
                 <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">Question {question.orderIndex + 1}</div>
-                    <div className="text-xl font-bold text-gray-900">Edit Question</div>
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <div className="text-sm text-tertiary">Question {question.orderIndex + 1}</div>
+                    <div className="text-xl font-bold text-primary">Edit Question</div>
+                    <button className="text-tertiary hover:text-secondary">
                         <MoreVertical className="w-6 h-6" />
                     </button>
                 </div>

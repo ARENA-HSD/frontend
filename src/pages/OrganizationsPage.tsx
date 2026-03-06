@@ -84,7 +84,7 @@ const OrganizationsPage = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold text-gray-900">
+                        <h1 className="text-2xl font-semibold text-primary">
                             Your Organizations
                         </h1>
                         <p className="text-secondary">
@@ -102,7 +102,7 @@ const OrganizationsPage = () => {
 
                 {/* Loading */}
                 {isLoading && (
-                    <div className="text-center py-12 text-gray-500">
+                    <div className="text-center py-12 text-tertiary">
                         Loading organizations...
                     </div>
                 )}

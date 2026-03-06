@@ -58,41 +58,41 @@ const InvitationsPage = () => {
         <SubdomainLayout>
             <div className="flex-1 space-y-6 overflow-auto p-4">
                 {/* Header */}
-                <div className="flex items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-indigo-50/50">
+                <div className="flex items-center justify-between bg-card p-6 rounded-xl shadow-sm border border-light">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate('/manager/members')}
-                            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            className="p-2 text-tertiary hover:text-secondary hover:bg-page rounded-lg transition-colors"
                         >
                             <ArrowLeft className="w-6 h-6" />
                         </button>
                         <div>
-                            <h2 className="text-2xl font-bold text-gray-900">Invitations</h2>
-                            <p className="text-gray-500 text-sm">Send and manage member invitations</p>
+                            <h2 className="text-2xl font-bold text-primary">Invitations</h2>
+                            <p className="text-tertiary text-sm">Send and manage member invitations</p>
                         </div>
                     </div>
                 </div>
 
                 {/* Invite Form */}
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-50/50">
+                <div className="bg-card p-6 rounded-xl shadow-sm border border-light">
                     <form onSubmit={handleSendInvite} className="flex gap-4 items-end">
                         <div className="flex-1 space-y-2">
-                            <label className="text-sm font-semibold text-gray-600 block">Invite by Username</label>
+                            <label className="text-sm font-semibold text-secondary block">Invite by Username</label>
                             <div className="relative">
-                                <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
                                 <input
                                     type="text"
                                     value={inviteUsername}
                                     onChange={(e) => setInviteUsername(e.target.value)}
                                     placeholder="Enter username to invite..."
-                                    className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                                    className="w-full pl-10 pr-4 py-2 bg-page border border-light rounded-lg outline-none transition-all"
                                 />
                             </div>
                         </div>
                         <button
                             type="submit"
                             disabled={isInviting || !inviteUsername.trim()}
-                            className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white px-6 py-2 rounded-lg font-bold transition-all shadow-md active:scale-95"
+                            className="btn-primary disabled:opacity-50 px-6 py-2 rounded-lg font-bold transition-all shadow-md active:scale-95"
                         >
                             {isInviting ? 'Sending...' : 'Send Invitation'}
                         </button>
@@ -100,33 +100,33 @@ const InvitationsPage = () => {
                 </div>
 
                 {error && (
-                    <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-100 italic">
+                    <div className="bg-role-danger-light text-role-danger p-4 rounded-lg border border-role-danger italic">
                         {error}
                     </div>
                 )}
 
                 {/* Invitations List */}
-                <div className="bg-white rounded-xl shadow-sm border border-indigo-50/50 overflow-hidden">
+                <div className="bg-card rounded-xl shadow-sm border border-light overflow-hidden">
                     {isLoading ? (
-                        <div className="p-12 text-center text-gray-500">
-                            <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                        <div className="p-12 text-center text-tertiary">
+                            <div className="animate-spin w-8 h-8 border-4 border-focus border-t-transparent rounded-full mx-auto mb-4"></div>
                             Loading invitations...
                         </div>
                     ) : (
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50 border-b border-indigo-50">
+                            <thead className="bg-page border-b border-light">
                                 <tr>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Invitee</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sent</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Invitee</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Sent</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-indigo-50/50">
+                            <tbody className="divide-y divide-light">
                                 {invitations.length > 0 ? invitations.map((inv) => (
-                                    <tr key={inv.id} className="hover:bg-indigo-50/20 transition-colors">
+                                    <tr key={inv.id} className="hover:bg-role-primary-light/20 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-semibold text-gray-900">{inv.inviteeUsername || 'Enriching...'}</div>
+                                            <div className="font-semibold text-primary">{inv.inviteeUsername || 'Enriching...'}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
@@ -135,7 +135,7 @@ const InvitationsPage = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2 text-sm text-gray-500">
+                                            <div className="flex items-center gap-2 text-sm text-tertiary">
                                                 <Calendar className="w-4 h-4" />
                                                 {formatTimeAgo(inv.createdAt)}
                                             </div>
@@ -144,7 +144,7 @@ const InvitationsPage = () => {
                                             {inv.status === 'PENDING' && (
                                                 <button
                                                     onClick={() => handleRemoveInvitation(inv.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors"
                                                     title="Cancel Invitation"
                                                 >
                                                     <Trash2 className="w-5 h-5" />
@@ -154,7 +154,7 @@ const InvitationsPage = () => {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan={4} className="px-6 py-12 text-center text-gray-500 italic">
+                                        <td colSpan={4} className="px-6 py-12 text-center text-tertiary italic">
                                             No active invitations.
                                         </td>
                                     </tr>

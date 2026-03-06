@@ -17,10 +17,10 @@ const LiveQuestion = ({ question, questionNumber, totalQuestions }: LiveQuestion
     const answerLabels = ['A', 'B', 'C', 'D'];
 
     return (
-        <div className="bg-white rounded-2xl p-8 shadow-2xl">
+        <div className="bg-card rounded-2xl p-8 shadow-2xl">
             {/* Question Header */}
             <div className="flex items-center justify-between mb-6">
-                <div className="text-sm font-semibold text-gray-500">
+                <div className="text-sm font-semibold text-tertiary">
                     Question {questionNumber} of {totalQuestions}
                 </div>
             </div>
@@ -34,7 +34,7 @@ const LiveQuestion = ({ question, questionNumber, totalQuestions }: LiveQuestion
             )}
 
             {/* Question Text */}
-            <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">
+            <h2 className="text-4xl font-bold text-primary mb-8 text-center">
                 {question.text}
             </h2>
 
@@ -43,7 +43,7 @@ const LiveQuestion = ({ question, questionNumber, totalQuestions }: LiveQuestion
                 {question.answers.map((answer, idx) => (
                     <div
                         key={answer.id}
-                        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-xl flex items-center gap-4"
+                        className="bg-role-primary text-inverse p-6 rounded-xl flex items-center gap-4"
                     >
                         <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center text-2xl font-bold">
                             {answerLabels[idx]}

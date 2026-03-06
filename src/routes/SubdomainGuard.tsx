@@ -6,7 +6,7 @@
 
 import { type ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { useSubdomain } from '@/hooks';
+import { useSubdomain, useBranding } from '@/hooks';
 
 interface SubdomainGuardProps {
     children: ReactNode;
@@ -14,6 +14,9 @@ interface SubdomainGuardProps {
 
 const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
     const subdomain = useSubdomain();
+
+    // Apply organization branding colors (--color-3, --color-4) globally
+    useBranding(subdomain);
 
     // If no subdomain, redirect to main domain
     if (!subdomain) {

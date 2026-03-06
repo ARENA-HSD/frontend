@@ -35,11 +35,11 @@ const CreateQuestionPage = () => {
     return (
         <div className="max-w-4xl mx-auto p-6">
             {/* Header */}
-            <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+            <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
                 <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-500">New Question</div>
-                    <div className="text-xl font-bold text-gray-900">Create Question</div>
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <div className="text-sm text-tertiary">New Question</div>
+                    <div className="text-xl font-bold text-primary">Create Question</div>
+                    <button className="text-tertiary hover:text-secondary">
                         <MoreVertical className="w-6 h-6" />
                     </button>
                 </div>

@@ -31,7 +31,7 @@ const Loader = ({
     const Spinner = () => (
         <div
             className={cn(
-                'border-4 border-gray-200 border-t-primary-600 rounded-full animate-spin',
+                'border-4 border-light rounded-full animate-spin',
                 sizeStyles[size],
                 className
             )}
@@ -46,7 +46,7 @@ const Loader = ({
                 <div
                     key={i}
                     className={cn(
-                        'bg-primary-600 rounded-full animate-bounce',
+                        'bg-role-primary rounded-full animate-bounce',
                         size === 'sm' && 'w-2 h-2',
                         size === 'md' && 'w-3 h-3',
                         size === 'lg' && 'w-4 h-4',
@@ -61,7 +61,7 @@ const Loader = ({
     const Pulse = () => (
         <div
             className={cn(
-                'bg-primary-600 rounded-full animate-pulse',
+                'bg-role-primary rounded-full animate-pulse',
                 sizeStyles[size],
                 className
             )}

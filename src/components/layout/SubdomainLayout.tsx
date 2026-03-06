@@ -6,6 +6,7 @@
 
 import { type ReactNode, useState } from 'react';
 import Sidebar from './Sidebar';
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 import { useAuth, useSubdomain } from '@/hooks';
 
 interface SubdomainLayoutProps {
@@ -19,18 +20,21 @@ const SubdomainLayout = ({ children }: SubdomainLayoutProps) => {
     return (
         <div className="max-w-7xl mx-auto p-6 h-screen flex flex-col">
             {/* Header */}
-            <div className="flex items-center justify-between mb-8 bg-white p-4 rounded-lg shadow-sm">
+            <div className="flex items-center justify-between mb-8 bg-card p-4 rounded-lg shadow-sm">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 bg-role-primary rounded-full flex items-center justify-center text-inverse font-bold">
                         {user?.username.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                        <div className="font-semibold text-gray-900">{user?.username}</div>
-                        <div className="text-sm text-gray-500">Manager</div>
+                        <div className="font-semibold text-primary">{user?.username}</div>
+                        <div className="text-sm text-tertiary">Manager</div>
                     </div>
                 </div>
-                <div className="text-lg font-semibold text-gray-700">
-                    {subdomain}
+                <div className="flex items-center gap-4">
+                    <ThemeSwitcher />
+                    <div className="text-lg font-semibold text-secondary">
+                        {subdomain}
+                    </div>
                 </div>
             </div>
             <div className="flex flex-1">

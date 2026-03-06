@@ -74,7 +74,7 @@ const QuizListPage = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-gray-500">Loading quizzes...</div>
+                <div className="text-tertiary">Loading quizzes...</div>
             </div>
         );
     }
@@ -88,9 +88,9 @@ const QuizListPage = () => {
                     {/* Create Quiz Card */}
                     <div
                         onClick={handleCreateQuiz}
-                        className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-8 flex items-center justify-center cursor-pointer hover:from-indigo-600 hover:to-indigo-700 transition-all shadow-lg h-content"
+                        className="bg-role-primary rounded-xl p-8 flex items-center justify-center cursor-pointer hover:opacity-90 transition-all shadow-lg h-content"
                     >
-                        <div className="text-center text-white">
+                        <div className="text-center text-inverse">
                             <Plus className="w-12 h-12 mx-auto mb-3" />
                             <div className="text-xl font-bold">Create Quiz</div>
                         </div>
@@ -120,10 +120,10 @@ const QuizListPage = () => {
             ) : (
                 <div className="w-full flex items-center justify-center">
                     <div className="text-center py-12">
-                        <div className="text-gray-400 text-lg mb-4">No quizzes yet</div>
+                        <div className="text-tertiary text-lg mb-4">No quizzes yet</div>
                         <button
                             onClick={handleCreateQuiz}
-                            className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
+                            className="px-6 py-2 btn-primary rounded-lg font-semibold"
                         >
                             Create Your First Quiz
                         </button>

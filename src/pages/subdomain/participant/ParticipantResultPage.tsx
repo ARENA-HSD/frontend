@@ -39,19 +39,19 @@ const ParticipantResultPage = () => {
 
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 p-4">
-                <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-sm">
+                <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
                     <div className="text-center mb-8">
                         <div className="text-4xl font-black text-gray-900 mb-2">Quiz Complete!</div>
                         <div className="text-gray-600">Great job!</div>
                     </div>
 
                     <div className="space-y-4 mb-6">
-                        <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-xl">
-                            <div className="text-gray-700 font-semibold">Total Points</div>
-                            <div className="text-3xl font-black text-indigo-600">{myTotalScore.toLocaleString()}</div>
+                        <div className="flex items-center justify-between p-4 bg-role-primary-light rounded-xl">
+                            <div className="text-secondary font-semibold">Total Points</div>
+                            <div className="text-3xl font-black text-role-primary">{myTotalScore.toLocaleString()}</div>
                         </div>
                         <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl">
-                            <div className="text-gray-700 font-semibold">Final Position</div>
+                            <div className="text-secondary font-semibold">Final Position</div>
                             <div className="text-3xl font-black text-yellow-600">#{myRank || '-'}</div>
                         </div>
                     </div>
@@ -65,20 +65,20 @@ const ParticipantResultPage = () => {
                                 const isMe = p.nickname === nickname;
                                 return (
                                     <div key={idx} className="text-center flex-1">
-                                        <div className={`${heights[idx]} ${colors[idx]} rounded-t-lg flex items-center justify-center ${isMe ? 'ring-2 ring-indigo-500' : ''}`}>
+                                        <div className={`${heights[idx]} ${colors[idx]} rounded-t-lg flex items-center justify-center ${isMe ? 'ring-2 ring-focus' : ''}`}>
                                             <span className="text-white font-black text-lg">{idx + 1}</span>
                                         </div>
-                                        <div className={`text-xs font-bold mt-1 ${isMe ? 'text-indigo-600' : 'text-gray-700'}`}>
+                                        <div className={`text-xs font-bold mt-1 ${isMe ? 'text-role-primary' : 'text-secondary'}`}>
                                             {p.nickname}
                                         </div>
-                                        <div className="text-xs text-gray-500">{(p.score ?? 0).toLocaleString()}</div>
+                                        <div className="text-xs text-tertiary">{(p.score ?? 0).toLocaleString()}</div>
                                     </div>
                                 );
                             })}
                         </div>
                     )}
 
-                    <div className="text-center text-lg font-semibold text-gray-700">
+                    <div className="text-center text-lg font-semibold text-secondary">
                         Thank you for playing! 🎓
                     </div>
                 </div>
@@ -91,27 +91,27 @@ const ParticipantResultPage = () => {
     // ========================================
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 p-4">
-            <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-sm">
+            <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
                 <div className="text-center mb-8">
-                    <div className="text-4xl font-black text-gray-900 mb-2">Quiz Complete!</div>
-                    <div className="text-gray-600">Great job!</div>
+                    <div className="text-4xl font-black text-primary mb-2">Quiz Complete!</div>
+                    <div className="text-secondary">Great job!</div>
                 </div>
 
                 <div className="space-y-4 mb-6">
-                    <div className="flex items-center justify-between p-4 bg-indigo-50 rounded-xl">
-                        <div className="text-gray-700 font-semibold">Total Points</div>
-                        <div className="text-3xl font-black text-indigo-600">{myTotalScore.toLocaleString()}</div>
+                    <div className="flex items-center justify-between p-4 bg-role-primary-light rounded-xl">
+                        <div className="text-secondary font-semibold">Total Points</div>
+                        <div className="text-3xl font-black text-role-primary">{myTotalScore.toLocaleString()}</div>
                     </div>
                     {correctAnswers > 0 && (
-                        <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
-                            <div className="text-gray-700 font-semibold">Correct Answers</div>
-                            <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
+                        <div className="flex items-center justify-between p-4 bg-role-success-light rounded-xl">
+                            <div className="text-secondary font-semibold">Correct Answers</div>
+                            <div className="text-2xl font-bold text-role-success">{correctAnswers}</div>
                         </div>
                     )}
                     {wrongAnswers > 0 && (
-                        <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
-                            <div className="text-gray-700 font-semibold">Wrong Answers</div>
-                            <div className="text-2xl font-bold text-red-600">{wrongAnswers}</div>
+                        <div className="flex items-center justify-between p-4 bg-role-danger-light rounded-xl">
+                            <div className="text-secondary font-semibold">Wrong Answers</div>
+                            <div className="text-2xl font-bold text-role-danger">{wrongAnswers}</div>
                         </div>
                     )}
                 </div>
@@ -122,7 +122,7 @@ const ParticipantResultPage = () => {
 
                 <button
                     onClick={handlePlayAgain}
-                    className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl text-lg font-bold hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full py-4 btn-primary rounded-xl text-lg font-bold hover:shadow-lg flex items-center justify-center gap-2"
                 >
                     <RotateCw className="w-5 h-5" />
                     Play Again

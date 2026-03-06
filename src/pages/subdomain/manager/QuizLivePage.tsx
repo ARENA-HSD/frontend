@@ -233,7 +233,7 @@ const QuizLivePage = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600">
-                <div className="text-white text-2xl font-bold animate-pulse">Loading quiz...</div>
+                <div className="text-inverse text-2xl font-bold animate-pulse">Loading quiz...</div>
             </div>
         );
     }
@@ -241,7 +241,7 @@ const QuizLivePage = () => {
     if ((!quiz || questions.length === 0) && !isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-red-500 text-xl">Quiz not found or has no questions</div>
+                <div className="text-role-danger text-xl">Quiz not found or has no questions</div>
             </div>
         );
     }
@@ -253,19 +253,19 @@ const QuizLivePage = () => {
         return (
             <div className="h-screen flex flex-col">
                 {/* Top Bar */}
-                <div className="bg-white px-6 py-3 flex items-center justify-between shadow-sm">
-                    <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium hover:bg-gray-200">
+                <div className="bg-card px-6 py-3 flex items-center justify-between shadow-sm">
+                    <button className="px-4 py-2 text-sm bg-page text-secondary rounded font-medium hover:opacity-80">
                         Manage Participants
                     </button>
                     <div className="flex flex-col items-center">
-                        <div className="font-semibold text-gray-900">{quiz?.title}</div>
-                        <div className="text-sm text-gray-500">{questionIndex + 1}/{questions.length}</div>
+                        <div className="font-semibold text-primary">{quiz?.title}</div>
+                        <div className="text-sm text-tertiary">{questionIndex + 1}/{questions.length}</div>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="">
                             {answeredCount}/{totalPlayers}
                         </div>
-                        <div className="w-12 h-12 rounded-full border-4 border-indigo-600 flex items-center justify-center font-bold text-indigo-600">
+                        <div className="w-12 h-12 rounded-full border-4 border-focus flex items-center justify-center font-bold text-role-primary">
                             {timeLeft}
                         </div>
                     </div>
@@ -276,19 +276,19 @@ const QuizLivePage = () => {
                     <div className="max-w-5xl w-full">
                         <div className="mb-12">
                             {questionMedia && (
-                                <div className="w-full h-96 bg-gray-200 rounded-2xl shadow-xl mb-8 flex items-center justify-center overflow-hidden">
+                                <div className="w-full h-96 bg-page rounded-2xl shadow-xl mb-8 flex items-center justify-center overflow-hidden">
                                     <img src={questionMedia} alt="Question" className="max-h-full max-w-full object-contain" />
                                 </div>
                             )}
-                            <div className="text-5xl font-bold text-gray-900 text-center">
+                            <div className="text-5xl font-bold text-primary text-center">
                                 {questionIndex + 1}. {questionText}
                             </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-6">
                             {(options || []).map((option, idx) => (
-                                <div key={idx} className="bg-white p-8 rounded-2xl shadow-lg border-4 border-gray-200 hover:border-indigo-400 transition-colors">
-                                    <div className="text-3xl font-bold text-gray-900 text-center">{option.text}</div>
+                                <div key={idx} className="bg-card p-8 rounded-2xl shadow-lg border-4 border-light hover:border-focus transition-colors">
+                                    <div className="text-3xl font-bold text-primary text-center">{option.text}</div>
                                 </div>
                             ))}
                         </div>
@@ -307,17 +307,17 @@ const QuizLivePage = () => {
         return (
             <div className="h-screen flex flex-col">
                 {/* Top Bar */}
-                <div className="bg-white px-6 py-3 flex items-center justify-between shadow-sm">
-                    <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium">
+                <div className="bg-card px-6 py-3 flex items-center justify-between shadow-sm">
+                    <button className="px-4 py-2 text-sm bg-page text-secondary rounded font-medium">
                         Manage Participants
                     </button>
                     <div className="flex flex-col items-center">
-                        <div className="font-semibold text-gray-900">{quiz?.title}</div>
-                        <div className="text-sm text-gray-500">{questionIndex + 1}/{questions.length}</div>
+                        <div className="font-semibold text-primary">{quiz?.title}</div>
+                        <div className="text-sm text-tertiary">{questionIndex + 1}/{questions.length}</div>
                     </div>
                     <button
                         onClick={handleShowLeaderboard}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
+                        className="px-6 py-2 btn-primary rounded-lg font-semibold"
                     >
                         Leaderboard
                     </button>
@@ -326,7 +326,7 @@ const QuizLivePage = () => {
                 <div className="flex-1 p-12">
                     <div className="max-w-5xl mx-auto">
                         {/* Bar Chart */}
-                        <div className="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                        <div className="bg-card rounded-2xl p-8 shadow-xl mb-8">
                             <div className="h-64 flex items-end justify-around gap-4">
                                 {options.map((option, idx: number) => {
                                     const count = Number(answerStats[String(idx)] || 0);
@@ -336,12 +336,12 @@ const QuizLivePage = () => {
                                     return (
                                         <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full">
                                             <div
-                                                className={`w-full flex items-end justify-center rounded-t-lg transition-all duration-500 ${isCorrect ? 'bg-green-500' : 'bg-gray-300'}`}
+                                                className={`w-full flex items-end justify-center rounded-t-lg transition-all duration-500 ${isCorrect ? 'bg-role-primary' : 'bg-grey border-2 border-x-[var(--border-medium)] border-t-[var(--border-medium)] border-b-0'}`}
                                                 style={{ height: `${Math.max(heightPercent, 12)}%` }}
                                             >
-                                                <div className="text-white font-bold text-2xl text-center">{count}</div>
+                                                <div className="text-inverse font-bold text-2xl text-center">{count}</div>
                                             </div>
-                                            <div className="mt-2 text-gray-700 font-medium">{["A", "B", "C", "D"][idx]}</div>
+                                            <div className="mt-2 text-secondary font-medium">{["A", "B", "C", "D"][idx]}</div>
                                         </div>
                                     );
                                 })}
@@ -349,7 +349,7 @@ const QuizLivePage = () => {
                         </div>
 
                         {/* Question text */}
-                        <div className="text-2xl font-bold text-gray-900 text-center mb-6">
+                        <div className="text-2xl font-bold text-primary text-center mb-6">
                             {questionIndex + 1}. {questionText}
                         </div>
 
@@ -361,13 +361,13 @@ const QuizLivePage = () => {
                                     <div
                                         key={idx}
                                         className={`p-8 rounded-2xl shadow-lg border-4 ${isCorrect
-                                            ? 'bg-green-50 border-green-500 shadow-green-200'
-                                            : 'bg-gray-100 border-gray-300 opacity-50'
+                                            ? 'bg-role-success-light border-role-success shadow-green-200'
+                                            : 'bg-page border-light opacity-50'
                                             }`}
                                     >
                                         <div className="flex items-center justify-between">
-                                            <div className="text-2xl font-bold text-gray-900">{option.text}</div>
-                                            {isCorrect && <Check className="w-8 h-8 text-green-600" />}
+                                            <div className="text-2xl font-bold text-primary">{option.text}</div>
+                                            {isCorrect && <Check className="w-8 h-8 text-role-success" />}
                                         </div>
                                     </div>
                                 );
@@ -388,17 +388,17 @@ const QuizLivePage = () => {
         return (
             <div className="h-screen flex flex-col">
                 {/* Top Bar */}
-                <div className="bg-white px-6 py-3 flex items-center justify-between shadow-sm">
-                    <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium">
+                <div className="bg-card px-6 py-3 flex items-center justify-between shadow-sm">
+                    <button className="px-4 py-2 text-sm bg-page text-secondary rounded font-medium">
                         Manage Participants
                     </button>
                     <div className="flex flex-col items-center">
-                        <div className="font-semibold text-gray-900">{quiz?.title}</div>
-                        <div className="text-sm text-gray-500">{questionIndex + 1}/{questions.length}</div>
+                        <div className="font-semibold text-primary">{quiz?.title}</div>
+                        <div className="text-sm text-tertiary">{questionIndex + 1}/{questions.length}</div>
                     </div>
                     <button
                         onClick={handleNextQuestion}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
+                        className="px-6 py-2 btn-primary rounded-lg font-semibold"
                     >
                         {isLastQuestion ? 'Finish Quiz' : 'Next Question'}
                     </button>
@@ -406,7 +406,7 @@ const QuizLivePage = () => {
 
                 <div className="flex-1 p-12 overflow-auto">
                     <div className="max-w-3xl mx-auto">
-                        <h2 className="text-4xl font-bold text-gray-900 text-center mb-8">Leaderboard</h2>
+                        <h2 className="text-4xl font-bold text-primary text-center mb-8">Leaderboard</h2>
 
                         <div className="space-y-4 mb-8">
                             {leaderboard.map((player, idx) => (
@@ -418,19 +418,19 @@ const QuizLivePage = () => {
                                             ? 'bg-gradient-to-r from-gray-300 to-gray-400'
                                             : idx === 2
                                                 ? 'bg-gradient-to-r from-orange-400 to-orange-500'
-                                                : 'bg-white'
+                                                : 'bg-card'
                                         }`}
                                 >
-                                    <div className={`text-3xl font-black ${idx < 3 ? 'text-white' : 'text-gray-900'} w-12`}>
+                                    <div className={`text-3xl font-black ${idx < 3 ? 'text-inverse' : 'text-primary'} w-12`}>
                                         {idx + 1}
                                     </div>
                                     <div className="flex-1">
-                                        <div className={`text-xl font-bold ${idx < 3 ? 'text-white' : 'text-gray-900'}`}>
+                                        <div className={`text-xl font-bold ${idx < 3 ? 'text-inverse' : 'text-primary'}`}>
                                             {player.nickname}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                        <div className={`text-2xl font-bold ${idx < 3 ? 'text-white' : 'text-gray-900'}`}>
+                                        <div className={`text-2xl font-bold ${idx < 3 ? 'text-inverse' : 'text-primary'}`}>
                                             {player.score.toLocaleString()}
                                         </div>
                                         {highStreaks.find(s => s.nickname === player.nickname && s.streak >= 3) && (
@@ -446,19 +446,19 @@ const QuizLivePage = () => {
                             ))}
 
                             {leaderboard.length === 0 && (
-                                <div className="text-center text-gray-500 py-8">
+                                <div className="text-center text-tertiary py-8">
                                     No leaderboard data available
                                 </div>
                             )}
                         </div>
 
                         {highStreaks.length > 0 && (
-                            <div className="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-6">
+                            <div className="bg-role-primary-light border-2 border-focus rounded-xl p-6">
                                 <div className="flex items-center gap-3">
-                                    <TrendingUp className="w-6 h-6 text-indigo-600" />
+                                    <TrendingUp className="w-6 h-6 text-role-primary" />
                                     <div className="flex-1">
-                                        <div className="text-sm font-semibold text-indigo-900 mb-1">Top Streaks</div>
-                                        <div className="text-lg font-bold text-indigo-700">
+                                        <div className="text-sm font-semibold text-primary mb-1">Top Streaks</div>
+                                        <div className="text-lg font-bold text-role-primary">
                                             {highStreaks.slice(0, 3).map(s => `${s.nickname} (🔥${s.streak})`).join(', ')}
                                         </div>
                                     </div>
@@ -482,11 +482,11 @@ const QuizLivePage = () => {
 
         return (
             <div className="h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-100">
-                <div className="bg-white px-6 py-3 flex items-center justify-center shadow-sm relative">
-                    <div className="font-semibold text-gray-900 text-xl">{quiz?.title} - Quiz Complete</div>
+                <div className="bg-card px-6 py-3 flex items-center justify-center shadow-sm relative">
+                    <div className="font-semibold text-primary text-xl">{quiz?.title} - Quiz Complete</div>
                     <button
                         onClick={handleEndGame}
-                        className="absolute right-6 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200"
+                        className="absolute right-6 px-4 py-2 bg-page text-secondary rounded-lg font-medium hover:opacity-80"
                     >
                         Exit
                     </button>
@@ -494,7 +494,7 @@ const QuizLivePage = () => {
 
                 <div className="flex-1 flex items-center justify-center p-12">
                     <div className="text-center">
-                        <div className="text-5xl font-black text-gray-900 mb-12">🎉 Quiz Complete! 🎉</div>
+                        <div className="text-5xl font-black text-primary mb-12">🎉 Quiz Complete! 🎉</div>
 
                         <div className="flex items-end justify-center gap-8 mb-12">
                             {/* 2nd Place */}
@@ -505,8 +505,8 @@ const QuizLivePage = () => {
                                         <div className="text-sm font-semibold">Silver</div>
                                     </div>
                                 </div>
-                                <div className="text-xl font-bold text-gray-900">{second?.nickname || '-'}</div>
-                                <div className="text-lg text-gray-600">{second ? `${second.score.toLocaleString()} pts` : ''}</div>
+                                <div className="text-xl font-bold text-primary">{second?.nickname || '-'}</div>
+                                <div className="text-lg text-secondary">{second ? `${second.score.toLocaleString()} pts` : ''}</div>
                             </div>
 
                             {/* 1st Place */}
@@ -518,8 +518,8 @@ const QuizLivePage = () => {
                                         <div className="text-sm font-semibold">Gold</div>
                                     </div>
                                 </div>
-                                <div className="text-2xl font-black text-gray-900">{first?.nickname || '-'}</div>
-                                <div className="text-xl text-gray-600">{first ? `${first.score.toLocaleString()} pts` : ''}</div>
+                                <div className="text-2xl font-black text-primary">{first?.nickname || '-'}</div>
+                                <div className="text-xl text-secondary">{first ? `${first.score.toLocaleString()} pts` : ''}</div>
                             </div>
 
                             {/* 3rd Place */}
@@ -530,12 +530,12 @@ const QuizLivePage = () => {
                                         <div className="text-sm font-semibold">Bronze</div>
                                     </div>
                                 </div>
-                                <div className="text-xl font-bold text-gray-900">{third?.nickname || '-'}</div>
-                                <div className="text-lg text-gray-600">{third ? `${third.score.toLocaleString()} pts` : ''}</div>
+                                <div className="text-xl font-bold text-primary">{third?.nickname || '-'}</div>
+                                <div className="text-lg text-secondary">{third ? `${third.score.toLocaleString()} pts` : ''}</div>
                             </div>
                         </div>
 
-                        <div className="text-2xl font-semibold text-gray-700">
+                        <div className="text-2xl font-semibold text-secondary">
                             Thank you for participating! 🎓
                         </div>
                     </div>
@@ -547,7 +547,7 @@ const QuizLivePage = () => {
     // Fallback
     return (
         <div className="flex items-center justify-center min-h-screen">
-            <div className="text-gray-500">Loading game...</div>
+            <div className="text-tertiary">Loading game...</div>
         </div>
     );
 };

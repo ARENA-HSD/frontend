@@ -38,14 +38,14 @@ const MembersPage = () => {
     return (
         <SubdomainLayout>
             <div className="flex-1 space-y-6 overflow-auto p-4">
-                <div className="flex items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-indigo-50/50">
+                <div className="flex items-center justify-between bg-card p-6 rounded-xl shadow-sm border border-light">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900">Members</h2>
-                        <p className="text-gray-500 text-sm">Manage who has access to this organization</p>
+                        <h2 className="text-2xl font-bold text-primary">Members</h2>
+                        <p className="text-tertiary text-sm">Manage who has access to this organization</p>
                     </div>
                     <button
                         onClick={handleInviteClick}
-                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                        className="flex items-center gap-2 btn-primary px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
                     >
                         <UserPlus className="w-5 h-5" />
                         Manage Invitations
@@ -53,43 +53,43 @@ const MembersPage = () => {
                 </div>
 
                 {error && (
-                    <div className="bg-red-50 text-red-600 p-4 rounded-lg border border-red-100 italic">
+                    <div className="bg-role-danger-light text-role-danger p-4 rounded-lg border border-role-danger italic">
                         {error}
                     </div>
                 )}
 
-                <div className="bg-white rounded-xl shadow-sm border border-indigo-50/50 overflow-hidden">
+                <div className="bg-card rounded-xl shadow-sm border border-light overflow-hidden">
                     {isLoading ? (
-                        <div className="p-12 text-center text-gray-500">
-                            <div className="animate-spin w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+                        <div className="p-12 text-center text-tertiary">
+                            <div className="animate-spin w-8 h-8 border-4 border-focus border-t-transparent rounded-full mx-auto mb-4"></div>
                             Loading members...
                         </div>
                     ) : (
                         <table className="w-full text-left">
-                            <thead className="bg-gray-50 border-b border-indigo-50">
+                            <thead className="bg-page border-b border-light">
                                 <tr>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">User</th>
+                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Role</th>
                                     <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-indigo-50/50">
+                            <tbody className="divide-y divide-light">
                                 {members.length > 0 ? members.map((member, idx) => (
-                                    <tr key={idx} className="hover:bg-indigo-50/20 transition-colors">
+                                    <tr key={idx} className="hover:bg-role-primary-light/20 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center font-bold">
+                                                <div className="w-10 h-10 bg-role-primary-light text-role-primary rounded-full flex items-center justify-center font-bold">
                                                     {member.username?.substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <div className="font-semibold text-gray-900">{member.username}</div>
-                                                    <div className="text-sm text-gray-500">{member.email}</div>
+                                                    <div className="font-semibold text-primary">{member.username}</div>
+                                                    <div className="text-sm text-tertiary">{member.email}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
-                                                <Shield className="w-4 h-4 text-indigo-500" />
+                                                <Shield className="w-4 h-4 text-role-primary" />
                                                 {currentUser?.id === member.userId ? (
                                                     <div className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer hover:text-indigo-600 p-0">
                                                         {member.role === "SUPER_ADMIN" ? (
@@ -104,7 +104,7 @@ const MembersPage = () => {
                                                     <select
                                                         value={member.role}
                                                         onChange={(e) => handleRoleChange(member.userId, e.target.value)}
-                                                        className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer hover:text-indigo-600 p-0"
+                                                        className="bg-transparent border-none text-sm font-medium text-secondary focus:ring-0 cursor-pointer hover:text-role-primary p-0"
                                                     >
                                                         {member.role === "SUPER_ADMIN" ? (
                                                             <>
@@ -129,7 +129,7 @@ const MembersPage = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
                                             <button
                                                 onClick={() => handleRemoveMember(member.userId, member.username)}
-                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors"
                                                 title="Remove Member"
                                             >
                                                 <Trash2 className="w-5 h-5" />
@@ -138,7 +138,7 @@ const MembersPage = () => {
                                     </tr>
                                 )) : (
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-12 text-center text-gray-500 italic">
+                                        <td colSpan={3} className="px-6 py-12 text-center text-tertiary italic">
                                             No members found.
                                         </td>
                                     </tr>

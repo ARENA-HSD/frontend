@@ -5,7 +5,7 @@
  * Uses WebSocket for live participant updates.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Users, Zap, Copy, Check } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -189,7 +189,7 @@ const QuizLobbyPage = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-gray-500">Creating game session...</div>
+                <div className="text-tertiary">Creating game session...</div>
             </div>
         );
     }
@@ -197,7 +197,7 @@ const QuizLobbyPage = () => {
     if (!quiz) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-red-500">Quiz not found</div>
+                <div className="text-role-danger">Quiz not found</div>
             </div>
         );
     }
@@ -234,17 +234,17 @@ const QuizLobbyPage = () => {
     return (
         <div className="max-w-6xl mx-auto p-4">
             {/* Top Bar */}
-            <div className="bg-white p-4 rounded-lg shadow-sm mb-4 flex items-center justify-between">
-                <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 flex items-center gap-2">
+            <div className="bg-card p-4 rounded-lg shadow-sm mb-4 flex items-center justify-between">
+                <button className="px-4 py-2 bg-page text-secondary rounded-lg font-medium hover:opacity-80 flex items-center gap-2">
                     <Users className="w-5 h-5" />
                     Manage Participants
                 </button>
-                <div className="text-xl font-bold text-gray-900">{quiz.title}</div>
+                <div className="text-xl font-bold text-primary">{quiz.title}</div>
                 <div className="flex items-center gap-2">
                     {wsConnected && (
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Connected" />
                     )}
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-tertiary">
                         {wsConnected ? 'Live' : 'Offline'}
                     </span>
                 </div>
@@ -254,23 +254,23 @@ const QuizLobbyPage = () => {
             <div className="flex">
                 {/* QR Code */}
                 {joinUrl && (
-                    <div className="flex flex-col items-center bg-white rounded-2xl p-8 shadow-lg">
-                        <div className="text-sm text-gray-500 font-medium mb-2">Game PIN</div>
-                        <div className="text-6xl font-black text-indigo-600 tracking-widest mb-4">
+                    <div className="flex flex-col items-center bg-card rounded-2xl p-8 shadow-lg">
+                        <div className="text-sm text-tertiary font-medium mb-2">Game PIN</div>
+                        <div className="text-6xl font-black text-role-primary tracking-widest mb-4">
                             {gamePin || '------'}
                         </div>
-                        <div className="text-sm text-gray-500 font-medium mb-3">Scan to Join</div>
-                        <div className="bg-white p-3 rounded-xl border-2 border-indigo-100">
+                        <div className="text-sm text-tertiary font-medium mb-3">Scan to Join</div>
+                        <div className="bg-card p-3 rounded-xl border-2 border-light">
                             <QRCodeSVG
                                 value={joinUrl}
                                 size={160}
                                 level="H"
-                                bgColor="#ffffff"
-                                fgColor="#4f46e5"
+                                bgColor={getComputedStyle(document.documentElement).getPropertyValue('--surface-card-bg').trim() || '#ffffff'}
+                                fgColor={getComputedStyle(document.documentElement).getPropertyValue('--role-primary').trim() || '#3b82f6'}
                             />
                         </div>
-                        <div className="mt-3 flex items-center gap-2 bg-gray-50 rounded-lg px-3 py-2 max-w-xs">
-                            <span className="text-xs text-gray-600 truncate select-all font-mono">
+                        <div className="mt-3 flex items-center gap-2 bg-page rounded-lg px-3 py-2 max-w-xs">
+                            <span className="text-xs text-secondary truncate select-all font-mono">
                                 {joinUrl}
                             </span>
                             <button
@@ -281,7 +281,7 @@ const QuizLobbyPage = () => {
                                 {copied ? (
                                     <Check className="w-4 h-4 text-green-500" />
                                 ) : (
-                                    <Copy className="w-4 h-4 text-gray-400" />
+                                    <Copy className="w-4 h-4 text-tertiary" />
                                 )}
                             </button>
                         </div>
@@ -290,14 +290,14 @@ const QuizLobbyPage = () => {
 
                 {/* Participants */}
                 <div className="mb-6 w-full p-4">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <h3 className="text-lg font-semibold text-secondary mb-3 flex items-center gap-2">
                         <Users className="w-5 h-5" />
                         Participants ({participantCount})
                     </h3>
 
                     {participantCount === 0 ? (
                         <div className="text-center py-12">
-                            <div className="text-gray-400 text-lg animate-pulse">
+                            <div className="text-tertiary text-lg animate-pulse">
                                 Waiting for participants to join...
                             </div>
                         </div>
@@ -307,8 +307,8 @@ const QuizLobbyPage = () => {
                             {largePlayers.length > 0 && (
                                 <div className="flex flex-wrap justify-evenly items-center mb-3">
                                     {largePlayers.map((name, idx) => (
-                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-white p-4 rounded-lg shadow-sm animate-fadeIn hover:bg-gray-200 hover:line-through">
-                                            <div className="text-xl font-semibold text-gray-900">{name}</div>
+                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-card p-4 rounded-lg shadow-sm animate-fadeIn hover:bg-page hover:line-through">
+                                            <div className="text-xl font-semibold text-primary">{name}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -318,8 +318,8 @@ const QuizLobbyPage = () => {
                             {mediumPlayers.length > 0 && (
                                 <div className="flex flex-wrap justify-evenly items-center mb-3">
                                     {mediumPlayers.map((name, idx) => (
-                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-white p-3 rounded-lg shadow-sm hover:bg-gray-200 hover:line-through">
-                                            <div className="text-lg font-medium text-gray-800">{name}</div>
+                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-card p-3 rounded-lg shadow-sm hover:bg-page hover:line-through">
+                                            <div className="text-lg font-medium text-primary">{name}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -329,8 +329,8 @@ const QuizLobbyPage = () => {
                             {smallPlayers.length > 0 && (
                                 <div className="flex flex-wrap justify-evenly items-center pb-2 gap-2">
                                     {smallPlayers.map((name, idx) => (
-                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-white px-4 py-2 rounded-lg shadow-sm whitespace-nowrap hover:bg-gray-200 hover:line-through">
-                                            <div className="text-sm font-medium text-gray-700">{name}</div>
+                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-card px-4 py-2 rounded-lg shadow-sm whitespace-nowrap hover:bg-page hover:line-through">
+                                            <div className="text-sm font-medium text-secondary">{name}</div>
                                         </button>
                                     ))}
                                 </div>
@@ -347,8 +347,8 @@ const QuizLobbyPage = () => {
                     onClick={handleStartGame}
                     disabled={isStarting || participantCount === 0}
                     className={`px-12 py-4 rounded-lg text-xl font-bold shadow-lg flex items-center gap-3 transition-all ${isStarting || participantCount === 0
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-xl'
+                        ? 'bg-page text-tertiary cursor-not-allowed'
+                        : 'btn-primary hover:shadow-xl'
                         }`}
                 >
                     <Zap className="w-6 h-6" />

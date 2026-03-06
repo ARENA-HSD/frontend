@@ -46,6 +46,8 @@ const QuizLivePage = () => {
     const [questionText, setQuestionText] = useState(initialQuestion?.text || '');
     const [questionMedia, setQuestionMedia] = useState(initialQuestion?.mediaUrl || '');
     const [options, setOptions] = useState<QuestionOption[]>(initialQuestion?.options || []);
+    const [answeredCount, setAnsweredCount] = useState(0);
+    const [totalPlayers, setTotalPlayers] = useState(0);
     const [questions, setQuestions] = useState<Question[]>([]);
     const [phase, setPhase] = useState<GamePhase>('question');
     const [time, setTime] = useState(initialQuestion?.time || 0);
@@ -129,6 +131,16 @@ const QuizLivePage = () => {
                 setOptions(payload.options || []);
                 startTimer(payload.time, payload.serverTime);
                 setPhase('question');
+            })
+        );
+
+        unsubs.push(
+            gameSocket.on("ANSWER_STAT_UPDATE", (payload: {
+                answeredCount: number;
+                totalPlayers: number;
+            }) => {
+                setAnsweredCount(payload.answeredCount);
+                setTotalPlayers(payload.totalPlayers);
             })
         );
 
@@ -245,9 +257,17 @@ const QuizLivePage = () => {
                     <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium hover:bg-gray-200">
                         Manage Participants
                     </button>
-                    <div className="font-semibold text-gray-900">{quiz?.title}</div>
-                    <div className="w-12 h-12 rounded-full border-4 border-indigo-600 flex items-center justify-center font-bold text-indigo-600">
-                        {timeLeft}
+                    <div className="flex flex-col items-center">
+                        <div className="font-semibold text-gray-900">{quiz?.title}</div>
+                        <div className="text-sm text-gray-500">{questionIndex + 1}/{questions.length}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="">
+                            {answeredCount}/{totalPlayers}
+                        </div>
+                        <div className="w-12 h-12 rounded-full border-4 border-indigo-600 flex items-center justify-center font-bold text-indigo-600">
+                            {timeLeft}
+                        </div>
                     </div>
                 </div>
 
@@ -261,7 +281,7 @@ const QuizLivePage = () => {
                                 </div>
                             )}
                             <div className="text-5xl font-bold text-gray-900 text-center">
-                                {questionText}
+                                {questionIndex + 1}. {questionText}
                             </div>
                         </div>
 
@@ -291,7 +311,10 @@ const QuizLivePage = () => {
                     <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium">
                         Manage Participants
                     </button>
-                    <div className="font-semibold text-gray-900">{quiz?.title}</div>
+                    <div className="flex flex-col items-center">
+                        <div className="font-semibold text-gray-900">{quiz?.title}</div>
+                        <div className="text-sm text-gray-500">{questionIndex + 1}/{questions.length}</div>
+                    </div>
                     <button
                         onClick={handleShowLeaderboard}
                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"
@@ -327,7 +350,7 @@ const QuizLivePage = () => {
 
                         {/* Question text */}
                         <div className="text-2xl font-bold text-gray-900 text-center mb-6">
-                            {questionText}
+                            {questionIndex + 1}. {questionText}
                         </div>
 
                         {/* Answer grid with correct highlighted */}
@@ -369,7 +392,10 @@ const QuizLivePage = () => {
                     <button className="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded font-medium">
                         Manage Participants
                     </button>
-                    <div className="font-semibold text-gray-900">{quiz?.title}</div>
+                    <div className="flex flex-col items-center">
+                        <div className="font-semibold text-gray-900">{quiz?.title}</div>
+                        <div className="text-sm text-gray-500">{questionIndex + 1}/{questions.length}</div>
+                    </div>
                     <button
                         onClick={handleNextQuestion}
                         className="px-6 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700"

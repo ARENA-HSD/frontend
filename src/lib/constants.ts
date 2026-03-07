@@ -285,6 +285,7 @@ export const WSEventType = {
     SUBMIT_ANSWER: 'SUBMIT_ANSWER',
     SHOW_LEADERBOARD: 'SHOW_LEADERBOARD',
     NEXT_QUESTION: 'NEXT_QUESTION',
+    RECONNECT: 'RECONNECT',
 
     // Server → Client (matches games.service.ts)
     ROOM_JOINED: 'ROOM_JOINED',
@@ -297,6 +298,9 @@ export const WSEventType = {
     QUESTION_END: 'QUESTION_END',
     LEADERBOARD_RESULT: 'LEADERBOARD_RESULT',
     GAME_OVER: 'GAME_OVER',
+    RECONNECT_SUCCESS: 'RECONNECT_SUCCESS',
+    PLAYER_DISCONNECTED: 'PLAYER_DISCONNECTED',
+    PLAYER_RECONNECTED: 'PLAYER_RECONNECTED',
     ERROR: 'ERROR',
 } as const;
 export type WSEventType = (typeof WSEventType)[keyof typeof WSEventType];

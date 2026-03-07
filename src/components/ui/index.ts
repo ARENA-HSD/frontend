@@ -10,3 +10,4 @@ export type { DropdownItem, DropdownProps } from './Dropdown';
 export { default as Avatar } from './Avatar';
 export { default as Loader } from './Loader';
 export { default as ThemeSwitcher } from './ThemeSwitcher';
+export { default as ReconnectOverlay } from './ReconnectOverlay';

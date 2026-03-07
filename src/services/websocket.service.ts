@@ -2,7 +2,7 @@
  * HSD Arena - WebSocket Service
  * 
  * Real-time game engine client using native WebSocket.
- * Handles connection, reconnection, and event dispatching.
+ * Handles connection, reconnection with session tokens, and event dispatching.
  */
 
 import { WS_BASE_URL } from '@/lib/constants';
@@ -26,10 +26,11 @@ export const WS_EVENTS = {
     // Client → Server
     JOIN_ROOM: 'JOIN_ROOM',
     SUBMIT_ANSWER: 'SUBMIT_ANSWER',
+    RECONNECT: 'RECONNECT',
 
     // Server → Client (matches games.service.ts)
-    JOIN_SUCCESS: 'JOIN_SUCCESS',           // → joiner on join
-    FORCE_DISCONNECT: 'FORCE_DISCONNECT', // defensive (not actively sent)
+    JOIN_SUCCESS: 'JOIN_SUCCESS',
+    FORCE_DISCONNECT: 'FORCE_DISCONNECT',
 
     // Host → Server
     KICK_PLAYER: 'KICK_PLAYER',
@@ -50,7 +51,41 @@ export const WS_EVENTS = {
     GAME_OVER: 'GAME_OVER',
     ERROR: 'ERROR',
 
+    // Reconnect events
+    RECONNECT_SUCCESS: 'RECONNECT_SUCCESS',
+    PLAYER_DISCONNECTED: 'PLAYER_DISCONNECTED',
+    PLAYER_RECONNECTED: 'PLAYER_RECONNECTED',
+
+    // Internal events (client-only, for UI state)
+    RECONNECTING: 'RECONNECTING',
+    RECONNECT_FAILED: 'RECONNECT_FAILED',
 } as const;
+
+// ============================================================================
+// Session Storage Helpers
+// ============================================================================
+
+const SESSION_KEY_PREFIX = 'arena_session_';
+const PIN_KEY = 'arena_pin';
+
+function saveSession(pin: string, sessionToken: string): void {
+    localStorage.setItem(`${SESSION_KEY_PREFIX}${pin}`, sessionToken);
+    localStorage.setItem(PIN_KEY, pin);
+}
+
+function getSession(): { pin: string; sessionToken: string } | null {
+    const pin = localStorage.getItem(PIN_KEY);
+    if (!pin) return null;
+    const token = localStorage.getItem(`${SESSION_KEY_PREFIX}${pin}`);
+    if (!token) return null;
+    return { pin, sessionToken: token };
+}
+
+function clearSession(): void {
+    const pin = localStorage.getItem(PIN_KEY);
+    if (pin) localStorage.removeItem(`${SESSION_KEY_PREFIX}${pin}`);
+    localStorage.removeItem(PIN_KEY);
+}
 
 // ============================================================================
 // GameWebSocket Class
@@ -65,9 +100,15 @@ class GameWebSocket {
     private shouldReconnect = false;
     private url: string = '';
     private _isConnected = false;
+    private _isReconnecting = false;
+    private _currentPin: string = '';
 
     get isConnected(): boolean {
         return this._isConnected;
+    }
+
+    get isReconnecting(): boolean {
+        return this._isReconnecting;
     }
 
     /**
@@ -98,6 +139,7 @@ class GameWebSocket {
                     try {
                         const message: WSMessage = JSON.parse(event.data);
                         console.log('📩 WS received:', message.type, message.data);
+                        this.handleInternalEvents(message);
                         this.dispatch(message.type, message.data);
                     } catch (err) {
                         console.error('Failed to parse WS message:', event.data);
@@ -127,17 +169,154 @@ class GameWebSocket {
     }
 
     /**
+     * Attempt to reconnect with exponential backoff.
+     * If a session token exists, sends RECONNECT event after connecting.
+     */
+    private attemptReconnect(): void {
+        this.reconnectAttempts++;
+        const delay = Math.min(this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1), 10000);
+
+        const session = getSession();
+
+        if (session) {
+            this._isReconnecting = true;
+            this.dispatch(WS_EVENTS.RECONNECTING, {
+                attempt: this.reconnectAttempts,
+                maxAttempts: this.maxReconnectAttempts,
+            });
+        }
+
+        console.log(`🔄 Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+
+        setTimeout(async () => {
+            if (!this.shouldReconnect) return;
+
+            try {
+                // Temporarily prevent recursive reconnect from inner onclose
+                this.shouldReconnect = false;
+                await this.connectInternal();
+                this.shouldReconnect = true;
+
+                // If we have a session, send RECONNECT event
+                if (session) {
+                    this.emit(WS_EVENTS.RECONNECT, {
+                        pin: session.pin,
+                        sessionToken: session.sessionToken,
+                    });
+                }
+            } catch {
+                this.shouldReconnect = true;
+                if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                    this.attemptReconnect();
+                } else {
+                    this._isReconnecting = false;
+                    this.dispatch(WS_EVENTS.RECONNECT_FAILED, {
+                        reason: 'Maksimum yeniden bağlanma denemesine ulaşıldı',
+                    });
+                    clearSession();
+                }
+            }
+        }, delay);
+    }
+
+    /**
+     * Internal connect - opens WebSocket without modifying shouldReconnect.
+     */
+    private connectInternal(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            try {
+                this.ws = new WebSocket(this.url);
+
+                this.ws.onopen = () => {
+                    console.log('🔌 WebSocket reconnected:', this.url);
+                    this._isConnected = true;
+                    resolve();
+                };
+
+                this.ws.onmessage = (event) => {
+                    try {
+                        const message: WSMessage = JSON.parse(event.data);
+                        console.log('📩 WS received:', message.type, message.data);
+                        this.handleInternalEvents(message);
+                        this.dispatch(message.type, message.data);
+                    } catch (err) {
+                        console.error('Failed to parse WS message:', event.data);
+                    }
+                };
+
+                this.ws.onclose = (event) => {
+                    console.log('🔌 WebSocket closed:', event.code, event.reason);
+                    this._isConnected = false;
+
+                    if (this.shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
+                        this.attemptReconnect();
+                    }
+                };
+
+                this.ws.onerror = () => {
+                    this._isConnected = false;
+                    reject(new Error('WebSocket connection failed'));
+                };
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    /**
+     * Handle internal events: auto-save session, auto-clear on game over, etc.
+     */
+    private handleInternalEvents(message: WSMessage): void {
+        switch (message.type) {
+            case WS_EVENTS.JOIN_SUCCESS:
+                if (message.data?.sessionToken && this._currentPin) {
+                    saveSession(this._currentPin, message.data.sessionToken);
+                }
+                break;
+
+            case WS_EVENTS.RECONNECT_SUCCESS:
+                this._isReconnecting = false;
+                this.reconnectAttempts = 0;
+                break;
+
+            case WS_EVENTS.GAME_OVER:
+                clearSession();
+                break;
+
+            case WS_EVENTS.ERROR:
+                // If we get ERROR during reconnect, treat as failed
+                if (this._isReconnecting) {
+                    this._isReconnecting = false;
+                    clearSession();
+                    this.dispatch(WS_EVENTS.RECONNECT_FAILED, {
+                        reason: message.data?.message || 'Oturum süresi doldu',
+                    });
+                }
+                break;
+        }
+    }
+
+    /**
      * Disconnect from the WebSocket server
      */
     disconnect(): void {
         this.shouldReconnect = false;
         this._isConnected = false;
+        this._isReconnecting = false;
         if (this.ws) {
             this.ws.close(1000, 'Client disconnect');
             this.ws = null;
         }
         this.listeners.clear();
         this.reconnectAttempts = 0;
+    }
+
+    /**
+     * Disconnect and clear session data
+     */
+    disconnectAndClear(): void {
+        clearSession();
+        this.disconnect();
     }
 
     /**
@@ -182,6 +361,8 @@ class GameWebSocket {
 
     /** Participant joins a game room */
     joinRoom(pin: string, nickname: string): void {
+        this._currentPin = pin;
+        localStorage.setItem(PIN_KEY, pin);
         this.emit(WS_EVENTS.JOIN_ROOM, { pin, nickname });
     }
 
@@ -189,15 +370,6 @@ class GameWebSocket {
     startGame(gameId: string): void {
         this.emit(WS_EVENTS.START_GAME, { gameId });
     }
-    /*
-    +JOIN_ROOM: 'JOIN_ROOM',
-    +SUBMIT_ANSWER: 'SUBMIT_ANSWER',
-    */
-    /*
-    +KICK_PLAYER: 'KICK_PLAYER',
-    +START_GAME: 'START_GAME',
-    +SHOW_LEADERBOARD: 'SHOW_LEADERBOARD',
-    +NEXT_QUESTION: 'NEXT_QUESTION',*/
 
     /** Participant submits an answer */
     submitAnswer(answerIndex: number): void {
@@ -219,6 +391,47 @@ class GameWebSocket {
         this.emit(WS_EVENTS.KICK_PLAYER, { nickname, ban });
     }
 
+    /**
+     * Manually trigger reconnect using stored session.
+     * Useful for page-refresh scenarios.
+     */
+    async reconnectWithSession(): Promise<boolean> {
+        const session = getSession();
+        if (!session) return false;
+
+        this._isReconnecting = true;
+        this._currentPin = session.pin;
+        this.dispatch(WS_EVENTS.RECONNECTING, { attempt: 1, maxAttempts: this.maxReconnectAttempts });
+
+        try {
+            await this.connect();
+            this.emit(WS_EVENTS.RECONNECT, {
+                pin: session.pin,
+                sessionToken: session.sessionToken,
+            });
+            return true;
+        } catch {
+            this._isReconnecting = false;
+            this.dispatch(WS_EVENTS.RECONNECT_FAILED, { reason: 'Sunucuya bağlanılamadı' });
+            return false;
+        }
+    }
+
+    /** Check if there is a stored session available for reconnect */
+    hasSession(): boolean {
+        return getSession() !== null;
+    }
+
+    /** Get stored session info */
+    getSessionInfo() {
+        return getSession();
+    }
+
+    /** Clear stored session */
+    clearStoredSession(): void {
+        clearSession();
+    }
+
     // ============================
     // Private Methods
     // ============================
@@ -234,20 +447,6 @@ class GameWebSocket {
                 }
             });
         }
-    }
-
-    private attemptReconnect(): void {
-        this.reconnectAttempts++;
-        const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-        console.log(`🔄 Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
-
-        setTimeout(() => {
-            if (this.shouldReconnect) {
-                this.connect().catch(() => {
-                    console.warn('Reconnect attempt failed');
-                });
-            }
-        }, delay);
     }
 }
 

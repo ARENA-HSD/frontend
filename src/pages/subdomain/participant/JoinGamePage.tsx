@@ -5,12 +5,12 @@
  * Connects to WebSocket and joins the game room.
  */
 
-import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { useManagerNavigate } from '@/hooks';
-import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload } from '@/types';
+import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload, ReconnectSuccessPlayload } from '@/types';
 
 const JoinGamePage = () => {
     const navigate = useManagerNavigate();
@@ -18,8 +18,56 @@ const JoinGamePage = () => {
 
     const [pin, setPin] = useState(searchParams.get('pin') || '');
     const [nickname, setNickname] = useState('');
-    const [isJoining, setIsJoining] = useState(false);
+    const [isJoining, setIsJoining] = useState(() => {
+        // Start in joining state if we have a session to reconnect
+        return gameSocket.hasSession() && !gameSocket.isConnected;
+    });
     const [error, setError] = useState('');
+
+    // On mount, check for existing session and attempt reconnect
+    useEffect(() => {
+        const session = gameSocket.getSessionInfo();
+        if (!session || gameSocket.isConnected) return;
+
+        const successUnsub = gameSocket.on(WS_EVENTS.RECONNECT_SUCCESS, (payload: ReconnectSuccessPlayload) => {
+            successUnsub();
+            failedUnsub();
+            setIsJoining(false);
+
+            if (payload.gameStatus === 'LOBBY') {
+                navigate('/play/lobby', {
+                    state: { pin: session.pin, nickname: 'Player' },
+                    replace: true,
+                });
+            } else if (payload.gameStatus === 'ACTIVE' && !payload.isHost) {
+                navigate('/play/game', {
+                    state: {
+                        pin: session.pin,
+                        nickname: 'Player',
+                        gameMode: payload.mode || 'PERSONAL',
+                        reconnectData: payload,
+                    },
+                    replace: true,
+                });
+            } else {
+                navigate('/play/results', { replace: true });
+            }
+        });
+
+        const failedUnsub = gameSocket.on(WS_EVENTS.RECONNECT_FAILED, () => {
+            successUnsub();
+            failedUnsub();
+            setIsJoining(false);
+            gameSocket.clearStoredSession();
+        });
+
+        gameSocket.reconnectWithSession();
+
+        return () => {
+            successUnsub();
+            failedUnsub();
+        };
+    }, [navigate]);
 
     const handleJoin = async () => {
         if (!pin.trim() || !nickname.trim()) {

@@ -11,6 +11,7 @@ import { Users, Check, TrendingUp, Crown } from 'lucide-react';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService, questionService } from '@/services';
+import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import type {
     Quiz, Question,
     GameStartingPlayload,
@@ -19,7 +20,10 @@ import type {
     LeaderboardResultHostPlayload,
     GameOverPlayload,
     LeaderboardEntry,
-    QuestionOption
+    QuestionOption,
+    ReconnectSuccessHostPlayload,
+    PlayerDisconnectedPlayload,
+    PlayerReconnectedPlayload,
 } from '@/types';
 
 type GamePhase = 'question' | 'results' | 'leaderboard' | 'finished';
@@ -63,7 +67,11 @@ const QuizLivePage = () => {
     const [leaderboard, setLeaderboard] = useState<Array<{ nickname: string; score: number }>>([]);
     const [highStreaks, setHighStreaks] = useState<Array<{ nickname: string; streak: number }>>([]);
 
+    // Player connection notifications
+    const [connectionToasts, setConnectionToasts] = useState<Array<{ id: number; message: string; type: 'disconnect' | 'reconnect' }>>([]);
+
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const toastIdRef = useRef(0);
 
     // ========================================
     // Boot: start timer for initial question forwarded from lobby
@@ -73,6 +81,21 @@ const QuizLivePage = () => {
             startTimer(initialQuestion.time, initialQuestion.serverTime);
         }
     }, []); // run once on mount
+
+    // Page-refresh reconnect for host
+    useEffect(() => {
+        if (!gameSocket.isConnected && gameSocket.hasSession()) {
+            gameSocket.reconnectWithSession();
+        }
+    }, []);
+
+    const showConnectionToast = useCallback((message: string, type: 'disconnect' | 'reconnect') => {
+        const id = ++toastIdRef.current;
+        setConnectionToasts(prev => [...prev, { id, message, type }]);
+        setTimeout(() => {
+            setConnectionToasts(prev => prev.filter(t => t.id !== id));
+        }, 4000);
+    }, []);
 
     // ========================================
     // Initialize
@@ -169,12 +192,48 @@ const QuizLivePage = () => {
         // GAME_OVER
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
+                gameSocket.clearStoredSession();
                 navigate(`/manager/quizzes/${quizId}/results`, {
                     state: {
                         quiz: quiz,
                         podium: payload.finalScores,
                     }
                 });
+            })
+        );
+
+        // RECONNECT_SUCCESS (host in-game reconnect)
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.RECONNECT_SUCCESS, (payload: ReconnectSuccessHostPlayload) => {
+                if (payload.gameStatus === 'LOBBY') {
+                    navigate(`/manager/quizzes/${quizId}/lobby`, { replace: true });
+                    return;
+                }
+                if (payload.gameStatus === 'FINISHED') {
+                    navigate(`/manager/quizzes/${quizId}/results`, {
+                        state: { quiz },
+                        replace: true,
+                    });
+                    return;
+                }
+                // ACTIVE - restore question index
+                if (payload.currentQuestionIndex != null) {
+                    setQuestionIndex(payload.currentQuestionIndex);
+                }
+            })
+        );
+
+        // PLAYER_DISCONNECTED
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.PLAYER_DISCONNECTED, (payload: PlayerDisconnectedPlayload) => {
+                showConnectionToast(`${payload.nickname} bağlantısı kesildi`, 'disconnect');
+            })
+        );
+
+        // PLAYER_RECONNECTED
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.PLAYER_RECONNECTED, (payload: PlayerReconnectedPlayload) => {
+                showConnectionToast(`${payload.nickname} yeniden bağlandı`, 'reconnect');
             })
         );
 
@@ -223,7 +282,7 @@ const QuizLivePage = () => {
     };
 
     const handleEndGame = () => {
-        gameSocket.disconnect();
+        gameSocket.disconnectAndClear();
         navigate(`/manager/quizzes/${quizId}`);
     };
 
@@ -246,12 +305,32 @@ const QuizLivePage = () => {
         );
     }
 
+    // Toast renderer helper
+    const renderConnectionToasts = () => (
+        connectionToasts.length > 0 ? (
+            <div className="fixed top-4 right-4 z-50 space-y-2">
+                {connectionToasts.map(toast => (
+                    <div
+                        key={toast.id}
+                        className={`px-4 py-2 rounded-lg shadow-lg text-sm font-medium text-white animate-fadeIn ${
+                            toast.type === 'disconnect' ? 'bg-yellow-500' : 'bg-green-500'
+                        }`}
+                    >
+                        {toast.message}
+                    </div>
+                ))}
+            </div>
+        ) : null
+    );
+
     // ========================================
     // PHASE: Live Question
     // ========================================
     if (phase === 'question') {
         return (
             <div className="h-screen flex flex-col">
+                <ReconnectOverlay />
+                {renderConnectionToasts()}
                 {/* Top Bar */}
                 <div className="bg-card px-6 py-3 flex items-center justify-between shadow-sm">
                     <button className="px-4 py-2 text-sm bg-page text-secondary rounded font-medium hover:opacity-80">
@@ -306,6 +385,8 @@ const QuizLivePage = () => {
 
         return (
             <div className="h-screen flex flex-col">
+                <ReconnectOverlay />
+                {renderConnectionToasts()}
                 {/* Top Bar */}
                 <div className="bg-card px-6 py-3 flex items-center justify-between shadow-sm">
                     <button className="px-4 py-2 text-sm bg-page text-secondary rounded font-medium">
@@ -387,6 +468,8 @@ const QuizLivePage = () => {
 
         return (
             <div className="h-screen flex flex-col">
+                <ReconnectOverlay />
+                {renderConnectionToasts()}
                 {/* Top Bar */}
                 <div className="bg-card px-6 py-3 flex items-center justify-between shadow-sm">
                     <button className="px-4 py-2 text-sm bg-page text-secondary rounded font-medium">
@@ -482,6 +565,8 @@ const QuizLivePage = () => {
 
         return (
             <div className="h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-100">
+                <ReconnectOverlay />
+                {renderConnectionToasts()}
                 <div className="bg-card px-6 py-3 flex items-center justify-center shadow-sm relative">
                     <div className="font-semibold text-primary text-xl">{quiz?.title} - Quiz Complete</div>
                     <button

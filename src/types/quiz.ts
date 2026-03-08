@@ -142,6 +142,10 @@ export type WebSocketEventType =
     | 'LEADERBOARD_RESULT'
     | 'NEXT_QUESTION'
     | 'GAME_OVER'
+    | 'RECONNECT'
+    | 'RECONNECT_SUCCESS'
+    | 'PLAYER_DISCONNECTED'
+    | 'PLAYER_RECONNECTED'
     | 'ERROR';
 
 // Client -> Server Events
@@ -177,6 +181,7 @@ export interface NextQuestionPlayload {
 export interface JoinSuccessPlayload {
     status: 'WAITING';
     myNick: string;
+    sessionToken?: string;
 }
 
 // PDF SPEC: recentPlayers (last 28 only)
@@ -248,6 +253,46 @@ export interface ErrorPlayload {
     message: string;
 }
 
+// Reconnect Payloads
+export interface ReconnectPlayload {
+    pin: string;
+    sessionToken: string;
+}
+
+export interface ReconnectSuccessPlayerPlayload {
+    isHost?: false;
+    gameStatus: 'LOBBY' | 'ACTIVE' | 'FINISHED';
+    score: number;
+    streak: number;
+    hasAnswered: boolean;
+    currentQuestionIndex: number;
+    remainingTime: number;
+    mode: 'PERSONAL' | 'STAGE';
+    text?: string;
+    mediaUrl?: string;
+    options?: QuestionOption[];
+}
+
+export interface ReconnectSuccessHostPlayload {
+    isHost: true;
+    gameStatus: 'LOBBY' | 'ACTIVE' | 'FINISHED';
+    currentQuestionIndex: number;
+    count?: number;
+    recentPlayers?: string[];
+    pin?: string;
+    gameId?: string;
+}
+
+export type ReconnectSuccessPlayload = ReconnectSuccessPlayerPlayload | ReconnectSuccessHostPlayload;
+
+export interface PlayerDisconnectedPlayload {
+    nickname: string;
+}
+
+export interface PlayerReconnectedPlayload {
+    nickname: string;
+}
+
 export type WebsocketPlayload =
     | JoinRoomPlayload
     | KickPlayerPlayload
@@ -266,7 +311,12 @@ export type WebsocketPlayload =
     | LeaderboardResultHostPlayload
     | LeaderboardResultPlayerPlayload
     | GameOverPlayload
-    | ErrorPlayload;
+    | ErrorPlayload
+    | ReconnectPlayload
+    | ReconnectSuccessPlayerPlayload
+    | ReconnectSuccessHostPlayload
+    | PlayerDisconnectedPlayload
+    | PlayerReconnectedPlayload;
 
 
 export interface WebSocketEvent {

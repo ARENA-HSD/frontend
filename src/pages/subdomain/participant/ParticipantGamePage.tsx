@@ -16,12 +16,14 @@ import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { Check, X, TrendingUp } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
+import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import type {
     QuestionStartPlayload,
     QuestionEndPlayerPlayload,
     LeaderboardResultPlayerPlayload,
     GameOverPlayload,
     ForceDisconnectPlayload,
+    ReconnectSuccessPlayerPlayload,
 } from '@/types';
 
 // ============================================================================
@@ -50,15 +52,23 @@ const ParticipantGamePage = () => {
     const nickname: string = state?.nickname || 'Player';
     const gameMode: string = state?.gameMode || 'PERSONAL';
     const initialQuestion: QuestionStartPlayload | null = state?.initialQuestion || null;
+    const reconnectData: ReconnectSuccessPlayerPlayload | null = state?.reconnectData || null;
 
     // ---------------- Phase ----------------
-    const [phase, setPhase] = useState<GamePhase>(initialQuestion ? 'question' : 'waiting');
+    const [phase, setPhase] = useState<GamePhase>(() => {
+        if (reconnectData) {
+            if (reconnectData.hasAnswered) return 'answered';
+            if (reconnectData.gameStatus === 'ACTIVE') return 'question';
+            return 'waiting';
+        }
+        return initialQuestion ? 'question' : 'waiting';
+    });
 
     // ------------- Question ----------------
-    const [questionIndex, setQuestionIndex] = useState(initialQuestion?.qIndex ?? 0);
-    const [questionText, setQuestionText] = useState(initialQuestion?.text || '');
-    const [questionMedia, setQuestionMedia] = useState(initialQuestion?.mediaUrl || '');
-    const [options, setOptions] = useState<Array<{ text: string; color: string }>>(initialQuestion?.options || []);
+    const [questionIndex, setQuestionIndex] = useState(reconnectData?.currentQuestionIndex ?? initialQuestion?.qIndex ?? 0);
+    const [questionText, setQuestionText] = useState(reconnectData?.text || initialQuestion?.text || '');
+    const [questionMedia, setQuestionMedia] = useState(reconnectData?.mediaUrl || initialQuestion?.mediaUrl || '');
+    const [options, setOptions] = useState<Array<{ text: string; color: string }>>(reconnectData?.options || initialQuestion?.options || []);
     const [timeLeft, setTimeLeft] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState(-1);
 
@@ -100,13 +110,32 @@ const ParticipantGamePage = () => {
     }, [clearTimer]);
 
     // ========================================
-    // Boot: start timer for initial question if forwarded from lobby
+    // Boot: start timer for initial question or reconnect data
     // ========================================
     useEffect(() => {
-        if (initialQuestion) {
+        if (reconnectData && reconnectData.gameStatus === 'ACTIVE' && !reconnectData.hasAnswered && reconnectData.remainingTime > 0) {
+            // For reconnect, calculate serverTime from remainingTime
+            const syntheticServerTime = Date.now() - ((reconnectData.remainingTime > 0 ? 0 : reconnectData.remainingTime) * 1000);
+            startTimer(reconnectData.remainingTime, syntheticServerTime);
+
+            // Restore score/streak from reconnect
+            statsRef.current.totalScore = reconnectData.score || 0;
+        } else if (reconnectData && reconnectData.hasAnswered) {
+            statsRef.current.totalScore = reconnectData.score || 0;
+            setStreak(reconnectData.streak || 0);
+        } else if (initialQuestion) {
             startTimer(initialQuestion.time, initialQuestion.serverTime);
         }
     }, []); // run once on mount
+
+    // ========================================
+    // Page-refresh reconnect: if no WS connection but session exists
+    // ========================================
+    useEffect(() => {
+        if (!gameSocket.isConnected && gameSocket.hasSession() && !reconnectData) {
+            gameSocket.reconnectWithSession();
+        }
+    }, []);
 
     // ========================================
     // WebSocket Event Listeners
@@ -177,6 +206,7 @@ const ParticipantGamePage = () => {
         // ---- GAME_OVER ----
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
+                gameSocket.clearStoredSession();
                 const s = statsRef.current;
                 navigate('/play/results', {
                     state: {
@@ -196,8 +226,41 @@ const ParticipantGamePage = () => {
         // ---- FORCE_DISCONNECT ----
         unsubs.push(
             gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: ForceDisconnectPlayload) => {
-                gameSocket.disconnect();
+                gameSocket.disconnectAndClear();
                 navigate('/join', { state: { error: payload.reason } });
+            })
+        );
+
+        // ---- RECONNECT_SUCCESS (in-game reconnect) ----
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.RECONNECT_SUCCESS, (payload: ReconnectSuccessPlayerPlayload) => {
+                if (payload.gameStatus === 'LOBBY') {
+                    navigate('/play/lobby', {
+                        state: { pin: gameSocket.getSessionInfo()?.pin, nickname },
+                        replace: true,
+                    });
+                    return;
+                }
+                if (payload.gameStatus === 'FINISHED') {
+                    navigate('/play/results', { replace: true });
+                    return;
+                }
+                // ACTIVE - restore state
+                setQuestionIndex(payload.currentQuestionIndex);
+                setQuestionText(payload.text || '');
+                setQuestionMedia(payload.mediaUrl || '');
+                setOptions(payload.options || []);
+                statsRef.current.totalScore = payload.score || 0;
+                setStreak(payload.streak || 0);
+
+                if (payload.hasAnswered) {
+                    setPhase('answered');
+                } else if (payload.remainingTime > 0) {
+                    const syntheticServerTime = Date.now();
+                    startTimer(payload.remainingTime, syntheticServerTime);
+                    setSelectedAnswer(-1);
+                    setPhase('question');
+                }
             })
         );
 
@@ -223,6 +286,7 @@ const ParticipantGamePage = () => {
     if (phase === 'waiting') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
+                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 <div className="text-center">
                     <div className="text-white text-2xl font-bold animate-pulse mb-4">
                         Waiting for question...
@@ -239,6 +303,7 @@ const ParticipantGamePage = () => {
     if ((phase === 'question' || phase === 'answered') && gameMode === 'PERSONAL') {
         return (
             <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 {/* Timer */}
                 <div className="flex justify-center mb-4">
                     <div
@@ -308,6 +373,7 @@ const ParticipantGamePage = () => {
     if ((phase === 'question' || phase === 'answered') && gameMode === 'STAGE') {
         return (
             <div className="min-h-screen flex flex-col bg-gray-900 p-4">
+                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 {/* Timer */}
                 <div className="flex justify-center mb-4">
                     <div
@@ -364,6 +430,7 @@ const ParticipantGamePage = () => {
                         : 'bg-gradient-to-br from-red-500 to-rose-600'
                     }`}
             >
+                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 <div className="text-center">
                     <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white/20 flex items-center justify-center">
                         {isCorrect ? (
@@ -409,6 +476,7 @@ const ParticipantGamePage = () => {
 
         return (
             <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 <div className="max-w-sm mx-auto">
                     <h2 className="text-2xl font-black text-white text-center mb-6">
                         Leaderboard
@@ -465,6 +533,7 @@ const ParticipantGamePage = () => {
 
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 <div className="bg-card rounded-3xl p-8 shadow-2xl text-center max-w-sm w-full">
                     {rank > 0 ? (
                         <>

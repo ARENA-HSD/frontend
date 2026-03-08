@@ -9,7 +9,8 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
-import type { ForceDisconnectPlayload, GameStartingPlayload, QuestionStartPlayload } from '@/types';
+import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
+import type { ForceDisconnectPlayload, GameStartingPlayload, QuestionStartPlayload, ReconnectSuccessPlayerPlayload } from '@/types';
 
 const ParticipantLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -60,6 +61,26 @@ const ParticipantLobbyPage = () => {
             })
         );
 
+        // Handle reconnect while in lobby
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.RECONNECT_SUCCESS, (payload: ReconnectSuccessPlayerPlayload) => {
+                if (payload.gameStatus === 'ACTIVE') {
+                    navigate('/play/game', {
+                        state: {
+                            ...state,
+                            gameMode: payload.mode || 'PERSONAL',
+                            reconnectData: payload,
+                        },
+                        replace: true,
+                    });
+                }
+                // LOBBY → stay here, FINISHED → results
+                if (payload.gameStatus === 'FINISHED') {
+                    navigate('/play/results', { replace: true });
+                }
+            })
+        );
+
         return () => {
             unsubs.forEach(unsub => unsub());
             // Cleanup WebSocket disabled here to maintain connection during path change
@@ -88,6 +109,7 @@ const ParticipantLobbyPage = () => {
     if (phase === 'countdown') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
+                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 <div className="text-center">
                     <div className="text-white text-2xl font-bold mb-6 animate-pulse">
                         Get Ready!
@@ -105,6 +127,7 @@ const ParticipantLobbyPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+            <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
             <div className="text-center">
                 {/* Connected Badge */}
                 <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-6 py-3 rounded-full mb-8">

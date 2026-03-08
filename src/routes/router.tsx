@@ -13,6 +13,7 @@ import {
     OrganizationsPage,
     CreateOrganizationPage,
     UpdateOrganizationPage,
+    MyInvitationsPage,
 } from '@/pages';
 
 // Manager Pages
@@ -83,6 +84,14 @@ const mainDomainRouter = createBrowserRouter([
         element: (
             <ProtectedRoute>
                 <ProfilePage />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/invitations',
+        element: (
+            <ProtectedRoute>
+                <MyInvitationsPage />
             </ProtectedRoute>
         ),
     },

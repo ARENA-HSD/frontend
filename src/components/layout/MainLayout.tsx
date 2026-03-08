@@ -4,10 +4,11 @@
  * Simple layout for main domain (public pages like register/login)
  */
 
-import { Sidebar } from '@/components';
+import { Sidebar, Button } from '@/components';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
-import { type ReactNode } from 'react';
-import { useState } from 'react';
+import { type ReactNode, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks';
 
 interface MainLayoutProps {
     children: ReactNode;
@@ -17,6 +18,13 @@ interface MainLayoutProps {
 const MainLayout = ({ children, sidebar = true }: MainLayoutProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const toggleSidebar = () => setIsOpen(!isOpen);
+    const navigate = useNavigate();
+    const { logout, user } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
 
     const navItems = [
         {
@@ -28,6 +36,11 @@ const MainLayout = ({ children, sidebar = true }: MainLayoutProps) => {
             label: 'Profile',
             icon: '👥',
             path: '/profile',
+        },
+        {
+            label: 'Invitations',
+            icon: '📩',
+            path: '/invitations',
         },
         {
             label: 'Payments',
@@ -53,6 +66,11 @@ const MainLayout = ({ children, sidebar = true }: MainLayoutProps) => {
                         <div className="text-sm text-secondary hidden sm:block">
                             Quiz & Game Platform
                         </div>
+                        {user && (
+                            <Button variant="ghost" size="sm" onClick={handleLogout}>
+                                🚪 Logout
+                            </Button>
+                        )}
                     </div>
                 </div>
             </header>

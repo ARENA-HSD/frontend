@@ -13,7 +13,8 @@ import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
-import type { GameStartingPlayload, LobbyUpdatePlayload, PlayerKickedPlayload, QuestionStartPlayload, Quiz } from '@/types';
+import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
+import type { GameStartingPlayload, LobbyUpdatePlayload, PlayerKickedPlayload, QuestionStartPlayload, ReconnectSuccessHostPlayload, Quiz } from '@/types';
 
 const QuizLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -57,6 +58,13 @@ const QuizLobbyPage = () => {
             // gameSocket.disconnect();
         };
     }, [quizId, subdomain]);
+
+    // Page-refresh reconnect for host
+    useEffect(() => {
+        if (!gameSocket.isConnected && gameSocket.hasSession()) {
+            gameSocket.reconnectWithSession();
+        }
+    }, []);
 
     const initializeLobby = async () => {
         if (!quizId || !subdomain) return;
@@ -145,6 +153,35 @@ const QuizLobbyPage = () => {
             })
         );
 
+        // Handle reconnect while in lobby (host)
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.RECONNECT_SUCCESS, (payload: ReconnectSuccessHostPlayload) => {
+                if (payload.gameStatus === 'ACTIVE') {
+                    navigate(`/manager/quizzes/${quizId}/live`, {
+                        state: {
+                            gameId: payload.gameId || gameId,
+                            gamePin: payload.pin || gamePin,
+                            quiz,
+                        },
+                        replace: true,
+                    });
+                }
+                if (payload.gameStatus === 'LOBBY') {
+                    // Restore lobby state
+                    if (payload.count != null) setParticipantCount(payload.count);
+                    if (payload.recentPlayers) setRecentPlayers(payload.recentPlayers);
+                    if (payload.gameId) setGameId(payload.gameId);
+                    if (payload.pin) setGamePin(payload.pin);
+                }
+                if (payload.gameStatus === 'FINISHED') {
+                    navigate(`/manager/quizzes/${quizId}/results`, {
+                        state: { quiz },
+                        replace: true,
+                    });
+                }
+            })
+        );
+
         return () => {
             unsubs.forEach(unsub => unsub());
         };
@@ -208,6 +245,7 @@ const QuizLobbyPage = () => {
     if (phase === 'countdown') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
+                <ReconnectOverlay />
                 <div className="text-center">
                     <div className="text-white text-2xl font-bold mb-6 animate-pulse">
                         Get Ready!
@@ -233,6 +271,7 @@ const QuizLobbyPage = () => {
     // ========================================
     return (
         <div className="max-w-6xl mx-auto p-4">
+            <ReconnectOverlay />
             {/* Top Bar */}
             <div className="bg-card p-4 rounded-lg shadow-sm mb-4 flex items-center justify-between">
                 <button className="px-4 py-2 bg-page text-secondary rounded-lg font-medium hover:opacity-80 flex items-center gap-2">

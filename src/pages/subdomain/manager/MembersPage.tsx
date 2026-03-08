@@ -35,6 +35,9 @@ const MembersPage = () => {
         }
     };
 
+    const currentUserRole = members.find(m => m.userId === currentUser?.id)?.role;
+    const canEditRoles = currentUserRole === 'SUPER_ADMIN';
+
     return (
         <SubdomainLayout>
             <div className="flex-1 space-y-6 overflow-auto p-4">
@@ -90,8 +93,17 @@ const MembersPage = () => {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-2">
                                                 <Shield className="w-4 h-4 text-role-primary" />
-                                                {currentUser?.id === member.userId ? (
-                                                    <div className="bg-transparent border-none text-sm font-medium text-gray-700 focus:ring-0 cursor-pointer hover:text-indigo-600 p-0">
+                                                {canEditRoles && member.role !== 'SUPER_ADMIN' && member.userId !== currentUser?.id ? (
+                                                    <select
+                                                        value={member.role}
+                                                        onChange={(e) => handleRoleChange(member.userId, e.target.value)}
+                                                        className="bg-card border border-light text-sm font-medium text-primary rounded-md px-3 py-1 focus:ring-2 focus:ring-focus focus:border-focus cursor-pointer hover:border-secondary transition-all outline-none shadow-sm"
+                                                    >
+                                                        <option value="ADMIN">Admin</option>
+                                                        <option value="MANAGER">Manager</option>
+                                                    </select>
+                                                ) : (
+                                                    <div className="bg-transparent border-none text-sm font-medium text-gray-700 p-0">
                                                         {member.role === "SUPER_ADMIN" ? (
                                                             <span>Super Admin</span>
                                                         ) : member.role === "ADMIN" ? (
@@ -100,40 +112,19 @@ const MembersPage = () => {
                                                             <span>Manager</span>
                                                         )}
                                                     </div>
-                                                ) : (
-                                                    <select
-                                                        value={member.role}
-                                                        onChange={(e) => handleRoleChange(member.userId, e.target.value)}
-                                                        className="bg-transparent border-none text-sm font-medium text-secondary focus:ring-0 cursor-pointer hover:text-role-primary p-0"
-                                                    >
-                                                        {member.role === "SUPER_ADMIN" ? (
-                                                            <>
-                                                                <option value="SUPER_ADMIN">Super Admin</option>
-                                                                <option value="ADMIN">Admin</option>
-                                                                <option value="MANAGER">Manager</option>
-                                                            </>
-                                                        ) : member.role === "ADMIN" ? (
-                                                            <>
-                                                                <option value="ADMIN">Admin</option>
-                                                                <option value="MANAGER">Manager</option>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <option value="MANAGER">Manager</option>
-                                                            </>
-                                                        )}
-                                                    </select>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            <button
-                                                onClick={() => handleRemoveMember(member.userId, member.username)}
-                                                className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors"
-                                                title="Remove Member"
-                                            >
-                                                <Trash2 className="w-5 h-5" />
-                                            </button>
+                                            {canEditRoles && member.userId !== currentUser?.id && member.role !== "SUPER_ADMIN" && (
+                                                <button
+                                                    onClick={() => handleRemoveMember(member.userId, member.username)}
+                                                    className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors"
+                                                    title="Remove Member"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 )) : (

@@ -50,8 +50,9 @@ export const useMembers = () => {
         setIsLoading(true);
         try {
             const response = await orgService.changeMemberRole(orgDomain, memberId, role);
-            if (response.success && response.data) {
-                setMembers(prev => prev.map(m => m.id === memberId ? response.data! : m));
+            if (response.success) {
+                // Update the state using the old data structure so populated user data is preserved
+                setMembers(prev => prev.map(m => m.userId === memberId || m.id === memberId ? { ...m, role: role as any } : m));
                 return { success: true };
             } else {
                 return { success: false, message: response.message };

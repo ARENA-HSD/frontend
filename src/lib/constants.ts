@@ -247,6 +247,12 @@ export const API_ROUTES = {
     MEMBERS: (orgDomain: string) => `/org/${orgDomain}/members`,
     MEMBER_BY_ID: (orgDomain: string, memberId: string) =>
         `/org/${orgDomain}/members/${memberId}`,
+
+    // My Invitations
+    MY_INVITATIONS: '/users/me/invitations',
+    MY_INVITATION_BY_ID: (invitationId: string) => `/users/me/invitations/${invitationId}`,
+
+    // Org Invitations
     INVITATIONS: (orgDomain: string) => `/org/${orgDomain}/invitations`,
     INVITATION_BY_ID: (orgDomain: string, invitationId: string) =>
         `/org/${orgDomain}/invitations/${invitationId}`,

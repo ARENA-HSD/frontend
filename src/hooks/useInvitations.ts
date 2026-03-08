@@ -57,7 +57,7 @@ export const useInvitations = () => {
                 setError(response.message || 'Failed to fetch invitations');
             }
         } catch (err: any) {
-            setError(err.message || 'An unexpected error occurred');
+            setError(err.response?.data?.message || err.message || 'An unexpected error occurred');
         } finally {
             setIsLoading(false);
         }
@@ -80,7 +80,7 @@ export const useInvitations = () => {
                 return { success: false, message: response.message };
             }
         } catch (err: any) {
-            return { success: false, message: err.message };
+            return { success: false, message: err.response?.data?.message || err.message };
         } finally {
             setIsLoading(false);
         }
@@ -99,7 +99,7 @@ export const useInvitations = () => {
                 return { success: false, message: response.message };
             }
         } catch (err: any) {
-            return { success: false, message: err.message };
+            return { success: false, message: err.response?.data?.message || err.message };
         } finally {
             setIsLoading(false);
         }
@@ -118,7 +118,7 @@ export const useInvitations = () => {
                 return { success: false, message: response.message };
             }
         } catch (err: any) {
-            return { success: false, message: err.message };
+            return { success: false, message: err.response?.data?.message || err.message };
         } finally {
             setIsLoading(false);
         }

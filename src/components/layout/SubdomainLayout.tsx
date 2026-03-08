@@ -5,7 +5,9 @@
  */
 
 import { type ReactNode, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { Button } from '@/components';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 import { useAuth, useSubdomain } from '@/hooks';
 
@@ -15,8 +17,15 @@ interface SubdomainLayoutProps {
 
 const SubdomainLayout = ({ children }: SubdomainLayoutProps) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { user } = useAuth();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
     const subdomain = useSubdomain();
+
+    const handleLogout = async () => {
+        await logout();
+        navigate('/login');
+    };
+
     return (
         <div className="max-w-7xl mx-auto p-6 h-screen flex flex-col">
             {/* Header */}
@@ -35,6 +44,9 @@ const SubdomainLayout = ({ children }: SubdomainLayoutProps) => {
                     <div className="text-lg font-semibold text-secondary">
                         {subdomain}
                     </div>
+                    <Button variant="ghost" size="sm" onClick={handleLogout}>
+                        🚪 Logout
+                    </Button>
                 </div>
             </div>
             <div className="flex flex-1">

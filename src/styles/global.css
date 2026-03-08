@@ -6,6 +6,9 @@
  */
 
 @import './variables.css';
+@import "@fontsource/fredoka";
+@import "@fontsource/fredoka/700.css";
+@import "@fontsource/fredoka/500.css";
 
 /* ============================================================================
    Tailwind Directives

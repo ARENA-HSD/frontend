@@ -8,11 +8,20 @@ import { useNavigate } from 'react-router-dom';
 import { useSubdomain } from '@/hooks';
 import { MainLayout } from '@/components';
 import { LoginForm } from '@/components';
+import { authService } from '@/services';
+import { useEffect } from 'react';
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const subdomain = useSubdomain();
     const isSubdomain = !!subdomain;
+    const currentUser = authService.getCurrentUser();
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate("/dashboard")
+        }
+    }, [currentUser]);
 
     const handleSuccess = () => {
         if (isSubdomain) {
@@ -22,6 +31,7 @@ const LoginPage = () => {
             // Main domain: go to organizations page
             navigate('/organizations');
         }
+        localStorage.setItem("auth-sync", Date.now().toString());
     };
 
     return (

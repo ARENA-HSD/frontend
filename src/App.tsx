@@ -6,11 +6,13 @@
 
 import { AuthProvider } from '@/context';
 import AppRouter from '@/routes/router';
+import { AuthSync } from '@/components';
 
 function App() {
     return (
         <AuthProvider>
             <AppRouter />
+            <AuthSync />
         </AuthProvider>
     );
 }

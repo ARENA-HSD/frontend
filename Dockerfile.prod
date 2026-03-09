@@ -1,0 +1,36 @@
+# Aşama 1: Uygulamayı Derleme (Build Stage)
+FROM node:20-alpine AS build-stage
+
+# Çalışma dizinini ayarla
+WORKDIR /app
+
+# Önce sadece package.json ve package-lock.json (varsa) dosyalarını kopyala
+COPY package*.json ./
+
+# Bağımlılıkları yükle (npm ci daha güvenli ve hızlıdır)
+RUN npm ci
+
+# Projedeki kalan tüm dosyaları kopyala
+COPY . .
+
+# Üretim için derle (Vite 'dist' klasörünü oluşturur)
+RUN npm run build
+
+# Aşama 2: Nginx ile Sunum (Production Stage)
+FROM nginx:alpine
+
+# Nginx varsayılan yapılandırmasını sil ve kendi React router yapılandırmamızı kopyala
+RUN rm /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/
+
+# Derlenmiş dist dosyalarını Nginx'in varsayılan yayınlama klasörüne kopyala
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# İzinlerin doğru olduğundan emin olalım
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
+
+EXPOSE 80
+
+# Nginx'i arka planda (daemon off) çalıştırarak container'ın açık kalmasını sağla
+CMD ["nginx", "-g", "daemon off;"]

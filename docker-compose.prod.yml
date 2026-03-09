@@ -1,0 +1,25 @@
+services:
+  frontend:
+    container_name: arena-frontend-prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    ports:
+      # Nginx varsayılan olarak 80 portunda çalışır
+      - "${PORT:-5173}:80"
+    environment:
+      # Vite içerisine enjekte edilecek çevre değişkenleri
+      - VITE_API_URL=${API_URL:-http://localhost:5000}
+    networks:
+      - arena-network
+    # Production ortamı için log limitlerini belirlemek iyi bir uygulamadır
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  arena-network:
+    external: true

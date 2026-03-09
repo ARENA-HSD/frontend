@@ -27,6 +27,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService, questionService } from '@/services';
 import type { Quiz, Question } from '@/types';
+import { Button, SubdomainLayout } from '@/components';
 
 // ============================================================================
 // Sortable Question Card Component
@@ -256,106 +257,110 @@ const QuizDetailPage = () => {
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-6">
-            {/* Header */}
-            <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div>
-                            <button
-                                onClick={backToQuizzes}
-                                className="text-tertiary hover:text-secondary"
-                            >
-                                <ArrowBigLeft className="w-6 h-6 mr-2" />
-                            </button>
+        <SubdomainLayout>
+            <div className="max-w-5xl mx-auto p-6">
+                {/* Header */}
+                <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div>
+                                <button
+                                    onClick={backToQuizzes}
+                                    className="text-tertiary hover:text-secondary"
+                                >
+                                    <ArrowBigLeft className="w-6 h-6 mr-2" />
+                                </button>
+                            </div>
+                            <div>
+                                <h1 className="text-3xl font-bold text-primary mb-2">{quiz.title}</h1>
+                                <div className="text-secondary">
+                                    {questions.length} questions • {quiz.defaultMode} mode
+                                    {isSavingOrder && (
+                                        <span className="ml-2 text-role-primary text-sm animate-pulse">
+                                            Sıralama kaydediliyor...
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-3xl font-bold text-primary mb-2">{quiz.title}</h1>
-                            <div className="text-secondary">
-                                {questions.length} questions • {quiz.defaultMode} mode
-                                {isSavingOrder && (
-                                    <span className="ml-2 text-role-primary text-sm animate-pulse">
-                                        Sıralama kaydediliyor...
-                                    </span>
-                                )}
+                        <div className="flex items-center gap-3">
+                            <Button
+                                onClick={handleStartQuiz}
+                                variant="primary"
+                            >
+                                Start
+                            </Button>
+                            <div className="flex flex-col items-center">
+                                <button
+                                    onClick={() => handleSettingsQuiz(quiz.id)}
+                                    className="p-1 text-tertiary hover:text-role-primary hover:bg-role-primary-light rounded"
+                                >
+                                    <Settings className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={() => handleDeleteQuiz(quiz.id)}
+                                    className="p-1 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={handleStartQuiz}
-                            className="px-6 py-2.5 btn-primary rounded-lg font-semibold"
-                        >
-                            Start
-                        </button>
-                        <div className="flex flex-col items-center">
-                            <button
-                                onClick={() => handleSettingsQuiz(quiz.id)}
-                                className="p-1 text-tertiary hover:text-role-primary hover:bg-role-primary-light rounded"
-                            >
-                                <Settings className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => handleDeleteQuiz(quiz.id)}
-                                className="p-1 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded"
-                            >
-                                <Trash2 className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </div>
                 </div>
-            </div>
 
-            {/* Question List — Drag & Drop */}
-            <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-            >
-                <SortableContext
-                    items={questions.map(q => q.id)}
-                    strategy={verticalListSortingStrategy}
+                {/* Question List — Drag & Drop */}
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
                 >
-                    <div className="space-y-3 mb-20">
-                        {questions.map((question, idx) => (
-                            <SortableQuestionCard
-                                key={question.id}
-                                question={question}
-                                index={idx}
-                                onEdit={handleEditQuestion}
-                                onDelete={handleDeleteQuestion}
-                            />
-                        ))}
+                    <SortableContext
+                        items={questions.map(q => q.id)}
+                        strategy={verticalListSortingStrategy}
+                    >
+                        <div className="space-y-3 mb-20">
+                            {questions.map((question, idx) => (
+                                <SortableQuestionCard
+                                    key={question.id}
+                                    question={question}
+                                    index={idx}
+                                    onEdit={handleEditQuestion}
+                                    onDelete={handleDeleteQuestion}
+                                />
+                            ))}
+                        </div>
+                    </SortableContext>
+                </DndContext>
+
+                {/* Empty State */}
+                {questions.length === 0 && (
+                    <div className="bg-card p-12 rounded-lg text-center">
+                        <div className="text-tertiary text-lg mb-4">No questions yet</div>
+                        <Button
+                            onClick={handleAddQuestion}
+                            variant="primary"
+                            className="px-8 py-3.5 rounded-lg font-semibold shadow-lg flex items-center gap-2"
+                        >
+                            Add First Question
+                        </Button>
                     </div>
-                </SortableContext>
-            </DndContext>
+                )}
 
-            {/* Empty State */}
-            {questions.length === 0 && (
-                <div className="bg-card p-12 rounded-lg text-center">
-                    <div className="text-tertiary text-lg mb-4">No questions yet</div>
-                    <button
-                        onClick={handleAddQuestion}
-                        className="px-8 py-3.5 btn-primary rounded-lg font-semibold shadow-lg flex items-center gap-2"
-                    >
-                        Add First Question
-                    </button>
-                </div>
-            )}
-
-            {/* Floating Add Button */}
-            {questions.length > 0 && (
-                <div className="fixed bottom-6 left-0 right-0 flex justify-center">
-                    <button
-                        onClick={handleAddQuestion}
-                        className="px-8 py-3.5 btn-primary rounded-lg font-semibold shadow-lg flex items-center gap-2"
-                    >
-                        <Plus className="w-5 h-5" />
-                        Add Question
-                    </button>
-                </div>
-            )}
-        </div>
+                {/* Floating Add Button */}
+                {questions.length > 0 && (
+                    <div className="absolute bottom-20 left-[32%] flex justify-center">
+                        <Button
+                            onClick={handleAddQuestion}
+                            variant="primary"
+                            className="px-8 py-3.5 flex items-center gap-2"
+                        >
+                            <Plus className="w-8 h-8" />
+                            Add Question
+                        </Button>
+                    </div>
+                )}
+            </div>
+        </SubdomainLayout>
     );
 };
 

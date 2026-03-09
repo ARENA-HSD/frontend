@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import type { Question, CreateQuestionData, UpdateQuestionData, QuestionOption } from '@/types';
 import ImagePlaceholder from '@/components/quiz/shared/ImagePlaceholder';
+import { Button } from '@/components/ui';
 
 interface QuestionEditorProps {
     question?: Question;
@@ -184,20 +185,20 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
 
             {/* Actions */}
             <div className="flex justify-end gap-3 mt-8">
-                <button
+                <Button
                     onClick={onCancel}
                     disabled={isSaving}
-                    className="px-6 py-2.5 bg-page text-secondary rounded-lg font-medium hover:opacity-80 disabled:opacity-50"
+                    variant="secondary"
                 >
                     Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="px-8 py-2.5 btn-primary rounded-lg font-semibold disabled:opacity-50"
+                    variant="primary"
                 >
                     {isSaving ? 'Saving...' : 'Save'}
-                </button>
+                </Button>
             </div>
         </div>
     );

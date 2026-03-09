@@ -84,19 +84,20 @@ const OrganizationsPage = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold text-primary">
+                        <h1 className="text-4xl font-['Titan_One',sans-serif] text-primary">
                             Your Organizations
                         </h1>
-                        <p className="text-secondary">
+                        <p className="text-lg">
                             Select an organization to access or create a new one
                         </p>
                     </div>
 
                     <Button
-                        variant="primary"
+                        variant="secondary"
                         onClick={handleCreateNew}
+                        className="px-6 pb-3 pt-2 flex items-center justify-center font-bold gap-2"
                     >
-                        + Create New
+                        + <div className="font-['Titan_One',sans-serif] font-thin pt-1">Create New</div>
                     </Button>
                 </div>
 

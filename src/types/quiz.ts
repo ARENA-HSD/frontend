@@ -128,6 +128,8 @@ export interface LeaderboardEntry {
 export type WebSocketEventType =
     | 'JOIN_ROOM'
     | 'JOIN_SUCCESS'
+    | 'NEED_NICKNAME'
+    | 'SET_NICKNAME'
     | 'LOBBY_UPDATE'
     | 'KICK_PLAYER'
     | 'PLAYER_JOINED'
@@ -150,6 +152,11 @@ export type WebSocketEventType =
 
 // Client -> Server Events
 export interface JoinRoomPlayload {
+    pin: string;
+    nickname: string;
+}
+
+export interface SetNicknamePlayload {
     pin: string;
     nickname: string;
 }
@@ -281,6 +288,16 @@ export interface ReconnectSuccessHostPlayload {
     recentPlayers?: string[];
     pin?: string;
     gameId?: string;
+    // Phase restoration fields
+    phase?: 'question' | 'results' | 'leaderboard';
+    remainingTime?: number;
+    text?: string;
+    mediaUrl?: string;
+    options?: QuestionOption[];
+    answerStats?: Record<string, number>;
+    correctIndex?: number;
+    leaderboard?: Array<{ nickname: string; score: number }>;
+    highStreaks?: Array<{ nickname: string; streak: number }>;
 }
 
 export type ReconnectSuccessPlayload = ReconnectSuccessPlayerPlayload | ReconnectSuccessHostPlayload;

@@ -5,7 +5,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { SubdomainLayout } from "@/components";
+import { Button, SubdomainLayout } from "@/components";
 import { useMembers } from "@/hooks";
 import { authService } from '@/services';
 import { Trash2, UserPlus, Shield } from "lucide-react";
@@ -63,13 +63,13 @@ const MembersPage = () => {
                         <h2 className="text-2xl font-bold text-primary">Members</h2>
                         <p className="text-tertiary text-sm">Manage who has access to this organization</p>
                     </div>
-                    <button
+                    <Button
                         onClick={handleInviteClick}
-                        className="flex items-center gap-2 btn-primary px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                        variant="primary"
                     >
                         <UserPlus className="w-5 h-5" />
                         Manage Invitations
-                    </button>
+                    </Button>
                 </div>
 
                 {error && (

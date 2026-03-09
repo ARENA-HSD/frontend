@@ -142,6 +142,15 @@ const QuizLivePage = () => {
     useEffect(() => {
         const unsubs: Array<() => void> = [];
 
+        // If session expired, auto-send __HOST__ nickname
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.NEED_NICKNAME, () => {
+                const currentPin = gamePin || gameSocket.getSessionInfo()?.pin || '';
+                if (currentPin) {
+                    gameSocket.setNickname(currentPin, '__HOST__');
+                }
+            })
+        );
         // QUESTION_START - new question arrives
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
@@ -216,9 +225,34 @@ const QuizLivePage = () => {
                     });
                     return;
                 }
-                // ACTIVE - restore question index
+
+                // ACTIVE — restore game state
                 if (payload.currentQuestionIndex != null) {
                     setQuestionIndex(payload.currentQuestionIndex);
+                }
+
+                // Restore question content if provided
+                if (payload.text) setQuestionText(payload.text);
+                if (payload.mediaUrl) setQuestionMedia(payload.mediaUrl);
+                if (payload.options) setOptions(payload.options);
+
+                // Restore phase based on backend hint or best guess
+                if (payload.phase === 'leaderboard') {
+                    if (payload.leaderboard) setLeaderboard(payload.leaderboard);
+                    if (payload.highStreaks) setHighStreaks(payload.highStreaks);
+                    setPhase('leaderboard');
+                } else if (payload.phase === 'results') {
+                    if (payload.answerStats) setAnswerStats(payload.answerStats);
+                    if (payload.correctIndex != null) setCorrectOptionIndex(payload.correctIndex);
+                    setPhase('results');
+                } else {
+                    // Default: question phase — start timer if time remaining
+                    if (payload.remainingTime && payload.remainingTime > 0) {
+                        const remaining = Math.floor(payload.remainingTime);
+                        setTime(remaining);
+                        startTimer(remaining, Date.now());
+                    }
+                    setPhase('question');
                 }
             })
         );
@@ -312,9 +346,8 @@ const QuizLivePage = () => {
                 {connectionToasts.map(toast => (
                     <div
                         key={toast.id}
-                        className={`px-4 py-2 rounded-lg shadow-lg text-sm font-medium text-white animate-fadeIn ${
-                            toast.type === 'disconnect' ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}
+                        className={`px-4 py-2 rounded-lg shadow-lg text-sm font-medium text-white animate-fadeIn ${toast.type === 'disconnect' ? 'bg-yellow-500' : 'bg-green-500'
+                            }`}
                     >
                         {toast.message}
                     </div>

@@ -3,14 +3,29 @@
  * 
  * Mobile-first PIN + nickname entry form.
  * Connects to WebSocket and joins the game room.
+ * 
+ * Flow:
+ *   1. User enters PIN (or has it from URL param)
+ *   2. JOIN_ROOM { pin, sessionToken? } sent to server
+ *   3a. If valid sessionToken → RECONNECT_SUCCESS → restore game state
+ *   3b. If no/invalid token → NEED_NICKNAME → show nickname input
+ *   4. User enters nickname → SET_NICKNAME { pin, nickname }
+ *   5. JOIN_SUCCESS { myNick, sessionToken } → save token, go to lobby
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { useManagerNavigate } from '@/hooks';
-import type { ErrorPlayload, ForceDisconnectPlayload, JoinSuccessPlayload, ReconnectSuccessPlayload } from '@/types';
+import type {
+    ErrorPlayload,
+    ForceDisconnectPlayload,
+    JoinSuccessPlayload,
+    ReconnectSuccessPlayload,
+} from '@/types';
+
+type Phase = 'pin' | 'nickname' | 'connecting';
 
 const JoinGamePage = () => {
     const navigate = useManagerNavigate();
@@ -18,116 +33,217 @@ const JoinGamePage = () => {
 
     const [pin, setPin] = useState(searchParams.get('pin') || '');
     const [nickname, setNickname] = useState('');
-    const [isJoining, setIsJoining] = useState(() => {
-        // Start in joining state if we have a session to reconnect
-        return gameSocket.hasSession() && !gameSocket.isConnected;
-    });
+    const [phase, setPhase] = useState<Phase>('pin');
     const [error, setError] = useState('');
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // On mount, check for existing session and attempt reconnect
+    // Cleanup timeout on unmount
     useEffect(() => {
-        const session = gameSocket.getSessionInfo();
-        if (!session || gameSocket.isConnected) return;
+        return () => {
+            if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        };
+    }, []);
 
-        const successUnsub = gameSocket.on(WS_EVENTS.RECONNECT_SUCCESS, (payload: ReconnectSuccessPlayload) => {
-            successUnsub();
-            failedUnsub();
-            setIsJoining(false);
+    // ------------------------------------------------------------------
+    // WebSocket event listeners — registered once, cleaned up on unmount
+    // ------------------------------------------------------------------
+    useEffect(() => {
+        // NEED_NICKNAME → server says "give me a nickname"
+        const unsubNeedNick = gameSocket.on(WS_EVENTS.NEED_NICKNAME, () => {
+            clearTimeoutRef();
+            setPhase('nickname');
+            setError('');
+        });
 
-            if (payload.gameStatus === 'LOBBY') {
+        // JOIN_SUCCESS → new join completed, sessionToken already auto-saved by ws service
+        const unsubJoinSuccess = gameSocket.on(
+            WS_EVENTS.JOIN_SUCCESS,
+            (payload: JoinSuccessPlayload) => {
+                clearTimeoutRef();
                 navigate('/play/lobby', {
-                    state: { pin: session.pin, nickname: 'Player' },
-                    replace: true,
+                    state: { pin, nickname: payload.myNick || nickname },
                 });
-            } else if (payload.gameStatus === 'ACTIVE' && !payload.isHost) {
-                navigate('/play/game', {
-                    state: {
-                        pin: session.pin,
-                        nickname: 'Player',
-                        gameMode: payload.mode || 'PERSONAL',
-                        reconnectData: payload,
-                    },
-                    replace: true,
-                });
-            } else {
-                navigate('/play/results', { replace: true });
+            }
+        );
+
+        // RECONNECT_SUCCESS → sessionToken was valid, restore state
+        const unsubReconnect = gameSocket.on(
+            WS_EVENTS.RECONNECT_SUCCESS,
+            (payload: ReconnectSuccessPlayload) => {
+                clearTimeoutRef();
+
+                if (payload.gameStatus === 'LOBBY') {
+                    navigate('/play/lobby', {
+                        state: { pin, nickname: 'Player' },
+                        replace: true,
+                    });
+                } else if (payload.gameStatus === 'ACTIVE' && !payload.isHost) {
+                    navigate('/play/game', {
+                        state: {
+                            pin,
+                            nickname: 'Player',
+                            gameMode: payload.mode || 'PERSONAL',
+                            reconnectData: payload,
+                        },
+                        replace: true,
+                    });
+                } else {
+                    navigate('/play/results', { replace: true });
+                }
+            }
+        );
+
+        // ERROR → something went wrong
+        const unsubError = gameSocket.on(WS_EVENTS.ERROR, (payload: ErrorPlayload) => {
+            clearTimeoutRef();
+            setError(payload.message || 'Failed to join game');
+            // If we were connecting, go back to appropriate phase
+            if (phase === 'connecting') {
+                setPhase(nickname ? 'nickname' : 'pin');
             }
         });
 
-        const failedUnsub = gameSocket.on(WS_EVENTS.RECONNECT_FAILED, () => {
-            successUnsub();
-            failedUnsub();
-            setIsJoining(false);
-            gameSocket.clearStoredSession();
-        });
-
-        gameSocket.reconnectWithSession();
+        // FORCE_DISCONNECT → kicked or banned
+        const unsubDisconnect = gameSocket.on(
+            WS_EVENTS.FORCE_DISCONNECT,
+            (payload: ForceDisconnectPlayload) => {
+                clearTimeoutRef();
+                setError(payload.reason || 'You have been disconnected');
+                setPhase('pin');
+                localStorage.removeItem(`session_${pin}`);
+            }
+        );
 
         return () => {
-            successUnsub();
-            failedUnsub();
+            unsubNeedNick();
+            unsubJoinSuccess();
+            unsubReconnect();
+            unsubError();
+            unsubDisconnect();
         };
-    }, [navigate]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pin, nickname, phase]);
 
-    const handleJoin = async () => {
-        if (!pin.trim() || !nickname.trim()) {
-            setError('Please enter both PIN and nickname');
+    const clearTimeoutRef = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+    };
+
+    const startTimeout = () => {
+        timeoutRef.current = setTimeout(() => {
+            setError('Connection timed out. Please try again.');
+            setPhase(nickname ? 'nickname' : 'pin');
+        }, 10000);
+    };
+
+    // ------------------------------------------------------------------
+    // Step 1: User submits PIN → connect + JOIN_ROOM
+    // ------------------------------------------------------------------
+    const handlePinSubmit = useCallback(async () => {
+        if (!pin.trim()) {
+            setError('Please enter a game PIN');
             return;
         }
 
-        setIsJoining(true);
+        setPhase('connecting');
         setError('');
 
         try {
-            // Önce bağlan
-            await gameSocket.connect();
+            if (!gameSocket.isConnected) await gameSocket.connect();
 
-            // Declare unsubs first to avoid TDZ
-            let successUnsub: () => void;
-            let errorUnsub: () => void;
-            let disconnectUnsub: () => void;
-
-            // Listener'ları kur
-            successUnsub = gameSocket.on(WS_EVENTS.JOIN_SUCCESS, (payload: JoinSuccessPlayload) => {
-                if (successUnsub) successUnsub();
-                if (errorUnsub) errorUnsub();
-                if (disconnectUnsub) disconnectUnsub();
-                navigate('/play/lobby', {
-                    state: { pin, nickname: payload.myNick || nickname }
-                });
-            });
-
-            errorUnsub = gameSocket.on(WS_EVENTS.ERROR, (payload: ErrorPlayload) => {
-                if (successUnsub) successUnsub();
-                if (errorUnsub) errorUnsub();
-                if (disconnectUnsub) disconnectUnsub();
-                setError(payload.message || 'Failed to join game');
-                setIsJoining(false);
-            });
-
-            disconnectUnsub = gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: ForceDisconnectPlayload) => {
-                if (successUnsub) successUnsub();
-                if (errorUnsub) errorUnsub();
-                if (disconnectUnsub) disconnectUnsub();
-                setError(payload.reason || 'You have been disconnected');
-                setIsJoining(false);
-            });
-
-            // Sonra mesajı gönder (tek seferlik)
-            gameSocket.joinRoom(pin.trim(), nickname.trim());
-
-            setTimeout(() => {
-                if (isJoining) {
-                    setError('Connection timed out. Please try again.');
-                    setIsJoining(false);
-                }
-            }, 10000);
-
-        } catch (err) {
+            const storedToken = localStorage.getItem(`arena_player_session_${pin}`) || undefined;
+            gameSocket.joinRoom(pin.trim(), storedToken, 'player');
+            startTimeout();
+        } catch {
             setError('Could not connect to server. Please try again.');
-            setIsJoining(false);
+            setPhase('pin');
         }
-    };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pin]);
+
+    // ------------------------------------------------------------------
+    // Step 2: User submits nickname → SET_NICKNAME
+    // ------------------------------------------------------------------
+    const handleNicknameSubmit = useCallback(async () => {
+        if (!nickname.trim()) {
+            setError('Please enter a nickname');
+            return;
+        }
+
+        setPhase('connecting');
+        setError('');
+
+        try {
+            if (!gameSocket.isConnected) await gameSocket.connect();
+
+            gameSocket.setNickname(pin.trim(), nickname.trim());
+            startTimeout();
+        } catch {
+            setError('Could not connect to server. Please try again.');
+            setPhase('nickname');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pin, nickname]);
+
+    // ------------------------------------------------------------------
+    // Auto-reconnect on mount:
+    //   1. If PIN comes from URL params → submit immediately
+    //   2. If no URL param but stored session in localStorage → reconnect
+    // ------------------------------------------------------------------
+    useEffect(() => {
+        const urlPin = searchParams.get('pin');
+        if (urlPin && pin.trim()) {
+            handlePinSubmit();
+            return;
+        }
+
+        // Check localStorage for stored player session
+        const storedPin = localStorage.getItem('arena_pin');
+        const storedRole = localStorage.getItem('arena_role');
+        if (storedPin && storedRole === 'player') {
+            const storedToken = localStorage.getItem(`arena_player_session_${storedPin}`);
+            if (storedToken) {
+                // Auto-fill pin and attempt reconnect
+                setPin(storedPin);
+                setPhase('connecting');
+                setError('');
+
+                (async () => {
+                    try {
+                        if (!gameSocket.isConnected) await gameSocket.connect();
+                        gameSocket.joinRoom(storedPin, storedToken, 'player');
+                        startTimeout();
+                    } catch {
+                        setError('Could not reconnect. Please enter PIN manually.');
+                        setPhase('pin');
+                    }
+                })();
+            }
+        }
+        // Only run on mount
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // ------------------------------------------------------------------
+    // Derived state
+    // ------------------------------------------------------------------
+    const isConnecting = phase === 'connecting';
+    const showPinInput = phase === 'pin' || (phase === 'connecting' && !nickname);
+    const showNicknameInput = phase === 'nickname';
+
+    const buttonDisabled =
+        isConnecting ||
+        (showPinInput && !pin.trim()) ||
+        (showNicknameInput && !nickname.trim());
+
+    const handleSubmit = showNicknameInput ? handleNicknameSubmit : handlePinSubmit;
+    const buttonLabel = isConnecting
+        ? undefined // will show spinner
+        : showNicknameInput
+            ? 'Join Game'
+            : 'Continue';
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
@@ -138,36 +254,51 @@ const JoinGamePage = () => {
                         <Zap className="w-10 h-10 text-white" />
                     </div>
                     <h1 className="text-3xl font-black text-primary mb-2">Join Quiz</h1>
-                    <p className="text-tertiary">Enter your game PIN to start</p>
+                    <p className="text-tertiary">
+                        {showNicknameInput
+                            ? 'Choose a nickname to play'
+                            : 'Enter your game PIN to start'}
+                    </p>
                 </div>
 
                 {/* Form */}
                 <div className="space-y-4 mb-6">
-                    <div>
-                        <label className="block text-sm font-semibold text-secondary mb-2">Game PIN</label>
-                        <input
-                            type="text"
-                            value={pin}
-                            onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                            placeholder="Enter 6-digit PIN"
-                            maxLength={6}
-                            className="w-full px-4 py-4 border-2 border-light rounded-xl text-center text-3xl font-bold tracking-widest focus:border-focus focus:outline-none transition-colors"
-                            disabled={isJoining}
-                        />
-                    </div>
+                    {showPinInput && (
+                        <div>
+                            <label className="block text-sm font-semibold text-secondary mb-2">
+                                Game PIN
+                            </label>
+                            <input
+                                type="text"
+                                value={pin}
+                                onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+                                placeholder="Enter 6-digit PIN"
+                                maxLength={6}
+                                className="w-full px-4 py-4 border-2 border-light rounded-xl text-center text-3xl font-bold tracking-widest focus:border-focus focus:outline-none transition-colors"
+                                disabled={isConnecting}
+                                onKeyDown={(e) => e.key === 'Enter' && handlePinSubmit()}
+                            />
+                        </div>
+                    )}
 
-                    <div>
-                        <label className="block text-sm font-semibold text-secondary mb-2">Nickname</label>
-                        <input
-                            type="text"
-                            value={nickname}
-                            onChange={(e) => setNickname(e.target.value)}
-                            placeholder="Choose a nickname"
-                            maxLength={20}
-                            className="w-full px-4 py-3 border-2 border-light rounded-xl text-lg font-medium focus:border-focus focus:outline-none transition-colors"
-                            disabled={isJoining}
-                        />
-                    </div>
+                    {showNicknameInput && (
+                        <div>
+                            <label className="block text-sm font-semibold text-secondary mb-2">
+                                Nickname
+                            </label>
+                            <input
+                                type="text"
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
+                                placeholder="Choose a nickname"
+                                maxLength={20}
+                                className="w-full px-4 py-3 border-2 border-light rounded-xl text-lg font-medium focus:border-focus focus:outline-none transition-colors"
+                                disabled={isConnecting}
+                                autoFocus
+                                onKeyDown={(e) => e.key === 'Enter' && handleNicknameSubmit()}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Error */}
@@ -177,22 +308,22 @@ const JoinGamePage = () => {
                     </div>
                 )}
 
-                {/* Join Button */}
+                {/* Submit Button */}
                 <button
-                    onClick={handleJoin}
-                    disabled={isJoining || !pin.trim() || !nickname.trim()}
-                    className={`w-full py-4 rounded-xl text-xl font-bold transition-all ${isJoining || !pin.trim() || !nickname.trim()
+                    onClick={handleSubmit}
+                    disabled={buttonDisabled}
+                    className={`w-full py-4 rounded-xl text-xl font-bold transition-all ${buttonDisabled
                         ? 'bg-page text-tertiary cursor-not-allowed'
                         : 'btn-primary hover:shadow-xl'
                         }`}
                 >
-                    {isJoining ? (
+                    {isConnecting ? (
                         <div className="flex items-center justify-center gap-2">
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                             Connecting...
                         </div>
                     ) : (
-                        'Join Game'
+                        buttonLabel
                     )}
                 </button>
             </div>

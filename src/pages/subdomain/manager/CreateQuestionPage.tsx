@@ -6,11 +6,12 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { MoreVertical } from 'lucide-react';
+import { ArrowLeft, MoreVertical } from 'lucide-react';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { questionService } from '@/services';
 import type { CreateQuestionData } from '@/types';
 import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
+import { SubdomainLayout } from '@/components';
 
 const CreateQuestionPage = () => {
     const navigate = useManagerNavigate();
@@ -33,24 +34,35 @@ const CreateQuestionPage = () => {
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            {/* Header */}
-            <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
-                <div className="flex items-center justify-between">
-                    <div className="text-sm text-tertiary">New Question</div>
-                    <div className="text-xl font-bold text-primary">Create Question</div>
-                    <button className="text-tertiary hover:text-secondary">
-                        <MoreVertical className="w-6 h-6" />
-                    </button>
+        <SubdomainLayout>
+            <div className="max-w-4xl mx-auto p-6">
+                {/* Header */}
+                <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
+                    <div className="flex items-center justify-between">
+                        <button
+                            onClick={handleCancel}
+                            className="flex items-center gap-2 text-secondary hover:text-primary"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                            Back to Quiz
+                        </button>
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="text-xl font-bold text-primary">Create Question</div>
+                            <div className="text-sm text-tertiary">New Question</div>
+                        </div>
+                        <button className="text-tertiary hover:text-secondary">
+                            <MoreVertical className="w-6 h-6" />
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            {/* Editor */}
-            <QuestionEditor
-                onCreate={handleSave}
-                onCancel={handleCancel}
-            />
-        </div>
+                {/* Editor */}
+                <QuestionEditor
+                    onCreate={handleSave}
+                    onCancel={handleCancel}
+                />
+            </div>
+        </SubdomainLayout>
     );
 };
 

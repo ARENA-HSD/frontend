@@ -115,8 +115,9 @@ const ParticipantGamePage = () => {
     useEffect(() => {
         if (reconnectData && reconnectData.gameStatus === 'ACTIVE' && !reconnectData.hasAnswered && reconnectData.remainingTime > 0) {
             // For reconnect, calculate serverTime from remainingTime
-            const syntheticServerTime = Date.now() - ((reconnectData.remainingTime > 0 ? 0 : reconnectData.remainingTime) * 1000);
-            startTimer(reconnectData.remainingTime, syntheticServerTime);
+            const remaining = Math.floor(reconnectData.remainingTime);
+            const syntheticServerTime = Date.now();
+            startTimer(remaining, syntheticServerTime);
 
             // Restore score/streak from reconnect
             statsRef.current.totalScore = reconnectData.score || 0;
@@ -256,8 +257,9 @@ const ParticipantGamePage = () => {
                 if (payload.hasAnswered) {
                     setPhase('answered');
                 } else if (payload.remainingTime > 0) {
+                    const remaining = Math.floor(payload.remainingTime);
                     const syntheticServerTime = Date.now();
-                    startTimer(payload.remainingTime, syntheticServerTime);
+                    startTimer(remaining, syntheticServerTime);
                     setSelectedAnswer(-1);
                     setPhase('question');
                 }
@@ -308,8 +310,8 @@ const ParticipantGamePage = () => {
                 <div className="flex justify-center mb-4">
                     <div
                         className={`w-16 h-16 rounded-full border-4 flex items-center justify-center text-2xl font-black transition-colors ${timeLeft <= 3
-                                ? 'border-red-400 text-red-400 animate-pulse'
-                                : 'border-white/60 text-white'
+                            ? 'border-red-400 text-red-400 animate-pulse'
+                            : 'border-white/60 text-white'
                             }`}
                     >
                         {timeLeft}
@@ -344,10 +346,10 @@ const ParticipantGamePage = () => {
                                 onClick={() => handleSelectAnswer(idx)}
                                 disabled={phase === 'answered'}
                                 className={`w-full p-4 rounded-xl font-bold text-white text-lg transition-all ${color.bg} ${phase === 'answered'
-                                        ? isSelected
-                                            ? 'ring-4 ring-white scale-[1.03]'
-                                            : 'opacity-40'
-                                        : `${color.hover} active:scale-95`
+                                    ? isSelected
+                                        ? 'ring-4 ring-white scale-[1.03]'
+                                        : 'opacity-40'
+                                    : `${color.hover} active:scale-95`
                                     }`}
                             >
                                 <span className="mr-2">{OPTION_LABELS[idx]}.</span>
@@ -378,8 +380,8 @@ const ParticipantGamePage = () => {
                 <div className="flex justify-center mb-4">
                     <div
                         className={`w-16 h-16 rounded-full border-4 flex items-center justify-center text-2xl font-black transition-colors ${timeLeft <= 3
-                                ? 'border-red-400 text-red-400 animate-pulse'
-                                : 'border-white/60 text-white'
+                            ? 'border-red-400 text-red-400 animate-pulse'
+                            : 'border-white/60 text-white'
                             }`}
                     >
                         {timeLeft}
@@ -398,10 +400,10 @@ const ParticipantGamePage = () => {
                                 onClick={() => handleSelectAnswer(idx)}
                                 disabled={phase === 'answered'}
                                 className={`rounded-2xl font-black text-white text-6xl transition-all flex items-center justify-center ${color.bg} ${phase === 'answered'
-                                        ? isSelected
-                                            ? 'ring-4 ring-white scale-[1.03]'
-                                            : 'opacity-30'
-                                        : `${color.hover} active:scale-95`
+                                    ? isSelected
+                                        ? 'ring-4 ring-white scale-[1.03]'
+                                        : 'opacity-30'
+                                    : `${color.hover} active:scale-95`
                                     }`}
                             >
                                 {OPTION_LABELS[idx]}
@@ -426,8 +428,8 @@ const ParticipantGamePage = () => {
         return (
             <div
                 className={`min-h-screen flex items-center justify-center p-4 ${isCorrect
-                        ? 'bg-gradient-to-br from-green-500 to-emerald-600'
-                        : 'bg-gradient-to-br from-red-500 to-rose-600'
+                    ? 'bg-gradient-to-br from-green-500 to-emerald-600'
+                    : 'bg-gradient-to-br from-red-500 to-rose-600'
                     }`}
             >
                 <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
@@ -487,8 +489,8 @@ const ParticipantGamePage = () => {
                             <div
                                 key={idx}
                                 className={`flex items-center gap-3 p-4 rounded-xl ${player.nickname === nickname
-                                        ? 'bg-white/30 ring-2 ring-white'
-                                        : 'bg-white/10'
+                                    ? 'bg-white/30 ring-2 ring-white'
+                                    : 'bg-white/10'
                                     }`}
                             >
                                 <div className="text-white font-black text-xl w-8">

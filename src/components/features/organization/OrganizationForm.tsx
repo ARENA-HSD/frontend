@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui';
 
 interface OrganizationFormProps {
     initialData?: {
@@ -214,21 +215,21 @@ const OrganizationForm = ({
 
                 {/* Actions */}
                 <div className="flex justify-end gap-3 mt-8">
-                    <button
+                    <Button
                         type="button"
                         onClick={onCancel}
                         disabled={isLoading}
-                        className="px-6 py-2.5 bg-page text-secondary rounded-lg font-medium hover:opacity-80 disabled:opacity-50"
+                        variant="secondary"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="submit"
                         disabled={isLoading}
-                        className="px-8 py-2.5 btn-primary rounded-lg font-semibold disabled:opacity-50"
+                        variant="primary"
                     >
                         {isLoading ? 'Processing...' : submitButtonText}
-                    </button>
+                    </Button>
                 </div>
             </form>
         </div>

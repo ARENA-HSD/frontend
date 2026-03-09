@@ -11,7 +11,7 @@ import { useAuth, useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { Quiz } from '@/types';
 import QuizCard from '@/components/quiz/manager/QuizCard';
-import { SubdomainLayout } from '@/components';
+import { Button, SubdomainLayout } from '@/components';
 
 const QuizListPage = () => {
     const navigate = useManagerNavigate();
@@ -86,15 +86,16 @@ const QuizListPage = () => {
             {quizzes.length > 0 ? (
                 <div className="grid grid-cols-4 gap-6 content-start overflow-y-auto p-4">
                     {/* Create Quiz Card */}
-                    <div
+                    <Button
                         onClick={handleCreateQuiz}
-                        className="bg-role-primary rounded-xl p-8 flex items-center justify-center cursor-pointer hover:opacity-90 transition-all shadow-lg h-content"
+                        variant="primary"
+                        className="rounded-xl"
                     >
                         <div className="text-center text-inverse">
                             <Plus className="w-12 h-12 mx-auto mb-3" />
                             <div className="text-xl font-bold">Create Quiz</div>
                         </div>
-                    </div>
+                    </Button>
 
                     {/* Quiz Cards */}
                     {quizzes.map(quiz => (
@@ -121,12 +122,12 @@ const QuizListPage = () => {
                 <div className="w-full flex items-center justify-center">
                     <div className="text-center py-12">
                         <div className="text-tertiary text-lg mb-4">No quizzes yet</div>
-                        <button
+                        <Button
                             onClick={handleCreateQuiz}
-                            className="px-6 py-2 btn-primary rounded-lg font-semibold"
+                            variant="primary"
                         >
                             Create Your First Quiz
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}

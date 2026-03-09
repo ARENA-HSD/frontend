@@ -28,33 +28,35 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         <form onSubmit={handleSubmit} className="space-y-4">
             {errors.general && (
                 <div className="bg-role-danger-light border border-role-danger rounded-lg p-3">
-                    <p className="text-sm text-role-danger">{errors.general}</p>
+                    <p className="text-md text-role-danger">{errors.general}</p>
                 </div>
             )}
 
-            <Input
-                label="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                error={errors.username}
-                placeholder="john_doe"
-                disabled={isLoading}
-                required
-                fullWidth
-                helperText="Letters, numbers, and underscores only"
-            />
+            <div className='flex space-x-4'>
+                <Input
+                    label="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    error={errors.username}
+                    placeholder="john_doe"
+                    disabled={isLoading}
+                    required
+                    fullWidth
+                    helperText="Letters, numbers, and underscores only"
+                />
 
-            <Input
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={errors.email}
-                placeholder="your@email.com"
-                disabled={isLoading}
-                required
-                fullWidth
-            />
+                <Input
+                    label="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    error={errors.email}
+                    placeholder="your@email.com"
+                    disabled={isLoading}
+                    required
+                    fullWidth
+                />
+            </div>
 
             <Input
                 label="Password"
@@ -72,6 +74,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
             <Button
                 type="submit"
                 variant="primary"
+                className="font-['Titan_One',sans-serif] text-2xl py-6"
                 fullWidth
                 disabled={isLoading}
             >

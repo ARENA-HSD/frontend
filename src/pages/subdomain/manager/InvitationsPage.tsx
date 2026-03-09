@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SubdomainLayout } from "@/components";
+import { Button, SubdomainLayout } from "@/components";
 import { useInvitations } from "@/hooks";
 import { UserPlus, ArrowLeft, Trash2, Clock, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { formatTimeAgo } from '@/lib/timeUtils';
@@ -89,13 +89,13 @@ const InvitationsPage = () => {
                                 />
                             </div>
                         </div>
-                        <button
+                        <Button
                             type="submit"
                             disabled={isInviting || !inviteUsername.trim()}
-                            className="btn-primary disabled:opacity-50 px-6 py-2 rounded-lg font-bold transition-all shadow-md active:scale-95"
+                            variant="primary"
                         >
                             {isInviting ? 'Sending...' : 'Send Invitation'}
-                        </button>
+                        </Button>
                     </form>
                 </div>
 

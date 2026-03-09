@@ -16,8 +16,9 @@ const ParticipantLobbyPage = () => {
     const navigate = useManagerNavigate();
     const location = useLocation();
     const state = location.state as any;
+    const storedSession = gameSocket.getSessionInfo();
     const nickname = state?.nickname || 'Player';
-    const pin = state?.pin || '';
+    const pin = state?.pin || storedSession?.pin || '';
     const [phase, setPhase] = useState<'lobby' | 'countdown'>('lobby');
     const [countdown, setCountdown] = useState(3);
 
@@ -29,6 +30,13 @@ const ParticipantLobbyPage = () => {
             setDots(prev => prev.length >= 3 ? '.' : prev + '.');
         }, 500);
         return () => clearInterval(interval);
+    }, []);
+
+    // Page-refresh reconnect: if no WS connection but session exists
+    useEffect(() => {
+        if (!gameSocket.isConnected && gameSocket.hasSession()) {
+            gameSocket.reconnectWithSession();
+        }
     }, []);
 
     // Listen for game start
@@ -57,6 +65,16 @@ const ParticipantLobbyPage = () => {
             gameSocket.on(WS_EVENTS.FORCE_DISCONNECT, (payload: ForceDisconnectPlayload) => {
                 navigate('/join', {
                     state: { error: payload.reason || 'You have been disconnected' }
+                });
+            })
+        );
+
+        // Handle expired session: server needs a new nickname
+        unsubs.push(
+            gameSocket.on(WS_EVENTS.NEED_NICKNAME, () => {
+                navigate('/join', {
+                    state: { pin },
+                    replace: true,
                 });
             })
         );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MainLayout } from '@/components';
+import { Button, MainLayout } from '@/components';
 import { MailboxIcon, CheckCircle2, XCircle, Building2 } from 'lucide-react';
 import { getMyInvitations, respondToInvitation } from '@/services/invitation.service';
 
@@ -61,12 +61,11 @@ const MyInvitationsPage = () => {
         <MainLayout>
             <div className="max-w-5xl mx-auto px-4 py-12 w-full">
                 {/* Header */}
-                <div className="mb-8 border-b border-light pb-4">
-                    <h1 className="text-3xl font-bold text-primary flex items-center gap-3">
-                        <MailboxIcon className="w-8 h-8 text-role-primary" />
+                <div className="mb-6">
+                    <h1 className="text-4xl font-['Titan_One',sans-serif] text-primary flex items-center gap-3">
                         My Invitations
                     </h1>
-                    <p className="text-tertiary mt-2 text-lg">Manage pending invitations across all organizations.</p>
+                    <p className="mt-2 text-lg ">Manage pending invitations across all organizations.</p>
                 </div>
 
                 {error && (
@@ -83,40 +82,39 @@ const MyInvitationsPage = () => {
                 ) : invitations.length > 0 ? (
                     <div className="grid gap-4">
                         {invitations.map(invitation => (
-                            <div key={invitation.id} className="bg-card border border-light rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-secondary transition-colors shadow-sm">
-                                <div className="flex items-start gap-4">
+                            <div key={invitation.id} className="card border border-light rounded-xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-secondary transition-colors shadow-sm">
+                                <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-role-primary-light rounded-xl flex items-center justify-center shrink-0">
                                         <Building2 className="w-6 h-6 text-role-primary" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-primary">{invitation.orgName}</h3>
-                                        <p className="text-secondary text-sm">
-                                            <span className="text-tertiary">Invited by: </span>
-                                            <span className="font-medium text-primary">{invitation.inviterUsername}</span>
+                                        <h3 className="text-lg font-bold text-primary">{invitation.orgName}</h3>
+                                        <p>
+                                            <span className="text-sm">Invited by: </span>
+                                            <span className="font-bold text-primary">{invitation.inviterUsername}</span>
                                         </p>
-                                        <p className="text-tertiary text-xs mt-1">
+                                        <p className="text-xs mt-1">
                                             {new Date(invitation.createdAt).toLocaleDateString()}
                                         </p>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center gap-3 w-full md:w-auto">
-                                    <button
+                                    <Button
                                         onClick={() => handleAction(invitation.id, 'REJECTED')}
                                         disabled={actionLoading === invitation.id}
-                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 border border-light text-secondary rounded-lg hover:bg-role-danger-light hover:text-role-danger hover:border-role-danger transition-colors disabled:opacity-50"
+                                        variant="secondary"
                                     >
                                         <XCircle className="w-4 h-4" />
                                         Reject
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         onClick={() => handleAction(invitation.id, 'ACCEPTED')}
                                         disabled={actionLoading === invitation.id}
-                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-role-primary text-white rounded-lg hover:bg-focus transition-colors shadow-sm disabled:opacity-50"
                                     >
                                         <CheckCircle2 className="w-4 h-4" />
                                         Accept
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}

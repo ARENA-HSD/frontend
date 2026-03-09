@@ -4,14 +4,24 @@
  * User login page with custom UI
  */
 
-import { Link, useNavigate } from 'react-router-dom';
-import WelcomeBackground from '@/components/WelcomeBackground';
-import { useLogin, useSubdomain } from '@/hooks';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useSubdomain } from '@/hooks';
+import { MainLayout } from '@/components';
+import { LoginForm } from '@/components';
+import { authService } from '@/services';
+import { useEffect } from 'react';
 
 const LoginPage = () => {
     const navigate = useNavigate();
     const subdomain = useSubdomain();
+    const isSubdomain = !!subdomain;
+    const currentUser = authService.getCurrentUser();
+
+    useEffect(() => {
+        if (currentUser) {
+            navigate("/dashboard")
+        }
+    }, [currentUser]);
 
     const handleSuccess = () => {
         if (subdomain) {
@@ -21,6 +31,7 @@ const LoginPage = () => {
             // Main domain: go to organizations page
             navigate('/organizations');
         }
+        localStorage.setItem("auth-sync", Date.now().toString());
     };
 
     const {

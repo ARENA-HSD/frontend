@@ -18,9 +18,8 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          port: 1179
+          port: 17943
           script: |
             cd ~/frontend
-            git checkout feature/dashboard
-            git pull origin feature/dashboard
+            git pull main
             docker compose up -d --build

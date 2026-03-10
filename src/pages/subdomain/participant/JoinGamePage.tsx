@@ -18,13 +18,14 @@ import { useSearchParams } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { useManagerNavigate } from '@/hooks';
-import { SEO } from '@/components';
+import { Button, SEO } from '@/components';
 import type {
     ErrorPlayload,
     ForceDisconnectPlayload,
     JoinSuccessPlayload,
     ReconnectSuccessPlayload,
 } from '@/types';
+import HeaderLogo from '@/components/layout/HeaderLogo';
 
 type Phase = 'pin' | 'nickname' | 'connecting';
 
@@ -247,21 +248,21 @@ const JoinGamePage = () => {
             : 'Continue';
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+        <div className="min-h-screen flex items-center justify-center p-4">
             <SEO
                 title="Join Quiz"
                 description="Enter your game PIN and nickname to join a live Quiz Strike session."
             />
             <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
                 {/* Header */}
-                <div className="text-center mb-8">
-                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                        <Zap className="w-10 h-10 text-white" />
+                <div className="flex flex-col items-center mb-8">
+                    <div className="scale-75">
+                        <HeaderLogo />
                     </div>
-                    <h1 className="text-3xl font-black text-primary mb-2">Join Quiz</h1>
+                    <h1 className="text-2xl font-black text-primary mb-2">Join the fun!</h1>
                     <p className="text-tertiary">
                         {showNicknameInput
-                            ? 'Choose a nickname to play'
+                            ? 'Enter your nickname to play'
                             : 'Enter your game PIN to start'}
                     </p>
                 </div>
@@ -314,10 +315,12 @@ const JoinGamePage = () => {
                 )}
 
                 {/* Submit Button */}
-                <button
+                <Button
                     onClick={handleSubmit}
                     disabled={buttonDisabled}
-                    className={`w-full py-4 rounded-xl text-xl font-bold transition-all ${buttonDisabled
+                    variant="primary"
+                    fullWidth
+                    className={`py-4 text-xl font-bold ${buttonDisabled
                         ? 'bg-page text-tertiary cursor-not-allowed'
                         : 'btn-primary hover:shadow-xl'
                         }`}
@@ -330,7 +333,7 @@ const JoinGamePage = () => {
                     ) : (
                         buttonLabel
                     )}
-                </button>
+                </Button>
             </div>
         </div>
     );

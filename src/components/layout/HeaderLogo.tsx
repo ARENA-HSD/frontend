@@ -4,18 +4,30 @@ import maskot from '@/assets/maskot.png';
 const COLORS = ["#E63329", "#2196F3", "#F5A623", "#4CAF50"] as const;
 
 interface HeaderLogoProps {
-    size?: number;
+    size?: 'sm' | 'md' | 'lg';
 }
 
-const HeaderLogo = () => {
-    const strokeWidth = `${12}px`;
-    const fontSize = `${50}px`;
-    const gap = `${16}px`;
-    const imgWidth = `${200}px`;
+const HeaderLogo = ({ size }: HeaderLogoProps) => {
+    let strokeWidth = `${11}px`;
+    let fontSize = `${50}px`;
+    let gap = `${16}px`;
+    let imgWidth = `${200}px`;
+
+    if (size === 'sm') {
+        strokeWidth = `${6}px`;
+        fontSize = `${25}px`;
+        gap = `${8}px`;
+        imgWidth = `${100}px`;
+    } else if (size === 'md') {
+        strokeWidth = `${9}px`;
+        fontSize = `${37.5}px`;
+        gap = `${12}px`;
+        imgWidth = `${150}px`;
+    }
 
     const textStyle: React.CSSProperties = {
         fontSize,
-        lineHeight: 0.9,
+        lineHeight: 0.95,
         WebkitTextStroke: `${strokeWidth} #111`,
         paintOrder: "stroke fill",
     };
@@ -44,7 +56,7 @@ const HeaderLogo = () => {
             <img
                 src={maskot}
                 alt="Quiz Strike Maskot"
-                className="w-auto object-contain relative top-[6px] left-[-72px]"
+                className={`w-auto object-contain relative top-[6px] left-[-72px] ${size === 'md' && 'left-[-53px]'}`}
                 style={{ width: imgWidth }}
             />
         </div>

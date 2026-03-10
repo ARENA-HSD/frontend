@@ -11,6 +11,7 @@ import { quizService } from '@/services';
 import type { Quiz } from '@/types';
 import QuizCard from '@/components/quiz/manager/QuizCard';
 import { Button, SubdomainLayout, SEO } from '@/components';
+import TitleHeader from '@/components/layout/TitleHeader';
 
 const QuizListPage = () => {
     const navigate = useManagerNavigate();
@@ -85,24 +86,8 @@ const QuizListPage = () => {
                 description="Manage and launch quizzes for your organization."
                 noIndex
             />
-            <div className="w-full flex flex-col h-full overflow-hidden p-2 lg:p-8">
-
-                {/* Header Section */}
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-4xl font-black text-primary mb-1">{subdomain}</h1>
-                        <p className="text-lg font-medium text-secondary">Quiz Management Dashboard</p>
-                    </div>
-
-                    <Button
-                        variant="primary"
-                        onClick={handleCreateQuiz}
-                        className="rounded-full font-bold px-8 py-3 text-lg hover:-translate-y-0.5 transition-transform whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)] flex items-center gap-2"
-                    >
-                        <span>+ Create New</span>
-                        <PlayCircle className="w-6 h-6 fill-current" />
-                    </Button>
-                </div>
+            <div className="w-full flex flex-col h-full overflow-hidden">
+                <TitleHeader title={subdomain ?? ''} description='Quiz Management Dashboard' isButton buttonText='Create New' buttonIcon='+' onClick={handleCreateQuiz} />
 
                 {/* Quizzes Content Area */}
                 <div className="flex-1 overflow-y-auto pb-8 scrollbar-hide">
@@ -112,10 +97,12 @@ const QuizListPage = () => {
                             {/* Create Quiz Large Square Card */}
                             <button
                                 onClick={handleCreateQuiz}
-                                className="aspect-square bg-gradient-to-br from-[var(--btn-primary-bg)] to-[color-mix(in_srgb,var(--btn-primary-bg),black_30%)] hover:to-[color-mix(in_srgb,var(--btn-primary-bg),black_40%)] text-primary-oposite rounded-[2rem] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center border-2 border-transparent focus:outline-none focus:ring-4 focus:ring-focus shadow-[0_8px_20px_-4px_color-mix(in_srgb,var(--btn-primary-bg),transparent_50%)]"
+                                className="inline-flex items-center justify-center font-medium transition-all focus:outline-none disabled:cursor-not-allowed text-primary-oposite btn-primary shadow-[0_6px_12px_-2px_var(--btn-primary-bg)] bg-gradient-to-b from-[var(--btn-primary-bg)] to-[color-mix(in_srgb,var(--btn-primary-bg),black_40%)] px-4 py-2 text-base rounded-2xl"
                             >
-                                <Plus className="w-16 h-16 mb-4 stroke-[2.5]" />
-                                <span className="text-2xl font-bold">Create Quiz</span>
+                                <div className='flex flex-col items-center'>
+                                    <Plus className="w-16 h-16 stroke-[2]" />
+                                    <span className="text-2xl">Create Quiz</span>
+                                </div>
                             </button>
 
                             {/* Existing Quiz Cards */}

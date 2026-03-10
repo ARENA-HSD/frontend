@@ -320,7 +320,7 @@ const QuizApp = () => {
           <div className="w-56 h-56 bg-gray-900 rounded-lg flex items-center justify-center mb-4">
             <div className="text-white text-xs">QR CODE</div>
           </div>
-          <a href="https://org.hsdarena.com/join/ABC123" className="text-2xl font-bold text-indigo-600">org.hsdarena.com/join/ABC123</a>
+          <a href="https://org.quizstrike.com.tr/join/ABC123" className="text-2xl font-bold text-indigo-600">org.quizstrike.com.tr/join/ABC123</a>
         </div>
       </div>
 

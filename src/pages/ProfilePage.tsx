@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Trash2, Shield, Save, CheckCircle2 } from 'lucide-react';
 import { useAuth, useUser } from '@/hooks';
 import { Button, Input, MainLayout, SEO } from '@/components';
+import TitleHeader from '@/components/layout/TitleHeader';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -11,7 +12,7 @@ const ProfilePage = () => {
 
     // Form States
     const [accountData, setAccountData] = useState({
-        name: '',
+        username: '',
         email: ''
     });
     const [passwordData, setPasswordData] = useState({
@@ -28,7 +29,7 @@ const ProfilePage = () => {
     useEffect(() => {
         if (user) {
             setAccountData({
-                name: user.username || '',
+                username: user.username || '',
                 email: user.email || ''
             });
         }
@@ -40,7 +41,7 @@ const ProfilePage = () => {
         setUpdateStatus({ type: null, message: '' });
 
         const result = await update({
-            name: accountData.name,
+            username: accountData.username,
             email: accountData.email
         });
 
@@ -87,14 +88,6 @@ const ProfilePage = () => {
         }
     };
 
-    const formatDate = (dateString?: string) => {
-        if (!dateString) return 'Member';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'long',
-            year: 'numeric'
-        });
-    };
-
     if (isLoading) {
         return (
             <MainLayout>
@@ -112,12 +105,8 @@ const ProfilePage = () => {
                 description="Manage your Quiz Strike account information and security settings."
                 noIndex
             />
-            <div className="max-w-5xl mx-auto px-4 py-12">
-                {/* Header */}
-                <div className="mb-4 pb-2">
-                    <h1 className="font-['Titan_One',sans-serif] font-thin text-4xl text-primary">Profile Settings</h1>
-                    <p className="mt-1">Manage your account and preferences.</p>
-                </div>
+            <div className="max-w-5xl mx-auto">
+                <TitleHeader title='Profile Settings' description='Manage your account and preferences.' />
 
                 {/* Status Message */}
                 {updateStatus.type && (
@@ -144,8 +133,8 @@ const ProfilePage = () => {
                                     <Input
                                         type="text"
                                         className="rounded-xl border border-[var(--btn-primary-bg)] shadow-[0_6px_12px_-2px_var(--btn-primary-bg)]"
-                                        value={accountData.name}
-                                        onChange={(e) => setAccountData({ ...accountData, name: e.target.value })}
+                                        value={accountData.username}
+                                        onChange={(e) => setAccountData({ ...accountData, username: e.target.value })}
                                         disabled={isUpdating}
                                     />
                                 </div>

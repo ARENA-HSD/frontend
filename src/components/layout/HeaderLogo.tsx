@@ -1,19 +1,21 @@
+import { CSSProperties } from 'react';
 import maskot from '@/assets/maskot.png';
 
 
 const COLORS = ["#E63329", "#2196F3", "#F5A623", "#4CAF50"] as const;
 
 interface HeaderLogoProps {
-    size?: number;
+    className?: string;
+    scale?: number;
 }
 
-const HeaderLogo = () => {
-    const strokeWidth = `${12}px`;
-    const fontSize = `${50}px`;
-    const gap = `${16}px`;
-    const imgWidth = `${200}px`;
+const HeaderLogo = ({ className = "", scale = 1 }: HeaderLogoProps) => {
+    const strokeWidth = `${12 * scale}px`;
+    const fontSize = `${50 * scale}px`;
+    const gap = `${16 * scale}px`;
+    const imgWidth = `${200 * scale}px`;
 
-    const textStyle: React.CSSProperties = {
+    const textStyle: CSSProperties = {
         fontSize,
         lineHeight: 0.9,
         WebkitTextStroke: `${strokeWidth} #111`,
@@ -22,10 +24,10 @@ const HeaderLogo = () => {
 
     return (
         <div
-            className="inline-flex items-end m-5 h-[100px]"
+            className={`inline-flex items-end ${className}`}
             style={{ gap }}
         >
-            <div className="flex flex-col" style={{ gap: `${2}px` }}>
+            <div className="flex flex-col" style={{ gap: `${2 * scale}px` }}>
                 <span
                     className="block select-none font-['Titan_One',sans-serif]"
                     style={textStyle}
@@ -44,7 +46,7 @@ const HeaderLogo = () => {
             <img
                 src={maskot}
                 alt="Quiz Strike Maskot"
-                className="w-auto object-contain relative top-[6px] left-[-72px]"
+                className="w-auto object-contain relative top-[6px]"
                 style={{ width: imgWidth }}
             />
         </div>

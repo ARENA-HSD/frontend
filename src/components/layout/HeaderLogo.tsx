@@ -1,43 +1,54 @@
+import React from 'react';
 import maskot from '@/assets/maskot.png';
 
+export interface HeaderLogoProps {
+    size?: 'sm' | 'md' | 'lg';
+    scale?: number;
+    className?: string;
+}
 
 const COLORS = ["#E63329", "#2196F3", "#F5A623", "#4CAF50"] as const;
 
-interface HeaderLogoProps {
-    size?: 'sm' | 'md' | 'lg';
-}
-
-const HeaderLogo = ({ size }: HeaderLogoProps) => {
-    let strokeWidth = `${11}px`;
-    let fontSize = `${50}px`;
-    let gap = `${16}px`;
-    let imgWidth = `${200}px`;
+const HeaderLogo = ({ size, scale = 1, className = "" }: HeaderLogoProps) => {
+    let baseStrokeWidth = 11;
+    let baseFontSize = 50;
+    let baseGap = 16;
+    let baseImgWidth = 200;
+    let baseLeftOffset = -72;
 
     if (size === 'sm') {
-        strokeWidth = `${6}px`;
-        fontSize = `${25}px`;
-        gap = `${8}px`;
-        imgWidth = `${100}px`;
+        baseStrokeWidth = 6;
+        baseFontSize = 25;
+        baseGap = 8;
+        baseImgWidth = 100;
+        baseLeftOffset = -36;
     } else if (size === 'md') {
-        strokeWidth = `${9}px`;
-        fontSize = `${37.5}px`;
-        gap = `${12}px`;
-        imgWidth = `${150}px`;
+        baseStrokeWidth = 9;
+        baseFontSize = 37.5;
+        baseGap = 12;
+        baseImgWidth = 150;
+        baseLeftOffset = -53;
     }
 
+    const sStrokeWidth = `${baseStrokeWidth * scale}px`;
+    const sFontSize = `${baseFontSize * scale}px`;
+    const sGap = `${baseGap * scale}px`;
+    const sImgWidth = `${baseImgWidth * scale}px`;
+    const sLeftOffset = `${baseLeftOffset * scale}px`;
+
     const textStyle: React.CSSProperties = {
-        fontSize,
+        fontSize: sFontSize,
         lineHeight: 0.95,
-        WebkitTextStroke: `${strokeWidth} #111`,
+        WebkitTextStroke: `${sStrokeWidth} #111`,
         paintOrder: "stroke fill",
     };
 
     return (
         <div
-            className="inline-flex items-end m-5 h-[100px]"
-            style={{ gap }}
+            className={`inline-flex items-end ${className}`}
+            style={{ gap: sGap }}
         >
-            <div className="flex flex-col" style={{ gap: `${2}px` }}>
+            <div className="flex flex-col" style={{ gap: `${2 * scale}px` }}>
                 <span
                     className="block select-none font-['Titan_One',sans-serif]"
                     style={textStyle}
@@ -56,8 +67,8 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
             <img
                 src={maskot}
                 alt="Quiz Strike Maskot"
-                className={`w-auto object-contain relative top-[6px] left-[-72px] ${size === 'md' && 'left-[-53px]'}`}
-                style={{ width: imgWidth }}
+                className="w-auto object-contain relative"
+                style={{ width: sImgWidth, marginLeft: sLeftOffset, top: `${6 * scale}px` }}
             />
         </div>
     );

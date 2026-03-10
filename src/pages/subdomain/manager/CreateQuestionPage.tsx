@@ -11,7 +11,7 @@ import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { questionService } from '@/services';
 import type { CreateQuestionData } from '@/types';
 import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
-import { SubdomainLayout } from '@/components';
+import { SubdomainLayout, SEO } from '@/components';
 
 const CreateQuestionPage = () => {
     const navigate = useManagerNavigate();
@@ -35,6 +35,11 @@ const CreateQuestionPage = () => {
 
     return (
         <SubdomainLayout>
+            <SEO
+                title="Add Question"
+                description="Add a new question to your quiz."
+                noIndex
+            />
             <div className="max-w-4xl mx-auto p-6">
                 {/* Header */}
                 <div className="bg-card p-6 rounded-lg shadow-sm mb-6">

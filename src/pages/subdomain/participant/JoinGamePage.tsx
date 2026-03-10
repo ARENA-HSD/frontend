@@ -18,6 +18,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Zap } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { useManagerNavigate } from '@/hooks';
+import { SEO } from '@/components';
 import type {
     ErrorPlayload,
     ForceDisconnectPlayload,
@@ -247,6 +248,10 @@ const JoinGamePage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+            <SEO
+                title="Join Quiz"
+                description="Enter your game PIN and nickname to join a live Quiz Strike session."
+            />
             <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
                 {/* Header */}
                 <div className="text-center mb-8">

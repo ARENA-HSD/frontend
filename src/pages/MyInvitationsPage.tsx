@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button, MainLayout } from '@/components';
+import { Button, MainLayout, SEO } from '@/components';
 import { MailboxIcon, CheckCircle2, XCircle, Building2 } from 'lucide-react';
 import { getMyInvitations, respondToInvitation } from '@/services/invitation.service';
 
@@ -59,6 +59,11 @@ const MyInvitationsPage = () => {
 
     return (
         <MainLayout>
+            <SEO
+                title="My Invitations"
+                description="View and respond to organization invitations on Quiz Strike."
+                noIndex
+            />
             <div className="max-w-5xl mx-auto px-4 py-12 w-full">
                 {/* Header */}
                 <div className="mb-6">

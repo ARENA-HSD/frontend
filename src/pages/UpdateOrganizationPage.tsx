@@ -8,7 +8,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { organizationService } from '@/services';
-import { MainLayout } from '@/components';
+import { MainLayout, SEO } from '@/components';
 import { OrganizationForm } from '@/components/features/organization';
 
 const UpdateOrganizationPage = () => {
@@ -112,6 +112,11 @@ const UpdateOrganizationPage = () => {
 
     return (
         <MainLayout>
+            <SEO
+                title="Update Organization"
+                description="Update your Quiz Strike organization details, subdomain and branding."
+                noIndex
+            />
             {isFetching ? (
                 <div className="max-w-2xl mx-auto text-center py-12 text-gray-500">
                     Loading organization data...

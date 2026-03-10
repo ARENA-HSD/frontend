@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Trash2, Shield, Save, CheckCircle2 } from 'lucide-react';
 import { useAuth, useUser } from '@/hooks';
-import { Button, Input, MainLayout } from '@/components';
+import { Button, Input, MainLayout, SEO } from '@/components';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -107,6 +107,11 @@ const ProfilePage = () => {
 
     return (
         <MainLayout>
+            <SEO
+                title="Profile Settings"
+                description="Manage your Quiz Strike account information and security settings."
+                noIndex
+            />
             <div className="max-w-5xl mx-auto px-4 py-12">
                 {/* Header */}
                 <div className="mb-4 pb-2">

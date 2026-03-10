@@ -27,7 +27,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService, questionService } from '@/services';
 import type { Quiz, Question } from '@/types';
-import { Button, SubdomainLayout } from '@/components';
+import { Button, SubdomainLayout, SEO } from '@/components';
 
 // ============================================================================
 // Sortable Question Card Component
@@ -258,6 +258,11 @@ const QuizDetailPage = () => {
 
     return (
         <SubdomainLayout>
+            <SEO
+                title="Quiz Details"
+                description="View and manage quiz questions with drag-and-drop reordering."
+                noIndex
+            />
             <div className="max-w-5xl mx-auto p-6">
                 {/* Header */}
                 <div className="bg-card p-6 rounded-lg shadow-sm mb-6">

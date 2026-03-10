@@ -12,3 +12,4 @@ export { default as Loader } from './Loader';
 export { default as ThemeSwitcher } from './ThemeSwitcher';
 export { default as ReconnectOverlay } from './ReconnectOverlay';
 export { default as SidebarItem } from './SidebarItem';
+export { default as SEO } from './SEO';

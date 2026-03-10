@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
+import { SEO } from '@/components';
 import type { ForceDisconnectPlayload, GameStartingPlayload, QuestionStartPlayload, ReconnectSuccessPlayerPlayload } from '@/types';
 
 const ParticipantLobbyPage = () => {
@@ -145,6 +146,11 @@ const ParticipantLobbyPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+            <SEO
+                title="Game Lobby"
+                description="Waiting for the quiz to start. Get ready to play!"
+                noIndex
+            />
             <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
             <div className="text-center">
                 {/* Connected Badge */}

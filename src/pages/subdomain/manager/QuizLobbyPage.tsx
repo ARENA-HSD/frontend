@@ -14,6 +14,7 @@ import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
+import { SEO } from '@/components';
 import type { GameStartingPlayload, LobbyUpdatePlayload, PlayerKickedPlayload, QuestionStartPlayload, ReconnectSuccessHostPlayload, Quiz } from '@/types';
 
 const QuizLobbyPage = () => {
@@ -284,6 +285,11 @@ const QuizLobbyPage = () => {
     // ========================================
     return (
         <div className="max-w-6xl mx-auto p-4">
+            <SEO
+                title="Quiz Lobby"
+                description="Waiting for participants to join your Quiz Strike session."
+                noIndex
+            />
             <ReconnectOverlay />
             {/* Top Bar */}
             <div className="bg-card p-4 rounded-lg shadow-sm mb-4 flex items-center justify-between">

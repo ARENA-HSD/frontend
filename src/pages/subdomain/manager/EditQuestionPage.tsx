@@ -11,7 +11,7 @@ import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { questionService } from '@/services';
 import type { Question, UpdateQuestionData } from '@/types';
 import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
-import { SubdomainLayout } from '@/components';
+import { SubdomainLayout, SEO } from '@/components';
 
 const EditQuestionPage = () => {
     const navigate = useManagerNavigate();
@@ -78,6 +78,11 @@ const EditQuestionPage = () => {
 
     return (
         <SubdomainLayout>
+            <SEO
+                title="Edit Question"
+                description="Edit an existing quiz question."
+                noIndex
+            />
             <div className="max-w-4xl mx-auto p-6">
                 {/* Header */}
                 <div className="bg-card p-6 rounded-lg shadow-sm mb-6">

@@ -8,6 +8,7 @@
 import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { Crown, RotateCw } from 'lucide-react';
+import { SEO } from '@/components';
 import type { LeaderboardEntry } from '@/types';
 
 const ParticipantResultPage = () => {
@@ -91,6 +92,11 @@ const ParticipantResultPage = () => {
     // ========================================
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 p-4">
+            <SEO
+                title="Your Results"
+                description="See how you did in the Quiz Strike session."
+                noIndex
+            />
             <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
                 <div className="text-center mb-8">
                     <div className="text-4xl font-black text-primary mb-2">Quiz Complete!</div>

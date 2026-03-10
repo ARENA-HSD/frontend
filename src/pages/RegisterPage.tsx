@@ -5,9 +5,9 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { MainLayout } from '@/components';
+import { MainLayout, SEO } from '@/components';
 import { RegisterForm } from '@/components';
-import maskot from "@/assets/maskot.png"
+import maskot from "@/assets/maskot-elsalliyor.png"
 import { useAuth } from '@/hooks';
 import { useEffect } from 'react';
 import { useSubdomain } from '@/hooks';
@@ -34,6 +34,10 @@ const RegisterPage = () => {
 
     return (
         <MainLayout sidebar={false}>
+            <SEO
+                title="Create Account"
+                description="Sign up for Quiz Strike and start building interactive quizzes for your organization."
+            />
             <div className="h-full flex items-center justify-between">
                 <div className="space-y-2 w-full max-w-[50%]">
                     <div className="">
@@ -52,7 +56,7 @@ const RegisterPage = () => {
                         </a>
                     </p>
                 </div>
-                <img src={maskot} alt="maskot" className='w-[45%] mb-16' />
+                <img src={maskot} alt="maskot" className='w-[30%] mb-16 mr-16' />
             </div>
         </MainLayout>
     );

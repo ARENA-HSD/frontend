@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { organizationService } from '@/services';
 import { OrganizationCard } from '@/components';
-import { Button, MainLayout } from '@/components';
+import { Button, MainLayout, SEO } from '@/components';
 import type { UserOrganization, Organization } from '@/types';
 
 const OrganizationsPage = () => {
@@ -77,6 +77,11 @@ const OrganizationsPage = () => {
 
     return (
         <MainLayout>
+            <SEO
+                title="My Organizations"
+                description="Manage your Quiz Strike organizations and access your team dashboards."
+                noIndex
+            />
             <div className="max-w-5xl mx-auto px-4 py-12 space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">

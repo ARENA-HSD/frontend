@@ -9,7 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { CreateQuizData, QuizMode } from '@/types';
-import { Button, SubdomainLayout } from '@/components';
+import { Button, SubdomainLayout, SEO } from '@/components';
 
 const CreateQuizPage = () => {
     const navigate = useManagerNavigate();
@@ -59,6 +59,11 @@ const CreateQuizPage = () => {
 
     return (
         <SubdomainLayout>
+            <SEO
+                title="Create Quiz"
+                description="Create a new interactive quiz for your organization."
+                noIndex
+            />
             <div className="max-w-2xl mx-auto p-6">
                 {/* Header */}
                 <div className="mb-6">

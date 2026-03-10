@@ -6,9 +6,9 @@
 
 import { useNavigate } from 'react-router-dom';
 import { useSubdomain } from '@/hooks';
-import { MainLayout } from '@/components';
+import { MainLayout, SEO } from '@/components';
 import { LoginForm } from '@/components';
-import maskot from "@/assets/maskot.png"
+import maskot from "@/assets/maskot-elsalliyor.png"
 import { useAuth } from '@/hooks';
 import { useEffect } from 'react';
 
@@ -34,6 +34,11 @@ const LoginPage = () => {
 
     return (
         <MainLayout sidebar={false}>
+            <SEO
+                title="Sign In"
+                description="Sign in to your Quiz Strike account and access your organization's quizzes."
+                noIndex
+            />
             <div className="h-full flex items-center justify-between">
                 <div className="space-y-2 w-full max-w-[50%]">
                     <div className="">
@@ -57,7 +62,7 @@ const LoginPage = () => {
                         </p>
                     )}
                 </div>
-                <img src={maskot} alt="maskot" className='w-[45%] mb-16' />
+                <img src={maskot} alt="maskot" className='w-[30%] mb-16 md:mr-16' />
             </div>
         </MainLayout>
     );

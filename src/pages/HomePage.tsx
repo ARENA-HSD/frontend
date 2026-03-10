@@ -5,12 +5,17 @@
  */
 
 import { Link } from 'react-router-dom';
-import { MainLayout, Button } from '@/components';
-import maskot from "@/assets/maskot.png"
+import { MainLayout, Button, SEO } from '@/components';
+import maskot from "@/assets/maskot-elsalliyor.png"
 
 const HomePage = () => {
     return (
         <MainLayout sidebar={false}>
+            <SEO
+                title="Quiz Strike | Interactive Quiz Platform"
+                description="Create and host interactive quizzes for your organization with Quiz Strike. Get started for free."
+                canonical="https://quizstrike.com.tr"
+            />
             <div className="h-full flex items-center justify-between">
                 <div className="space-y-8 w-full">
                     <div>
@@ -36,7 +41,7 @@ const HomePage = () => {
                         </Link>
                     </div>
                 </div>
-                <img src={maskot} alt="maskot" className='w-[50%] mb-16' />
+                <img src={maskot} alt="maskot" className='w-[30%] mb-16' />
             </div>
         </MainLayout>
     );

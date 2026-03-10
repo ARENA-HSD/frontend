@@ -11,7 +11,7 @@ import { useAuth, useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { Quiz } from '@/types';
 import QuizCard from '@/components/quiz/manager/QuizCard';
-import { Button, SubdomainLayout } from '@/components';
+import { Button, SubdomainLayout, SEO } from '@/components';
 
 const QuizListPage = () => {
     const navigate = useManagerNavigate();
@@ -81,6 +81,11 @@ const QuizListPage = () => {
 
     return (
         <SubdomainLayout>
+            <SEO
+                title="Quiz Dashboard"
+                description="Manage and launch quizzes for your organization."
+                noIndex
+            />
 
             {/* Quiz Grid */}
             {quizzes.length > 0 ? (

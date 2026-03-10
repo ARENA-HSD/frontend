@@ -17,6 +17,7 @@ import { useManagerNavigate } from '@/hooks';
 import { Check, X, TrendingUp } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
+import { SEO } from '@/components';
 import type {
     QuestionStartPlayload,
     QuestionEndPlayerPlayload,
@@ -288,6 +289,7 @@ const ParticipantGamePage = () => {
     if (phase === 'waiting') {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
+                <SEO title="Quiz in Progress" description="Playing a live Quiz Strike session." noIndex />
                 <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 <div className="text-center">
                     <div className="text-white text-2xl font-bold animate-pulse mb-4">

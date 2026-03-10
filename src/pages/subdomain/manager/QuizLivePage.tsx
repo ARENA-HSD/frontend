@@ -12,6 +12,7 @@ import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService, questionService } from '@/services';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
+import { SEO } from '@/components';
 import type {
     Quiz, Question,
     GameStartingPlayload,
@@ -326,6 +327,7 @@ const QuizLivePage = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-500 to-purple-600">
+                <SEO title="Live Quiz" description="Hosting a live Quiz Strike session." noIndex />
                 <div className="text-inverse text-2xl font-bold animate-pulse">Loading quiz...</div>
             </div>
         );

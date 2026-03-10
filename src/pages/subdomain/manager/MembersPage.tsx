@@ -10,6 +10,7 @@ import { useMembers } from "@/hooks";
 import { authService } from '@/services';
 import { Trash2, UserPlus, Shield } from "lucide-react";
 import { useState, useEffect } from 'react';
+import TitleHeader from '@/components/layout/TitleHeader';
 
 const MembersPage = () => {
     const navigate = useNavigate();
@@ -78,23 +79,10 @@ const MembersPage = () => {
                 description="Manage who has access to your organization on Quiz Strike."
                 noIndex
             />
-            <div className="w-full flex flex-col h-full overflow-hidden p-2 lg:p-8">
+            <div className="w-full flex flex-col h-full overflow-hidden">
 
-                {/* Header Section */}
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-4xl font-black text-primary mb-1">Members</h1>
-                        <p className="text-lg font-medium text-secondary">Manage who has access to this organization.</p>
-                    </div>
+                <TitleHeader title='Members' description='Manage who has access to this organization.' isButton buttonText='Manage Invitations' buttonIcon='+' onClick={handleInviteClick} />
 
-                    <Button
-                        variant="primary"
-                        onClick={handleInviteClick}
-                        className="rounded-full font-bold px-8 py-3 text-lg hover:-translate-y-0.5 transition-transform whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)]"
-                    >
-                        + Manage Invitations
-                    </Button>
-                </div>
 
                 {error && (
                     <div className="bg-role-danger-light text-role-danger p-4 rounded-lg border border-role-danger italic mb-6">

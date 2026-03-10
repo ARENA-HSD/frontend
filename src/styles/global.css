@@ -38,6 +38,12 @@
         line-height: var(--leading-normal);
     }
 
+    @media (max-width: 768px) {
+        body {
+            background-image: url("../assets/images/background-mobile.png");
+        }
+    }
+
     /* Headings */
     h1,
     h2,

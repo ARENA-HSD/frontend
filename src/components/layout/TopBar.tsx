@@ -52,7 +52,7 @@ const TopBar = () => {
                 onClick: () => {
                     const port = window.location.port ? `:${window.location.port}` : '';
                     const host = window.location.hostname;
-                    
+
                     let newHost = '';
                     if (host.includes('localhost')) {
                         // Strip existing subdomain if any, then add new one
@@ -68,7 +68,7 @@ const TopBar = () => {
                         const base = baseDomain || host.split('.').slice(-2).join('.');
                         newHost = `${org.subdomain}.${base}`;
                     }
-                    
+
                     window.location.href = `${window.location.protocol}//${newHost}${port}/manager/quizzes`;
                 },
             })),
@@ -78,14 +78,14 @@ const TopBar = () => {
                 onClick: () => {
                     const port = window.location.port ? `:${window.location.port}` : '';
                     let baseHost = window.location.hostname;
-                    
+
                     if (baseHost.includes('localhost')) {
                         baseHost = baseHost.replace(/^([a-z0-9-]+)\./i, '');
                     } else {
                         const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
                         baseHost = baseDomain || baseHost.split('.').slice(-2).join('.');
                     }
-                    
+
                     window.location.href = `${window.location.protocol}//${baseHost}${port}/organizations`;
                 },
                 divider: true,
@@ -127,7 +127,7 @@ const TopBar = () => {
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                             </svg>
                                         </div>
-                                        <p className="text-xs text-tertiary truncate">{subdomain}.hsdarena.com</p>
+                                        <p className="text-xs text-tertiary truncate">{subdomain}.quizstrike.com.tr</p>
                                     </div>
                                 </button>
                             }

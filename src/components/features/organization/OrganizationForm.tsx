@@ -140,7 +140,7 @@ const OrganizationForm = ({
                                 required
                             />
                             <div className="bg-page border border-l-0 border-light rounded-r-lg px-4 py-3 text-tertiary">
-                                .hsdarena.com
+                                .quizstrike.com.tr
                             </div>
                         </div>
                         <p className="text-sm text-tertiary mt-1">

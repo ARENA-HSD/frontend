@@ -72,7 +72,7 @@ const CreateOrganizationForm = ({ onSuccess }: CreateOrganizationFormProps) => {
                 required
                 fullWidth
                 helperText="Lowercase letters, numbers, and hyphens only"
-                suffix=".hsdarena.com"
+                suffix=".quizstrike.com.tr"
             />
 
             <div>

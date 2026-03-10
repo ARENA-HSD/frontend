@@ -1,21 +1,9 @@
-import { CSSProperties } from 'react';
 import maskot from '@/assets/maskot.png';
 
 
 const COLORS = ["#E63329", "#2196F3", "#F5A623", "#4CAF50"] as const;
 
 interface HeaderLogoProps {
-<<<<<<< HEAD
-    className?: string;
-    scale?: number;
-}
-
-const HeaderLogo = ({ className = "", scale = 1 }: HeaderLogoProps) => {
-    const strokeWidth = `${12 * scale}px`;
-    const fontSize = `${50 * scale}px`;
-    const gap = `${16 * scale}px`;
-    const imgWidth = `${200 * scale}px`;
-=======
     size?: 'sm' | 'md' | 'lg';
 }
 
@@ -36,9 +24,8 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
         gap = `${12}px`;
         imgWidth = `${150}px`;
     }
->>>>>>> 72113288b2f6e21e6bbd003ad23a293491b069f6
 
-    const textStyle: CSSProperties = {
+    const textStyle: React.CSSProperties = {
         fontSize,
         lineHeight: 0.95,
         WebkitTextStroke: `${strokeWidth} #111`,
@@ -47,10 +34,10 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
 
     return (
         <div
-            className={`inline-flex items-end ${className}`}
+            className="inline-flex items-end m-5 h-[100px]"
             style={{ gap }}
         >
-            <div className="flex flex-col" style={{ gap: `${2 * scale}px` }}>
+            <div className="flex flex-col" style={{ gap: `${2}px` }}>
                 <span
                     className="block select-none font-['Titan_One',sans-serif]"
                     style={textStyle}
@@ -69,11 +56,7 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
             <img
                 src={maskot}
                 alt="Quiz Strike Maskot"
-<<<<<<< HEAD
-                className="w-auto object-contain relative top-[6px]"
-=======
                 className={`w-auto object-contain relative top-[6px] left-[-72px] ${size === 'md' && 'left-[-53px]'}`}
->>>>>>> 72113288b2f6e21e6bbd003ad23a293491b069f6
                 style={{ width: imgWidth }}
             />
         </div>

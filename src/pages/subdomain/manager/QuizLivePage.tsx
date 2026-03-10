@@ -916,7 +916,7 @@ const QuizLivePage = () => {
                         <div className="flex items-end justify-center w-full max-w-3xl relative z-10 mx-auto mt-auto px-4 md:px-8">
                             
                             {/* 2nd Place (Silver) */}
-                            <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative">
+                            <div className="flex flex-col items-center z-20 w-[110px] sm:w-[130px] md:w-[180px] relative">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
                                         {second?.nickname || '---'}
@@ -935,7 +935,7 @@ const QuizLivePage = () => {
                             </div>
 
                             {/* 1st Place (Gold) */}
-                            <div className="flex flex-col items-center z-20 w-[130px] sm:w-[160px] md:w-[220px] relative -mx-2 md:-mx-4">
+                            <div className="flex flex-col items-center z-30 w-[130px] sm:w-[160px] md:w-[220px] relative -mx-2 md:-mx-4">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-base md:text-3xl font-black text-black leading-tight truncate w-full px-1">
                                         {first?.nickname || '---'}
@@ -954,7 +954,7 @@ const QuizLivePage = () => {
                             </div>
 
                             {/* 3rd Place (Bronze) */}
-                            <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative -ml-1 md:-ml-2">
+                            <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
                                         {third?.nickname || '---'}

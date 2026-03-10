@@ -10,7 +10,7 @@ services:
       - "${PORT:-5173}:80"
     environment:
       # Vite içerisine enjekte edilecek çevre değişkenleri
-      - VITE_API_URL=${API_URL:-http://localhost:5000}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:5000}
     networks:
       - arena-network
     # Production ortamı için log limitlerini belirlemek iyi bir uygulamadır

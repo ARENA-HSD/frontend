@@ -263,10 +263,10 @@ const QuizDetailPage = () => {
                 description="View and manage quiz questions with drag-and-drop reordering."
                 noIndex
             />
-            <div className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden p-2 lg:p-8 scrollbar-hide">
-                <div className="max-w-4xl mx-auto w-full">
+            <div className="w-full flex flex-col h-full overflow-hidden">
+                <div className="max-w-4xl mx-auto w-full flex flex-col h-full overflow-hidden">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 border-b border-light pb-6 w-full justify-between">
                             <div className="flex items-center gap-4">
                                 <button
@@ -316,58 +316,60 @@ const QuizDetailPage = () => {
                     </div>
 
                     {/* Question List — Drag & Drop */}
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <SortableContext
-                            items={questions.map(q => q.id)}
-                            strategy={verticalListSortingStrategy}
+                    <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
                         >
-                            <div className="space-y-3 mb-20">
-                                {questions.map((question, idx) => (
-                                    <SortableQuestionCard
-                                        key={question.id}
-                                        question={question}
-                                        index={idx}
-                                        onEdit={handleEditQuestion}
-                                        onDelete={handleDeleteQuestion}
-                                    />
-                                ))}
-                            </div>
-                        </SortableContext>
-                    </DndContext>
+                            <SortableContext
+                                items={questions.map(q => q.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="space-y-3">
+                                    {questions.map((question, idx) => (
+                                        <SortableQuestionCard
+                                            key={question.id}
+                                            question={question}
+                                            index={idx}
+                                            onEdit={handleEditQuestion}
+                                            onDelete={handleDeleteQuestion}
+                                        />
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
 
-                    {/* Empty State */}
-                    {questions.length === 0 && (
-                        <div className="w-full flex items-center justify-center p-12">
-                            <div className="text-center">
-                                <div className="text-tertiary text-xl font-medium mb-6">No questions yet</div>
+                        {/* Empty State */}
+                        {questions.length === 0 && (
+                            <div className="w-full flex items-center justify-center p-12">
+                                <div className="text-center">
+                                    <div className="text-tertiary text-xl font-medium mb-6">No questions yet</div>
+                                    <Button
+                                        onClick={handleAddQuestion}
+                                        variant="primary"
+                                        className="rounded-full px-8 py-4 text-lg font-bold transition-transform hover:-translate-y-0.5 whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)]"
+                                    >
+                                        Add First Question
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Add Button at End of List */}
+                        {questions.length > 0 && (
+                            <div className="flex justify-end mt-4 mb-16 pr-2">
                                 <Button
                                     onClick={handleAddQuestion}
                                     variant="primary"
-                                    className="rounded-full px-8 py-4 text-lg font-bold transition-transform hover:-translate-y-0.5 whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)]"
+                                    className="rounded-full px-8 py-4 flex items-center gap-2 shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_50%)] hover:-translate-y-1 transition-all"
                                 >
-                                    Add First Question
+                                    <Plus className="w-6 h-6 stroke-[3]" />
+                                    <span className="text-lg font-bold">Add Question</span>
                                 </Button>
                             </div>
-                        </div>
-                    )}
-
-                    {/* Add Button at End of List */}
-                    {questions.length > 0 && (
-                        <div className="flex justify-end mt-4 mb-16 pr-2">
-                            <Button
-                                onClick={handleAddQuestion}
-                                variant="primary"
-                                className="rounded-full px-8 py-4 flex items-center gap-2 shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_50%)] hover:-translate-y-1 transition-all"
-                            >
-                                <Plus className="w-6 h-6 stroke-[3]" />
-                                <span className="text-lg font-bold">Add Question</span>
-                            </Button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
         </SubdomainLayout >

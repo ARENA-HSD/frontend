@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, SubdomainLayout, SEO } from "@/components";
+import { Button, SubdomainLayout, SEO, Input } from "@/components";
 import { useInvitations } from "@/hooks";
 import { UserPlus, ArrowLeft, Trash2, Clock, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { formatTimeAgo } from '@/lib/timeUtils';
@@ -78,10 +78,10 @@ const InvitationsPage = () => {
                 description="Send and manage member invitations for your organization."
                 noIndex
             />
-            <div className="w-full flex flex-col h-full overflow-hidden p-2 lg:p-8">
+            <div className="w-full flex flex-col h-full overflow-hidden">
 
                 {/* Header Section */}
-                <div className="flex items-center mb-8 gap-4">
+                <div className="flex items-center mb-4 gap-4">
                     <button
                         onClick={() => navigate('/manager/members')}
                         className="p-2 -ml-2 text-primary hover:bg-page rounded-full transition-colors flex items-center justify-center cursor-pointer active:scale-95"
@@ -98,23 +98,23 @@ const InvitationsPage = () => {
                 )}
 
                 {/* Invite Form */}
-                <div className="mb-8">
+                <div className="mb-4">
                     <label className="text-lg font-bold text-primary block mb-3">Invite by Username</label>
                     <form onSubmit={handleSendInvite} className="flex gap-4 items-center">
                         <div className="flex-1 relative max-w-xl">
-                            <input
+                            <Input
                                 type="text"
                                 value={inviteUsername}
                                 onChange={(e) => setInviteUsername(e.target.value)}
                                 placeholder="Enter username to invite..."
-                                className="w-full px-6 py-4 bg-transparent border-2 border-light focus:border-[var(--btn-primary-bg)] rounded-full outline-none transition-colors text-primary font-medium text-lg placeholder:text-tertiary"
+                                className="px-6 py-3 text-lg ml-2"
                             />
                         </div>
                         <Button
                             variant="primary"
                             type="submit"
                             disabled={isInviting || !inviteUsername.trim()}
-                            className="rounded-full font-bold px-8 py-4 text-lg hover:-translate-y-0.5 transition-transform whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:-translate-y-0"
+                            className="text-lg font-bold px-6 py-3"
                         >
                             {isInviting ? 'Sending...' : 'Send Invitation'}
                         </Button>
@@ -122,24 +122,24 @@ const InvitationsPage = () => {
                 </div>
 
                 {/* Invitations List Section */}
-                <div className="flex-1 overflow-y-auto pb-8 scrollbar-hide mt-4">
+                <div className="flex-1 min-h-0 overflow-hidden mt-4">
                     {isLoading ? (
                         <div className="p-12 text-center text-tertiary">
                             <div className="animate-spin w-8 h-8 border-4 border-focus border-t-transparent rounded-full mx-auto mb-4"></div>
                             Loading invitations...
                         </div>
                     ) : (
-                        <div className="w-full">
-                            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 pb-2 border-b border-light text-sm font-bold text-primary uppercase tracking-wider mb-4">
+                        <div className="w-full h-full flex flex-col overflow-hidden">
+                            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 pb-2 border-b border-light text-sm font-bold text-primary uppercase tracking-wider">
                                 <div>INVITEE</div>
                                 <div className="w-40 text-left">STATUS</div>
                                 <div className="w-32 text-left">SENT</div>
                                 <div className="w-20 text-right">ACTIONS</div>
                             </div>
 
-                            <div className="flex flex-col gap-0">
+                            <div className="flex flex-col gap-0 overflow-y-auto scrollbar-hide">
                                 {invitations.length > 0 ? invitations.map((inv) => (
-                                    <div key={inv.id} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center py-4 border-b border-light hover:bg-page transition-colors px-2 -mx-2 rounded-lg">
+                                    <div key={inv.id} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center py-4 border-b border-light hover:bg-page transition-colors px-2 rounded-lg">
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${getAvatarColor(inv.inviteeUsername || '')}`}>
                                                 {(inv.inviteeUsername || 'U').substring(0, 2).toUpperCase()}

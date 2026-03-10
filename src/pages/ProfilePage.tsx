@@ -105,7 +105,7 @@ const ProfilePage = () => {
                 description="Manage your Quiz Strike account information and security settings."
                 noIndex
             />
-            <div className="max-w-5xl mx-auto">
+            <div className="max-w-5xl mx-auto pb-8">
                 <TitleHeader title='Profile Settings' description='Manage your account and preferences.' />
 
                 {/* Status Message */}

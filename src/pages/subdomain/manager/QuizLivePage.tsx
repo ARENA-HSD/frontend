@@ -384,7 +384,7 @@ const QuizLivePage = () => {
 
                 {/* Main Scrollable Area - Centered Layout */}
                 <div className="relative z-10 w-full h-full flex flex-col items-center p-4 lg:p-6 pt-6 lg:pt-8 overflow-y-auto">
-                    
+
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
                     <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-6 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
@@ -503,7 +503,7 @@ const QuizLivePage = () => {
 
                 {/* Main Scrollable Area - Centered Layout */}
                 <div className="relative z-10 w-full h-full flex flex-col items-center p-4 lg:p-6 pt-6 lg:pt-8 overflow-y-auto">
-                    
+
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
                     <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-6 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
@@ -542,7 +542,7 @@ const QuizLivePage = () => {
 
                     {/* Main Content: Unified Card */}
                     <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-5 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink-0 relative z-40">
-                        
+
                         {/* Bar Chart Area */}
                         <div className="w-full max-w-3xl h-[25vh] md:h-48 lg:h-52 flex items-end justify-around gap-4 lg:gap-8 mb-5 lg:mb-6 mt-2">
                             {options.map((option: any, idx: number) => {
@@ -550,11 +550,11 @@ const QuizLivePage = () => {
                                 const isCorrect = idx === correctOptionIndex;
                                 const referenceMax = Math.max(totalPlayers || 0, maxCount, 5);
                                 const heightPercent = referenceMax > 0 ? (count / referenceMax) * 100 : 0;
-                                
+
                                 return (
                                     <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full gap-2">
                                         {count > 0 ? (
-                                            <div 
+                                            <div
                                                 className={`w-full max-w-[70px] flex flex-col items-center justify-start rounded-t-xl transition-all duration-1000 ease-out ${isCorrect ? 'bg-[#22c55e]' : 'bg-[#e2e8f0]'}`}
                                                 style={{ height: `${heightPercent}%`, minHeight: '3rem' }}
                                             >
@@ -589,11 +589,10 @@ const QuizLivePage = () => {
                                 return (
                                     <div
                                         key={idx}
-                                        className={`relative p-3 lg:p-4 rounded-[16px] lg:rounded-[20px] flex flex-col items-center justify-center text-center transition-all min-h-[4rem] lg:min-h-[5rem] ${
-                                            isCorrect 
-                                            ? 'bg-[#ecfdf5] border-[3px] border-[#10b981] text-[#047857]' 
-                                            : 'bg-white border-[2px] border-gray-200 text-gray-400 opacity-60'
-                                        }`}
+                                        className={`relative p-3 lg:p-4 rounded-[16px] lg:rounded-[20px] flex flex-col items-center justify-center text-center transition-all min-h-[4rem] lg:min-h-[5rem] ${isCorrect
+                                                ? 'bg-[#ecfdf5] border-[3px] border-[#10b981] text-[#047857]'
+                                                : 'bg-white border-[2px] border-gray-200 text-gray-400 opacity-60'
+                                            }`}
                                     >
                                         <span className={`text-base lg:text-xl leading-tight ${isCorrect ? 'font-black' : 'font-bold'}`}>
                                             {option.text}
@@ -637,7 +636,7 @@ const QuizLivePage = () => {
 
                 {/* Main Scrollable Area */}
                 <div className="relative z-10 w-full h-full flex flex-col items-center p-4 lg:p-6 pt-6 lg:pt-8 overflow-y-auto">
-                    
+
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
                     <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-6 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
@@ -677,12 +676,12 @@ const QuizLivePage = () => {
 
                     {/* Main Card Container */}
                     <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-[0_12px_40px_rgba(0,0,0,0.12)] px-4 py-6 lg:p-10 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink-0 relative z-40">
-                        
+
                         {/* Leaderboard Title */}
                         <div className="mb-6 lg:mb-8 text-center w-full">
-                            <h2 
+                            <h2
                                 className="text-4xl md:text-5xl lg:text-6xl text-black select-none"
-                                style={{ 
+                                style={{
                                     fontFamily: "'Titan One', sans-serif",
                                     WebkitTextStroke: '2px black'
                                 }}
@@ -693,7 +692,7 @@ const QuizLivePage = () => {
 
                         {/* Leaderboard Flex Layout wrapper */}
                         <div className="w-full flex flex-col items-center gap-2 lg:gap-4 max-w-4xl mx-auto px-1 md:px-4 pb-4">
-                            
+
                             {/* Tier 1: Gold Rank */}
                             <div className="w-full flex justify-center z-30">
                                 {leaderboard[0] ? (
@@ -718,7 +717,7 @@ const QuizLivePage = () => {
 
                             {/* Tier 2: Green & Silver & Bronze */}
                             <div className="w-full flex gap-3 md:gap-5 min-h-[60px] md:min-h-[68px] justify-center mt-[-10px] md:mt-[-16px] z-20 flex-wrap">
-                                
+
                                 <div className="flex-1 min-w-[200px] max-w-[300px]">
                                     {leaderboard[1] && (
                                         <div className="w-full h-full bg-[#10b981] rounded-full flex items-center gap-2 p-1.5 md:p-2 shadow-[0_4px_0_rgba(4,120,87,1)] border-[3px] border-emerald-600/30 transition-transform hover:scale-105">
@@ -751,7 +750,7 @@ const QuizLivePage = () => {
                                         </div>
                                     )}
                                 </div>
-                                
+
                                 <div className="w-full sm:w-auto flex-1 min-w-[200px] max-w-[300px]">
                                     {leaderboard[3] && (
                                         <div className="w-full h-full bg-[#d97736] rounded-full flex items-center gap-2 p-1.5 md:p-2 shadow-[0_4px_0_rgba(184,81,1,1)] border-[3px] border-orange-700/30 transition-transform hover:scale-105">

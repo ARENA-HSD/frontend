@@ -40,32 +40,26 @@ const CreateQuestionPage = () => {
                 description="Add a new question to your quiz."
                 noIndex
             />
-            <div className="max-w-4xl mx-auto p-6">
-                {/* Header */}
-                <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
-                    <div className="flex items-center justify-between">
+            <div className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden p-2 lg:p-8 scrollbar-hide">
+                <div className="max-w-4xl mx-auto w-full">
+                    {/* Header */}
+                    <div className="flex items-center mb-8 gap-4">
                         <button
                             onClick={handleCancel}
-                            className="flex items-center gap-2 text-secondary hover:text-primary"
+                            className="p-2 -ml-2 text-primary hover:bg-page rounded-full transition-colors flex items-center justify-center cursor-pointer active:scale-95"
+                            title="Back to Quiz"
                         >
-                            <ArrowLeft className="w-5 h-5" />
-                            Back to Quiz
+                            <ArrowLeft className="w-8 h-8 stroke-[3]" />
                         </button>
-                        <div className="flex flex-col items-center gap-2">
-                            <div className="text-xl font-bold text-primary">Create Question</div>
-                            <div className="text-sm text-tertiary">New Question</div>
-                        </div>
-                        <button className="text-tertiary hover:text-secondary">
-                            <MoreVertical className="w-6 h-6" />
-                        </button>
+                        <h1 className="text-4xl font-black text-primary">Create Question</h1>
                     </div>
-                </div>
 
-                {/* Editor */}
-                <QuestionEditor
-                    onCreate={handleSave}
-                    onCancel={handleCancel}
-                />
+                    {/* Editor */}
+                    <QuestionEditor
+                        onCreate={handleSave}
+                        onCancel={handleCancel}
+                    />
+                </div>
             </div>
         </SubdomainLayout>
     );

@@ -55,6 +55,22 @@ const MembersPage = () => {
 
 
 
+    // Function to assign a consistent colorful background base on username
+    const getAvatarColor = (name: string) => {
+        const colors = [
+            'bg-role-warning text-inverse',
+            'bg-role-primary text-inverse',
+            'bg-role-danger text-inverse',
+            'bg-role-success text-inverse',
+            'bg-role-secondary text-inverse',
+        ];
+        let hash = 0;
+        for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        return colors[Math.abs(hash) % colors.length];
+    };
+
     return (
         <SubdomainLayout>
             <SEO
@@ -62,116 +78,110 @@ const MembersPage = () => {
                 description="Manage who has access to your organization on Quiz Strike."
                 noIndex
             />
-            <div className="flex-1 space-y-6 overflow-auto p-4">
-                <div className="flex items-center justify-between bg-card p-6 rounded-xl shadow-sm border border-light">
+            <div className="w-full flex flex-col h-full overflow-hidden p-2 lg:p-8">
+
+                {/* Header Section */}
+                <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h2 className="text-2xl font-bold text-primary">Members</h2>
-                        <p className="text-tertiary text-sm">Manage who has access to this organization</p>
+                        <h1 className="text-4xl font-black text-primary mb-1">Members</h1>
+                        <p className="text-lg font-medium text-secondary">Manage who has access to this organization.</p>
                     </div>
+
                     <Button
-                        onClick={handleInviteClick}
                         variant="primary"
+                        onClick={handleInviteClick}
+                        className="rounded-full font-bold px-8 py-3 text-lg hover:-translate-y-0.5 transition-transform whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)]"
                     >
-                        <UserPlus className="w-5 h-5" />
-                        Manage Invitations
+                        + Manage Invitations
                     </Button>
                 </div>
 
                 {error && (
-                    <div className="bg-role-danger-light text-role-danger p-4 rounded-lg border border-role-danger italic">
+                    <div className="bg-role-danger-light text-role-danger p-4 rounded-lg border border-role-danger italic mb-6">
                         {error}
                     </div>
                 )}
 
-                <div className="bg-card rounded-xl shadow-sm border border-light overflow-hidden">
+                {/* Table Section */}
+                <div className="flex-1 overflow-y-auto pb-8 scrollbar-hide">
                     {isLoading ? (
                         <div className="p-12 text-center text-tertiary">
                             <div className="animate-spin w-8 h-8 border-4 border-focus border-t-transparent rounded-full mx-auto mb-4"></div>
                             Loading members...
                         </div>
                     ) : (
-                        <table className="w-full text-left">
-                            <thead className="bg-page border-b border-light">
-                                <tr>
-                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">User</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Role</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-light">
+                        <div className="w-full">
+                            <div className="grid grid-cols-[1fr_auto_auto] gap-4 pb-2 border-b border-light text-sm font-bold text-primary uppercase tracking-wider mb-4">
+                                <div>USER</div>
+                                <div className="w-48">ROLE</div>
+                                <div className="w-16 text-right">ACTIONS</div>
+                            </div>
+
+                            <div className="flex flex-col gap-0">
                                 {members.length > 0 ? members.map((member, idx) => (
-                                    <tr key={idx} className="hover:bg-role-primary-light/20 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 bg-role-primary-light text-role-primary rounded-full flex items-center justify-center font-bold">
-                                                    {member.username?.substring(0, 2).toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <div className="font-semibold text-primary">{member.username}</div>
-                                                    <div className="text-sm text-tertiary">{member.email}</div>
-                                                </div>
+                                    <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center py-4 border-b border-light hover:bg-page transition-colors px-2 -mx-2 rounded-lg">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${getAvatarColor(member.username || 'U')}`}>
+                                                {member.username?.substring(0, 2).toUpperCase()}
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2">
-                                                <Shield className="w-4 h-4 text-role-primary" />
-                                                {currentUser?.id === member.userId || roleHierarchy[currentUserRole] < roleHierarchy[member.role] ? (
-                                                    <div className="bg-transparent border-none text-sm font-medium text-secondary focus:ring-0 cursor-pointer hover:text-role-primary p-0">
-                                                        {member.role === "SUPER_ADMIN" ? (
-                                                            <span>Super Admin</span>
-                                                        ) : member.role === "ADMIN" ? (
-                                                            <span>Admin</span>
-                                                        ) : (
-                                                            <span>Manager</span>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <select
-                                                        value={member.role}
-                                                        onChange={(e) => handleRoleChange(member.userId, e.target.value)}
-                                                        className="bg-transparent border-none text-sm font-medium text-secondary focus:ring-0 cursor-pointer hover:text-role-primary p-0"
-                                                    >
-                                                        {currentUserRole === "SUPER_ADMIN" ? (
-                                                            <>
-                                                                <option value="SUPER_ADMIN">Super Admin</option>
-                                                                <option value="ADMIN">Admin</option>
-                                                                <option value="MANAGER">Manager</option>
-                                                            </>
-                                                        ) : currentUserRole === "ADMIN" ? (
-                                                            <>
-                                                                <option value="ADMIN">Admin</option>
-                                                                <option value="MANAGER">Manager</option>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <option value="MANAGER">Manager</option>
-                                                            </>
-                                                        )}
-                                                    </select>
-                                                )}
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-primary text-xl leading-tight">
+                                                    {member.username}
+                                                </span>
+                                                <span className="text-secondary text-base">
+                                                    {member.email}
+                                                </span>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                                        </div>
+
+                                        <div className="w-48">
+                                            {currentUser?.id === member.userId || roleHierarchy[currentUserRole as keyof typeof roleHierarchy] < roleHierarchy[member.role as keyof typeof roleHierarchy] ? (
+                                                <div className="bg-card border border-light rounded-xl px-4 py-2 text-primary font-medium w-full min-w-[140px]">
+                                                    {member.role === "SUPER_ADMIN" ? "Super Admin" : member.role === "ADMIN" ? "Admin" : "Manager"}
+                                                </div>
+                                            ) : (
+                                                <select
+                                                    value={member.role}
+                                                    onChange={(e) => handleRoleChange(member.userId, e.target.value)}
+                                                    className="bg-card border border-light rounded-xl px-4 py-2 text-primary font-medium w-full focus:ring-2 focus:ring-focus focus:border-transparent outline-none min-w-[140px]"
+                                                >
+                                                    {currentUserRole === "SUPER_ADMIN" ? (
+                                                        <>
+                                                            <option value="SUPER_ADMIN">Super Admin</option>
+                                                            <option value="ADMIN">Admin</option>
+                                                            <option value="MANAGER">Manager</option>
+                                                        </>
+                                                    ) : currentUserRole === "ADMIN" ? (
+                                                        <>
+                                                            <option value="ADMIN">Admin</option>
+                                                            <option value="MANAGER">Manager</option>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <option value="MANAGER">Manager</option>
+                                                        </>
+                                                    )}
+                                                </select>
+                                            )}
+                                        </div>
+
+                                        <div className="w-16 flex justify-end">
                                             <button
                                                 onClick={() => handleRemoveMember(member.userId, member.username)}
-                                                className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors"
+                                                className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors bg-card border border-light hover:border-role-danger"
                                                 title="Remove Member"
                                             >
                                                 <Trash2 className="w-5 h-5" />
                                             </button>
-
-
-                                        </td>
-                                    </tr>
+                                        </div>
+                                    </div>
                                 )) : (
-                                    <tr>
-                                        <td colSpan={3} className="px-6 py-12 text-center text-tertiary italic">
-                                            No members found.
-                                        </td>
-                                    </tr>
+                                    <div className="py-12 text-center text-tertiary italic">
+                                        No members found.
+                                    </div>
                                 )}
-                            </tbody>
-                        </table>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

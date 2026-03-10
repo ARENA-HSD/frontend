@@ -5,8 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
-import Sidebar from '@/components/layout/Sidebar';
+import { Plus, PlayCircle } from 'lucide-react';
 import { useAuth, useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { Quiz } from '@/types';
@@ -74,7 +73,7 @@ const QuizListPage = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
-                <div className="text-tertiary">Loading quizzes...</div>
+                <div className="text-gray-500 font-medium">Loading quizzes...</div>
             </div>
         );
     }
@@ -86,56 +85,76 @@ const QuizListPage = () => {
                 description="Manage and launch quizzes for your organization."
                 noIndex
             />
+            <div className="w-full flex flex-col h-full overflow-hidden p-2 lg:p-8">
 
-            {/* Quiz Grid */}
-            {quizzes.length > 0 ? (
-                <div className="grid grid-cols-4 gap-6 content-start overflow-y-auto p-4">
-                    {/* Create Quiz Card */}
-                    <Button
-                        onClick={handleCreateQuiz}
-                        variant="primary"
-                        className="rounded-xl"
-                    >
-                        <div className="text-center text-inverse">
-                            <Plus className="w-12 h-12 mx-auto mb-3" />
-                            <div className="text-xl font-bold">Create Quiz</div>
-                        </div>
-                    </Button>
-
-                    {/* Quiz Cards */}
-                    {quizzes.map(quiz => (
-                        <div className="h-full" key={quiz.id} onClick={() => handleViewQuiz(quiz.id)}>
-                            <QuizCard
-                                quiz={quiz}
-                                onStart={(e) => {
-                                    e?.stopPropagation();
-                                    handleStartQuiz(quiz.id);
-                                }}
-                                onEdit={(e) => {
-                                    e?.stopPropagation();
-                                    handleSettingsQuiz(quiz.id);
-                                }}
-                                onDelete={(e) => {
-                                    e?.stopPropagation();
-                                    handleDeleteQuiz(quiz.id);
-                                }}
-                            />
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <div className="w-full flex items-center justify-center">
-                    <div className="text-center py-12">
-                        <div className="text-tertiary text-lg mb-4">No quizzes yet</div>
-                        <Button
-                            onClick={handleCreateQuiz}
-                            variant="primary"
-                        >
-                            Create Your First Quiz
-                        </Button>
+                {/* Header Section */}
+                <div className="flex items-center justify-between mb-8">
+                    <div>
+                        <h1 className="text-4xl font-black text-primary mb-1">{subdomain}</h1>
+                        <p className="text-lg font-medium text-secondary">Quiz Management Dashboard</p>
                     </div>
+
+                    <Button
+                        variant="primary"
+                        onClick={handleCreateQuiz}
+                        className="rounded-full font-bold px-8 py-3 text-lg hover:-translate-y-0.5 transition-transform whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)] flex items-center gap-2"
+                    >
+                        <span>+ Create New</span>
+                        <PlayCircle className="w-6 h-6 fill-current" />
+                    </Button>
                 </div>
-            )}
+
+                {/* Quizzes Content Area */}
+                <div className="flex-1 overflow-y-auto pb-8 scrollbar-hide">
+                    {quizzes.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
+
+                            {/* Create Quiz Large Square Card */}
+                            <button
+                                onClick={handleCreateQuiz}
+                                className="aspect-square bg-gradient-to-br from-[var(--btn-primary-bg)] to-[color-mix(in_srgb,var(--btn-primary-bg),black_30%)] hover:to-[color-mix(in_srgb,var(--btn-primary-bg),black_40%)] text-primary-oposite rounded-[2rem] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col items-center justify-center border-2 border-transparent focus:outline-none focus:ring-4 focus:ring-focus shadow-[0_8px_20px_-4px_color-mix(in_srgb,var(--btn-primary-bg),transparent_50%)]"
+                            >
+                                <Plus className="w-16 h-16 mb-4 stroke-[2.5]" />
+                                <span className="text-2xl font-bold">Create Quiz</span>
+                            </button>
+
+                            {/* Existing Quiz Cards */}
+                            {quizzes.map(quiz => (
+                                <div key={quiz.id} className="h-full" onClick={() => handleViewQuiz(quiz.id)}>
+                                    <QuizCard
+                                        quiz={quiz}
+                                        onStart={(e) => {
+                                            e?.stopPropagation();
+                                            handleStartQuiz(quiz.id);
+                                        }}
+                                        onEdit={(e) => {
+                                            e?.stopPropagation();
+                                            handleSettingsQuiz(quiz.id);
+                                        }}
+                                        onDelete={(e) => {
+                                            e?.stopPropagation();
+                                            handleDeleteQuiz(quiz.id);
+                                        }}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="w-full flex items-center justify-center h-64">
+                            <div className="text-center">
+                                <div className="text-tertiary text-xl font-medium mb-6">No quizzes yet</div>
+                                <Button
+                                    variant="primary"
+                                    onClick={handleCreateQuiz}
+                                    className="rounded-full font-bold px-8 py-3 text-lg hover:-translate-y-0.5 transition-transform whitespace-nowrap shadow-xl shadow-[color-mix(in_srgb,var(--btn-primary-bg),transparent_70%)]"
+                                >
+                                    Create Your First Quiz
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
         </SubdomainLayout>
     );
 };

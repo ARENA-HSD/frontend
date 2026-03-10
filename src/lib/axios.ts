@@ -56,7 +56,20 @@ export const getSubdomain = (): string | null => {
         return localhostMatch[1];
     }
 
-    // Production: check for subdomain.domain.tld pattern
+    // Use VITE_BASE_DOMAIN if set (handles multi-part TLDs like .com.tr)
+    const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+    if (baseDomain) {
+        if (hostname === baseDomain) {
+            return null;
+        }
+        if (hostname.endsWith(`.${baseDomain}`)) {
+            const subdomain = hostname.slice(0, hostname.length - baseDomain.length - 1);
+            return subdomain === 'www' ? null : subdomain;
+        }
+        return null;
+    }
+
+    // Fallback: extract subdomain from hostname by part count
     const parts = hostname.split('.');
 
     // If only domain.tld (2 parts), no subdomain
@@ -82,12 +95,18 @@ export const getCookieDomain = (): string | undefined => {
         return undefined; // undefined bırakırsak mevcutta bulunduğu origin'e yazar
     }
 
-    // Production senaryosu (örn: subdomain.domain.com -> .domain.com)
+    // Use VITE_BASE_DOMAIN if set (handles multi-part TLDs like .com.tr)
+    const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+    if (baseDomain) {
+        return `.${baseDomain}`;
+    }
+
+    // Fallback: production senaryosu (örn: subdomain.domain.com -> .domain.com)
     const parts = hostname.split('.');
     if (parts.length > 2) {
         return '.' + parts.slice(-2).join('.');
     }
-    
+
     return undefined;
 };
 

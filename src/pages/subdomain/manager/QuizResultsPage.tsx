@@ -127,7 +127,7 @@ const QuizResultsPage = () => {
                     <div className="flex items-end justify-center w-full max-w-3xl relative z-10 mx-auto mt-auto px-4 md:px-8">
                         
                         {/* 2nd Place (Silver) */}
-                        <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative">
+                        <div className="flex flex-col items-center z-20 w-[110px] sm:w-[130px] md:w-[180px] relative">
                             <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                 <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
                                     {second?.nickname || second?.nick || '---'}
@@ -146,7 +146,7 @@ const QuizResultsPage = () => {
                         </div>
 
                         {/* 1st Place (Gold) */}
-                        <div className="flex flex-col items-center z-20 w-[130px] sm:w-[160px] md:w-[220px] relative -mx-2 md:-mx-4">
+                        <div className="flex flex-col items-center z-30 w-[130px] sm:w-[160px] md:w-[220px] relative -mx-2 md:-mx-4">
                             <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                 <div className="text-base md:text-3xl font-black text-black leading-tight truncate w-full px-1">
                                     {first?.nickname || first?.nick || '---'}
@@ -165,7 +165,7 @@ const QuizResultsPage = () => {
                         </div>
 
                         {/* 3rd Place (Bronze) */}
-                        <div className="flex flex-col items-center z-30 w-[110px] sm:w-[130px] md:w-[180px] relative">
+                        <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative">
                             <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                 <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
                                     {third?.nickname || third?.nick || '---'}
@@ -176,7 +176,7 @@ const QuizResultsPage = () => {
                             </div>
                             <div className="relative w-full">
                                 <div className="absolute bottom-full left-0 w-full h-[30px] md:h-[40px] border-[3px] md:border-[4px] border-black border-b-0 bg-[#fdba74] origin-bottom-left -skew-x-[45deg]" />
-                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#c2410c] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none', right: '1px' }} />
+                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#c2410c] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none', transform: 'translate(calc(100% - 1px)) skewY(-45deg)' }} />
                                 <div className="relative z-10 w-full h-[90px] md:h-[130px] border-[3px] md:border-[4px] border-black bg-[#ea580c] flex items-center justify-center">
                                     <span className="text-4xl md:text-7xl text-[#fdba74] drop-shadow-sm" style={{ fontFamily: "'Titan One', sans-serif", WebkitTextStroke: '2px black' }}>3</span>
                                 </div>

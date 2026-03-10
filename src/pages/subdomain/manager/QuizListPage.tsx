@@ -90,7 +90,7 @@ const QuizListPage = () => {
                 <TitleHeader title={subdomain ?? ''} description='Quiz Management Dashboard' isButton buttonText='Create New' buttonIcon='+' onClick={handleCreateQuiz} />
 
                 {/* Quizzes Content Area */}
-                <div className="flex-1 overflow-y-auto pb-8 scrollbar-hide">
+                <div className="flex-1 min-h-0 overflow-y-auto pb-8 scrollbar-hide">
                     {quizzes.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 auto-rows-fr">
 

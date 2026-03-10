@@ -87,7 +87,7 @@ const MainLayout = ({ children, sidebar = true, navItems }: MainLayoutProps) => 
                 <div className="flex flex-1 min-h-0">
                     {sidebar && <Sidebar isOpen={isOpen} onClose={toggleSidebar} navItems={navItemsList} />}
                     {/* Main Content */}
-                    <main className="flex-1 overflow-y-auto p-8">
+                    <main className="flex-1 overflow-y-auto scrollbar-hide p-8">
                         <div className="w-full h-full">
                             {children}
                         </div>

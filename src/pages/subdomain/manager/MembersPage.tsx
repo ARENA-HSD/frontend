@@ -91,23 +91,23 @@ const MembersPage = () => {
                 )}
 
                 {/* Table Section */}
-                <div className="flex-1 overflow-y-auto pb-8 scrollbar-hide">
+                <div className="flex-1 min-h-0 overflow-hidden">
                     {isLoading ? (
                         <div className="p-12 text-center text-tertiary">
                             <div className="animate-spin w-8 h-8 border-4 border-focus border-t-transparent rounded-full mx-auto mb-4"></div>
                             Loading members...
                         </div>
                     ) : (
-                        <div className="w-full">
-                            <div className="grid grid-cols-[1fr_auto_auto] gap-4 pb-2 border-b border-light text-sm font-bold text-primary uppercase tracking-wider mb-4">
+                        <div className="w-full h-full flex flex-col overflow-hidden">
+                            <div className="grid grid-cols-[1fr_auto_auto] gap-4 pb-2 border-b border-light text-sm font-bold text-primary uppercase tracking-wider">
                                 <div>USER</div>
                                 <div className="w-48">ROLE</div>
                                 <div className="w-16 text-right">ACTIONS</div>
                             </div>
 
-                            <div className="flex flex-col gap-0">
+                            <div className="flex flex-col gap-0 overflow-y-auto scrollbar-hide">
                                 {members.length > 0 ? members.map((member, idx) => (
-                                    <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center py-4 border-b border-light hover:bg-page transition-colors px-2 -mx-2 rounded-lg">
+                                    <div key={idx} className="grid grid-cols-[1fr_auto_auto] gap-4 items-center py-4 border-b border-light hover:bg-page transition-colors px-2 rounded-lg">
                                         <div className="flex items-center gap-4">
                                             <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${getAvatarColor(member.username || 'U')}`}>
                                                 {member.username?.substring(0, 2).toUpperCase()}

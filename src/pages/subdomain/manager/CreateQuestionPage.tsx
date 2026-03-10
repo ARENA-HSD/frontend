@@ -40,7 +40,7 @@ const CreateQuestionPage = () => {
                 description="Add a new question to your quiz."
                 noIndex
             />
-            <div className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden p-2 lg:p-8 scrollbar-hide">
+            <div className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden scrollbar-hide">
                 <div className="max-w-4xl mx-auto w-full">
                     {/* Header */}
                     <div className="flex items-center mb-8 gap-4">

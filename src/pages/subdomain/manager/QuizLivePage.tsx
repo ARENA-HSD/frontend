@@ -543,7 +543,7 @@ const QuizLivePage = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 lg:p-12 overflow-y-auto">
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 lg:p-12 scrollbar-hide overflow-y-auto">
                     <div className="w-full max-w-5xl flex flex-col gap-6">
                         {/* Bar Chart Card */}
                         <div className="bg-white rounded-[32px] shadow-2xl p-8 border-b-[8px] border-black/5">
@@ -675,7 +675,7 @@ const QuizLivePage = () => {
                 </div>
 
                 {/* Main Content */}
-                <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 lg:p-12 overflow-y-auto">
+                <div className="relative z-10 flex-1 flex flex-col items-center justify-center p-6 lg:p-12 scrollbar-hide overflow-y-auto">
                     <div className="w-full max-w-3xl flex flex-col gap-4">
                         <div className="space-y-3 mb-8">
                             {leaderboard.map((player: any, idx: number) => {

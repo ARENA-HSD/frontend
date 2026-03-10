@@ -64,7 +64,7 @@ const CreateQuizPage = () => {
                 description="Create a new interactive quiz for your organization."
                 noIndex
             />
-            <div className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden p-2 lg:p-8 scrollbar-hide">
+            <div className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden scrollbar-hide">
                 {/* Header Section */}
                 <div className="flex items-center mb-8 gap-4">
                     <button
@@ -104,8 +104,8 @@ const CreateQuizPage = () => {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, defaultMode: 'STAGE' })}
                                     className={`p-6 rounded-2xl border-[3px] text-left transition-all ${formData.defaultMode === 'STAGE'
-                                            ? 'border-[var(--btn-primary-bg)] bg-gradient-to-br from-[color-mix(in_srgb,var(--btn-primary-bg),transparent_90%)] to-transparent shadow-[0_0_20px_color-mix(in_srgb,var(--btn-primary-bg),transparent_40%)]'
-                                            : 'border-light bg-transparent hover:border-medium shadow-sm'
+                                        ? 'border-[var(--btn-primary-bg)] bg-gradient-to-br from-[color-mix(in_srgb,var(--btn-primary-bg),transparent_90%)] to-transparent shadow-[0_0_20px_color-mix(in_srgb,var(--btn-primary-bg),transparent_40%)]'
+                                        : 'border-light bg-transparent hover:border-medium shadow-sm'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3 font-bold text-xl text-primary">
@@ -120,8 +120,8 @@ const CreateQuizPage = () => {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, defaultMode: 'PERSONAL' })}
                                     className={`p-6 rounded-2xl border-[3px] text-left transition-all ${formData.defaultMode === 'PERSONAL'
-                                            ? 'border-[var(--btn-primary-bg)] bg-gradient-to-br from-[color-mix(in_srgb,var(--btn-primary-bg),transparent_90%)] to-transparent shadow-[0_0_20px_color-mix(in_srgb,var(--btn-primary-bg),transparent_40%)]'
-                                            : 'border-light bg-transparent hover:border-medium shadow-sm'
+                                        ? 'border-[var(--btn-primary-bg)] bg-gradient-to-br from-[color-mix(in_srgb,var(--btn-primary-bg),transparent_90%)] to-transparent shadow-[0_0_20px_color-mix(in_srgb,var(--btn-primary-bg),transparent_40%)]'
+                                        : 'border-light bg-transparent hover:border-medium shadow-sm'
                                         }`}
                                 >
                                     <div className="flex items-center gap-3 font-bold text-xl text-primary">

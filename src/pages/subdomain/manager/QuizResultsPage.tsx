@@ -60,11 +60,11 @@ const QuizResultsPage = () => {
                 noIndex
             />
 
-            {/* Main Scrollable Area with Header */}
-            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-4 lg:p-6 lg:pt-8 overflow-y-auto">
+            {/* Main Non-Scrollable Area with Header */}
+            <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-2 md:p-4 pt-4 md:pt-6 overflow-hidden">
 
                 {/* Header Row Container */}
-                <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-8 z-50 shrink-0 relative">
+                <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-2 md:mb-4 z-50 shrink-0 relative">
                     {/* Logo - Static and scaled */}
                     <div className="hidden lg:flex shrink-0 z-50">
                         <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
@@ -101,10 +101,10 @@ const QuizResultsPage = () => {
                 </div>
 
                 {/* Card */}
-                <div className="w-full max-w-4xl min-h-[500px] md:min-h-[600px] h-[60vh] max-h-[700px] bg-white rounded-[32px] md:rounded-[40px] shadow-[0_12px_40px_rgba(0,0,0,0.12)] flex flex-col items-center relative border-[4px] md:border-[6px] border-transparent shrink-0 z-40 overflow-hidden pb-8">
+                <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-4 md:p-6 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink relative z-40 min-h-0 flex-1 max-h-[85vh]">
                     
                     {/* Title Area */}
-                    <div className="w-full flex-none flex flex-col items-center justify-center relative pt-8 md:pt-12 mb-6 md:mb-10">
+                    <div className="w-full flex-none flex flex-col items-center justify-center relative pt-4 md:pt-6 mb-4 md:mb-6">
                         {/* Confetti Background */}
                         {confettiPieces.map((confetti, i) => (
                             <div 
@@ -138,7 +138,7 @@ const QuizResultsPage = () => {
                             </div>
                             <div className="relative w-full">
                                 <div className="absolute bottom-full left-0 w-full h-[30px] md:h-[40px] border-[3px] md:border-[4px] border-black border-b-0 bg-[#cbd5e1] origin-bottom-left -skew-x-[45deg]" />
-                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#64748b] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none' }} />
+                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#64748b] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none', right: '1px' }} />
                                 <div className="relative z-10 w-full h-[120px] md:h-[180px] border-[3px] md:border-[4px] border-black bg-[#94a3b8] flex items-center justify-center">
                                     <span className="text-4xl md:text-7xl text-[#cbd5e1] drop-shadow-sm" style={{ fontFamily: "'Titan One', sans-serif", WebkitTextStroke: '2px black' }}>2</span>
                                 </div>
@@ -157,7 +157,7 @@ const QuizResultsPage = () => {
                             </div>
                             <div className="relative w-full">
                                 <div className="absolute bottom-full left-0 w-full h-[30px] md:h-[40px] border-[3px] md:border-[4px] border-black border-b-0 bg-[#fde047] origin-bottom-left -skew-x-[45deg]" />
-                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#ca8a04] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none' }} />
+                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#ca8a04] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none', right: '1px' }} />
                                 <div className="relative z-10 w-full h-[180px] md:h-[260px] border-[3px] md:border-[4px] border-black bg-[#eab308] flex items-center justify-center">
                                     <span className="text-6xl md:text-9xl text-[#fde047] drop-shadow-sm" style={{ fontFamily: "'Titan One', sans-serif", WebkitTextStroke: '3px black' }}>1</span>
                                 </div>
@@ -176,7 +176,7 @@ const QuizResultsPage = () => {
                             </div>
                             <div className="relative w-full">
                                 <div className="absolute bottom-full left-0 w-full h-[30px] md:h-[40px] border-[3px] md:border-[4px] border-black border-b-0 bg-[#fdba74] origin-bottom-left -skew-x-[45deg]" />
-                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#c2410c] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none' }} />
+                                <div className="absolute top-0 right-0 translate-x-full w-[30px] md:w-[40px] h-full border-[3px] md:border-[4px] border-black stroke-0 bg-[#c2410c] origin-top-left -skew-y-[45deg]" style={{ borderLeft: 'none', right: '1px' }} />
                                 <div className="relative z-10 w-full h-[90px] md:h-[130px] border-[3px] md:border-[4px] border-black bg-[#ea580c] flex items-center justify-center">
                                     <span className="text-4xl md:text-7xl text-[#fdba74] drop-shadow-sm" style={{ fontFamily: "'Titan One', sans-serif", WebkitTextStroke: '2px black' }}>3</span>
                                 </div>

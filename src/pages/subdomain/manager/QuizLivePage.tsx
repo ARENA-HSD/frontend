@@ -382,11 +382,11 @@ const QuizLivePage = () => {
                 <ReconnectOverlay />
                 {renderConnectionToasts()}
 
-                {/* Main Scrollable Area - Centered Layout */}
-                <div className="relative z-10 w-full h-full flex flex-col items-center p-4 lg:p-6 pt-6 lg:pt-8 overflow-y-auto">
+                {/* Main Non-Scrollable Area - Centered Layout */}
+                <div className="relative z-10 w-full h-full flex flex-col items-center p-2 md:p-4 pt-4 md:pt-6 overflow-hidden">
 
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
-                    <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-6 z-50 shrink-0 relative">
+                    <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-2 md:mb-4 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
                         <div className="hidden lg:flex shrink-0 z-50">
                             <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
@@ -441,33 +441,33 @@ const QuizLivePage = () => {
                     </div>
 
                     {/* Question Card Container */}
-                    <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-5 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink-0 relative z-40">
+                    <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-4 md:p-6 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink relative z-40 min-h-0 flex-1 max-h-[85vh]">
                         {/* Question Media Area */}
-                        <div className="w-full max-w-lg lg:max-w-xl h-32 md:h-48 max-h-[30vh] bg-gray-100 rounded-[28px] overflow-hidden shadow-inner mb-5 lg:mb-6 border border-gray-200 flex items-center justify-center">
+                        <div className="w-full max-w-lg lg:max-w-xl h-28 md:h-40 max-h-[25vh] bg-gray-100 rounded-[24px] overflow-hidden shadow-inner mb-3 md:mb-5 border border-gray-200 flex items-center justify-center shrink-0">
                             {questionMedia ? (
                                 <img src={questionMedia} alt="Question" className="w-full h-full object-contain" />
                             ) : (
-                                <div className="w-full h-32 md:h-48 flex items-center justify-center text-gray-300">
-                                    <TrendingUp className="w-12 h-12 opacity-20" />
+                                <div className="w-full h-28 md:h-40 flex items-center justify-center text-gray-300">
+                                    <TrendingUp className="w-10 h-10 opacity-20" />
                                 </div>
                             )}
                         </div>
 
                         {/* Question Text */}
-                        <div className="w-full text-center mb-5 lg:mb-8 px-2 md:px-4">
-                            <h2 className="text-2xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight">
+                        <div className="w-full text-center mb-3 md:mb-6 px-2 md:px-4 shrink min-h-0 overflow-y-auto">
+                            <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight">
                                 {questionText}
                             </h2>
                         </div>
 
                         {/* Answers Grid */}
-                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mt-auto">
+                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 lg:gap-4 mt-auto shrink-0">
                             {(options || []).map((option, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-white p-3 lg:p-5 rounded-[20px] shadow-[0_3px_12px_rgba(0,0,0,0.04)] border-2 border-gray-100 flex items-center justify-center group transition-all shrink-0 min-h-[4rem] group hover:border-gray-200 cursor-default"
+                                    className="bg-white p-2.5 md:p-4 rounded-[16px] md:rounded-[20px] shadow-[0_3px_12px_rgba(0,0,0,0.04)] border-[2px] border-gray-100 flex items-center justify-center group transition-all shrink-0 min-h-[3.5rem] md:min-h-[4rem] hover:border-gray-200 cursor-default"
                                 >
-                                    <span className="text-lg lg:text-2xl font-black text-gray-800 group-hover:scale-[1.02] transition-transform text-center select-none">
+                                    <span className="text-base md:text-lg lg:text-2xl font-black text-gray-800 group-hover:scale-[1.02] transition-transform text-center select-none">
                                         {option.text}
                                     </span>
                                 </div>
@@ -476,7 +476,7 @@ const QuizLivePage = () => {
                     </div>
 
                     {/* Bottom Spacing */}
-                    <div className="h-6 lg:h-10 shrink-0 w-full" />
+                    <div className="h-3 md:h-6 shrink-0 w-full" />
                 </div>
             </div>
         );
@@ -501,11 +501,11 @@ const QuizLivePage = () => {
                 <ReconnectOverlay />
                 {renderConnectionToasts()}
 
-                {/* Main Scrollable Area - Centered Layout */}
-                <div className="relative z-10 w-full h-full flex flex-col items-center p-4 lg:p-6 pt-6 lg:pt-8 overflow-y-auto">
+                {/* Main Non-Scrollable Area - Centered Layout */}
+                <div className="relative z-10 w-full h-full flex flex-col items-center p-2 md:p-4 pt-4 md:pt-6 overflow-hidden">
 
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
-                    <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-6 z-50 shrink-0 relative">
+                    <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-2 md:mb-4 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
                         <div className="hidden lg:flex shrink-0 z-50">
                             <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
@@ -541,10 +541,10 @@ const QuizLivePage = () => {
                     </div>
 
                     {/* Main Content: Unified Card */}
-                    <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-5 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink-0 relative z-40">
+                    <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-4 md:p-6 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink relative z-40 min-h-0 flex-1 max-h-[85vh]">
 
                         {/* Bar Chart Area */}
-                        <div className="w-full max-w-3xl h-[25vh] md:h-48 lg:h-52 flex items-end justify-around gap-4 lg:gap-8 mb-5 lg:mb-6 mt-2">
+                        <div className="w-full max-w-3xl min-h-[100px] h-[20vh] md:h-40 max-h-[180px] flex items-end justify-around gap-3 md:gap-6 lg:gap-8 mb-3 md:mb-5 mt-1 shrink-0">
                             {options.map((option: any, idx: number) => {
                                 const count = Number(answerStats[String(idx)] || 0);
                                 const isCorrect = idx === correctOptionIndex;
@@ -576,14 +576,14 @@ const QuizLivePage = () => {
                         </div>
 
                         {/* Question Text */}
-                        <div className="w-full text-center mb-5 lg:mb-8 mt-2 px-2 md:px-4">
-                            <h2 className="text-2xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight">
+                        <div className="w-full text-center mb-3 md:mb-6 mt-1 px-2 md:px-4 shrink min-h-0 overflow-y-auto">
+                            <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight">
                                 {questionText}
                             </h2>
                         </div>
 
                         {/* Options Grid */}
-                        <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mt-auto">
+                        <div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3 lg:gap-4 mt-auto shrink-0">
                             {options.map((option: any, idx: number) => {
                                 const isCorrect = idx === correctOptionIndex;
                                 return (
@@ -609,7 +609,7 @@ const QuizLivePage = () => {
                     </div>
 
                     {/* Bottom Spacing */}
-                    <div className="h-6 lg:h-10 shrink-0 w-full" />
+                    <div className="h-3 md:h-6 shrink-0 w-full" />
                 </div>
             </div>
         );

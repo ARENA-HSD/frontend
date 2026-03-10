@@ -850,11 +850,11 @@ const QuizLivePage = () => {
                 <ReconnectOverlay />
                 {renderConnectionToasts()}
 
-                {/* Main Scrollable Area with Header */}
-                <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-4 lg:p-6 lg:pt-8 overflow-y-auto">
+                {/* Main Non-Scrollable Area with Header */}
+                <div className="relative z-10 w-full h-full flex flex-col items-center justify-start p-2 md:p-4 pt-4 md:pt-6 overflow-hidden">
 
                     {/* Header Row Container */}
-                    <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-8 z-50 shrink-0 relative">
+                    <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-2 md:mb-4 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
                         <div className="hidden lg:flex shrink-0 z-50">
                             <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
@@ -890,10 +890,10 @@ const QuizLivePage = () => {
                     </div>
 
                     {/* Card */}
-                    <div className="w-full max-w-4xl min-h-[500px] md:min-h-[600px] h-[60vh] max-h-[700px] bg-white rounded-[32px] md:rounded-[40px] shadow-[0_12px_40px_rgba(0,0,0,0.12)] flex flex-col items-center relative border-[4px] md:border-[6px] border-transparent shrink-0 z-40 overflow-hidden pb-8">
+                    <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-4 md:p-6 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink relative z-40 min-h-0 flex-1 max-h-[85vh]">
                         
                         {/* Title Area */}
-                        <div className="w-full flex-none flex flex-col items-center justify-center relative pt-8 md:pt-12 mb-6 md:mb-10">
+                        <div className="w-full flex-none flex flex-col items-center justify-center relative pt-4 md:pt-6 mb-4 md:mb-6">
                             {/* Confetti Background */}
                             {confettiPieces.map((confetti, i) => (
                                 <div 
@@ -916,7 +916,7 @@ const QuizLivePage = () => {
                         <div className="flex items-end justify-center w-full max-w-3xl relative z-10 mx-auto mt-auto px-4 md:px-8">
                             
                             {/* 2nd Place (Silver) */}
-                            <div className="flex flex-col items-center z-20 w-[110px] sm:w-[130px] md:w-[180px] relative">
+                            <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
                                         {second?.nickname || '---'}
@@ -935,7 +935,7 @@ const QuizLivePage = () => {
                             </div>
 
                             {/* 1st Place (Gold) */}
-                            <div className="flex flex-col items-center z-30 w-[130px] sm:w-[160px] md:w-[220px] relative -mx-2 md:-mx-4">
+                            <div className="flex flex-col items-center z-20 w-[130px] sm:w-[160px] md:w-[220px] relative -mx-2 md:-mx-4">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-base md:text-3xl font-black text-black leading-tight truncate w-full px-1">
                                         {first?.nickname || '---'}
@@ -954,7 +954,7 @@ const QuizLivePage = () => {
                             </div>
 
                             {/* 3rd Place (Bronze) */}
-                            <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative">
+                            <div className="flex flex-col items-center z-30 w-[110px] sm:w-[130px] md:w-[180px] relative">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
                                         {third?.nickname || '---'}

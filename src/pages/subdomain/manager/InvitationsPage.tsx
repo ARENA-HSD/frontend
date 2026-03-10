@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SubdomainLayout } from "@/components";
+import { Button, SubdomainLayout, SEO } from "@/components";
 import { useInvitations } from "@/hooks";
 import { UserPlus, ArrowLeft, Trash2, Clock, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { formatTimeAgo } from '@/lib/timeUtils';
@@ -56,6 +56,11 @@ const InvitationsPage = () => {
 
     return (
         <SubdomainLayout>
+            <SEO
+                title="Invitations"
+                description="Send and manage member invitations for your organization."
+                noIndex
+            />
             <div className="flex-1 space-y-6 overflow-auto p-4">
                 {/* Header */}
                 <div className="flex items-center justify-between bg-card p-6 rounded-xl shadow-sm border border-light">
@@ -89,13 +94,13 @@ const InvitationsPage = () => {
                                 />
                             </div>
                         </div>
-                        <button
+                        <Button
                             type="submit"
                             disabled={isInviting || !inviteUsername.trim()}
-                            className="btn-primary disabled:opacity-50 px-6 py-2 rounded-lg font-bold transition-all shadow-md active:scale-95"
+                            variant="primary"
                         >
                             {isInviting ? 'Sending...' : 'Send Invitation'}
-                        </button>
+                        </Button>
                     </form>
                 </div>
 

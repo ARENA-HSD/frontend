@@ -4,8 +4,9 @@
  * Navigation sidebar for subdomain layout
  */
 
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { cn } from '@/utils/cn';
+import SidebarItem from '@/components/ui/SidebarItem';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -62,45 +63,25 @@ const Sidebar = ({ isOpen = true, onClose, navItems: navItemsProp }: SidebarProp
             <aside
                 className={cn(
                     'fixed lg:static inset-y-0 left-0 z-40',
-                    'w-64 bg-card border-r border-light',
+                    'w-64',
                     'transform transition-transform duration-200 ease-in-out',
                     'lg:translate-x-0',
                     isOpen ? 'translate-x-0' : '-translate-x-full'
                 )}
             >
-                <nav className="p-4 space-y-2">
+                <nav className="flex flex-col h-full w-full mt-8 space-y-2">
                     {navItems.map((item) => (
-                        <Link
+                        <SidebarItem
                             key={item.path}
-                            to={item.disabled ? '#' : item.path}
-                            onClick={(e) => {
-                                if (item.disabled) e.preventDefault();
-                                onClose?.();
-                            }}
-                            className={cn(
-                                'flex items-center gap-3 px-4 py-3 rounded-lg',
-                                'transition-colors duration-150',
-                                'group relative',
-                                item.disabled && 'opacity-50 cursor-not-allowed',
-                                isActive(item.path) && !item.disabled
-                                    ? 'bg-role-primary text-inverse'
-                                    : 'text-primary hover:bg-role-primary-light'
-                            )}
-                        >
-                            <span className="text-xl">{item.icon}</span>
-                            <span className="font-medium">{item.label}</span>
-
-                            {item.badge && (
-                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-role-info-light text-role-info">
-                                    {item.badge}
-                                </span>
-                            )}
-                        </Link>
+                            item={item}
+                            onClose={onClose}
+                            isActive={isActive}
+                        />
                     ))}
                 </nav>
 
                 {/* Sidebar Footer */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-light">
+                <div className="absolute bottom-0 left-0 right-0 p-4">
                     <div className="text-xs text-tertiary text-center">
                         HSD Arena v2
                     </div>

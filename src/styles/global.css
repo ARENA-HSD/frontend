@@ -6,9 +6,7 @@
  */
 
 @import './variables.css';
-@import "@fontsource/fredoka";
-@import "@fontsource/fredoka/700.css";
-@import "@fontsource/fredoka/500.css";
+@import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
 
 /* ============================================================================
    Tailwind Directives
@@ -31,7 +29,9 @@
     }
 
     body {
-        background-color: var(--surface-page-bg);
+        background-image: url("../assets/images/background.png");
+        background-size: cover;
+        background-position: center;
         color: var(--text-primary);
         font-family: var(--font-sans);
         font-size: var(--text-base);
@@ -45,32 +45,31 @@
     h4,
     h5,
     h6 {
-        font-weight: var(--font-semibold);
         line-height: var(--leading-tight);
     }
 
     h1 {
-        font-size: var(--text-4xl);
+        font-size: var(--text-6xl);
     }
 
     h2 {
-        font-size: var(--text-3xl);
+        font-size: var(--text-5xl);
     }
 
     h3 {
-        font-size: var(--text-2xl);
+        font-size: var(--text-4xl);
     }
 
     h4 {
-        font-size: var(--text-xl);
+        font-size: var(--text-3xl);
     }
 
     h5 {
-        font-size: var(--text-lg);
+        font-size: var(--text-2xl);
     }
 
     h6 {
-        font-size: var(--text-base);
+        font-size: var(--text-xl);
     }
 
     /* Links */
@@ -214,6 +213,14 @@
 
     .text-role-info {
         color: var(--role-info);
+    }
+
+    .text-primary-oposite {
+        color: var(--text-primary-oposite);
+    }
+
+    .text-secondary-oposite {
+        color: var(--text-secondary-oposite);
     }
 
     /* ==========================================================================
@@ -385,7 +392,7 @@
     /* Card styles */
     .card {
         background-color: var(--card-bg);
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-xl);
         box-shadow: var(--card-shadow);
         border: 1px solid var(--card-border);
         padding: var(--spacing-6);
@@ -393,7 +400,7 @@
 
     .card-hover {
         background-color: var(--card-bg);
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-xl);
         box-shadow: var(--card-shadow);
         border: 1px solid var(--card-border);
         padding: var(--spacing-6);
@@ -471,6 +478,34 @@
 
     .btn-secondary:active:not(:disabled) {
         background-color: var(--btn-secondary-bg-active);
+        @apply scale-95;
+    }
+
+    .btn-success {
+        background-color: var(--btn-success-bg);
+        color: var(--btn-success-text);
+    }
+
+    .btn-success:hover:not(:disabled) {
+        background-color: var(--btn-success-bg-hover);
+    }
+
+    .btn-success:active:not(:disabled) {
+        background-color: var(--btn-success-bg-active);
+        @apply scale-95;
+    }
+
+    .btn-warning {
+        background-color: var(--btn-warning-bg);
+        color: var(--btn-warning-text);
+    }
+
+    .btn-warning:hover:not(:disabled) {
+        background-color: var(--btn-warning-bg-hover);
+    }
+
+    .btn-warning:active:not(:disabled) {
+        background-color: var(--btn-warning-bg-active);
         @apply scale-95;
     }
 

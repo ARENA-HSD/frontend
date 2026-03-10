@@ -59,8 +59,8 @@ const OrganizationCard = ({ organization, onAccess, onRefresh }: OrganizationCar
             {/* Header with name and package badge */}
             <div className="flex items-start justify-between gap-3 mb-4">
                 <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-bold text-primary mb-1 truncate">{name}</h3>
-                    <p className="text-secondary text-sm truncate">
+                    <h3 className="text-xl font-['Titan_One',sans-serif] text-primary mb-1 truncate">{name}</h3>
+                    <p className=" text-sm truncate">
                         {subdomain}.hsdarena.com
                     </p>
                 </div>

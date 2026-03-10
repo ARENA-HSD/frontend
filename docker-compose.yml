@@ -7,7 +7,8 @@ services:
     ports:
       - "${PORT:-5173}:5173" # .env'de yoksa varsayılan 5173
     environment:
-      - API_URL=${API_URL}
+      - VITE_API_URL=${API_URL:-http://localhost:5000}
+      - VITE_BASE_DOMAIN=${BASE_DOMAIN:-http://localhost:5173}
     volumes:
       - .:/app # Kodunu içeri yansıtır (Hot Reload için şart)
       - /app/node_modules # Konteynerin kendi modüllerini korur (ÖNEMLİ)

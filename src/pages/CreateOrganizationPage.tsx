@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { organizationService } from '@/services';
-import { MainLayout } from '@/components';
+import { MainLayout, SEO } from '@/components';
 import { OrganizationForm } from '@/components/features/organization';
 
 const CreateOrganizationPage = () => {
@@ -69,6 +69,11 @@ const CreateOrganizationPage = () => {
 
     return (
         <MainLayout>
+            <SEO
+                title="Create Organization"
+                description="Set up a new Quiz Strike organization to manage quizzes and invite your team."
+                noIndex
+            />
             <OrganizationForm
                 onSubmit={handleSubmit}
                 isLoading={isLoading}

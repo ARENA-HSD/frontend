@@ -9,3 +9,4 @@ export { default as OrganizationsPage } from './OrganizationsPage';
 export { default as CreateOrganizationPage } from './CreateOrganizationPage';
 export { default as UpdateOrganizationPage } from './UpdateOrganizationPage';
 export { default as MyInvitationsPage } from './MyInvitationsPage';
+export { default as NotFoundPage } from './NotFoundPage';

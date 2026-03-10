@@ -25,7 +25,7 @@ const ThemeSwitcher = () => {
                         key={key}
                         onClick={() => changeTheme(key)}
                         className={`
-                            flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium
+                            flex items-center gap-1.5 px-3 py-1.5 rounded-full text-md font-bold
                             transition-all duration-200 ease-in-out
                             ${isActive
                                 ? 'bg-role-primary text-inverse shadow-sm scale-105'
@@ -34,7 +34,7 @@ const ThemeSwitcher = () => {
                         `}
                         title={label}
                     >
-                        <Icon className="w-3.5 h-3.5" />
+                        <Icon className="w-5 h-5" strokeWidth={3} />
                         <span className="hidden sm:inline">{label}</span>
                     </button>
                 );

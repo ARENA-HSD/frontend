@@ -9,6 +9,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService } from '@/services';
 import type { CreateQuizData, QuizMode } from '@/types';
+import { Button, SubdomainLayout, SEO } from '@/components';
 
 const CreateQuizPage = () => {
     const navigate = useManagerNavigate();
@@ -57,93 +58,100 @@ const CreateQuizPage = () => {
     };
 
     return (
-        <div className="max-w-2xl mx-auto p-6">
-            {/* Header */}
-            <div className="mb-6">
-                <button
-                    onClick={handleCancel}
-                    className="flex items-center gap-2 text-secondary hover:text-primary mb-4"
-                >
-                    <ArrowLeft className="w-5 h-5" />
-                    Back to Quizzes
-                </button>
-                <h1 className="text-3xl font-bold text-primary">Create New Quiz</h1>
-            </div>
+        <SubdomainLayout>
+            <SEO
+                title="Create Quiz"
+                description="Create a new interactive quiz for your organization."
+                noIndex
+            />
+            <div className="max-w-2xl mx-auto p-6">
+                {/* Header */}
+                <div className="mb-6">
+                    <button
+                        onClick={handleCancel}
+                        className="flex items-center gap-2 text-secondary hover:text-primary mb-4"
+                    >
+                        <ArrowLeft className="w-5 h-5" />
+                        Back to Quizzes
+                    </button>
+                    <h1 className="text-3xl font-bold text-primary">Create New Quiz</h1>
+                </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="bg-card p-8 rounded-lg shadow-sm">
-                <div className="space-y-6">
-                    {/* Quiz Title */}
-                    <div>
-                        <label className="block text-sm font-semibold text-secondary mb-2">
-                            Quiz Title *
-                        </label>
-                        <input
-                            type="text"
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="Enter quiz title..."
-                            className="w-full border border-light rounded-lg px-4 py-3 text-lg"
-                            required
-                        />
-                    </div>
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="bg-card p-8 rounded-lg shadow-sm">
+                    <div className="space-y-6">
+                        {/* Quiz Title */}
+                        <div>
+                            <label className="block text-sm font-semibold text-secondary mb-2">
+                                Quiz Title *
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.title}
+                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                placeholder="Enter quiz title..."
+                                className="w-full border border-light rounded-lg px-4 py-3 text-lg"
+                                required
+                            />
+                        </div>
 
-                    {/* Quiz Mode */}
-                    <div>
-                        <label className="block text-sm font-semibold text-secondary mb-2">
-                            Quiz Mode
-                        </label>
-                        <div className="grid grid-cols-2 gap-4">
-                            <button
-                                type="button"
-                                onClick={() => setFormData({ ...formData, defaultMode: 'STAGE' })}
-                                className={`p-4 rounded-lg border-2 text-left transition-all ${formData.defaultMode === 'STAGE'
-                                    ? 'border-focus bg-role-primary-light'
-                                    : 'border-light hover:border-medium'
-                                    }`}
-                            >
-                                <div className="font-semibold text-primary">🎤 Stage Mode</div>
-                                <div className="text-sm text-tertiary mt-1">
-                                    Questions on big screen, answers on phones
-                                </div>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setFormData({ ...formData, defaultMode: 'PERSONAL' })}
-                                className={`p-4 rounded-lg border-2 text-left transition-all ${formData.defaultMode === 'PERSONAL'
-                                    ? 'border-focus bg-role-primary-light'
-                                    : 'border-light hover:border-medium'
-                                    }`}
-                            >
-                                <div className="font-semibold text-primary">📱 Personal Mode</div>
-                                <div className="text-sm text-tertiary mt-1">
-                                    Questions and answers on participant's phone
-                                </div>
-                            </button>
+                        {/* Quiz Mode */}
+                        <div>
+                            <label className="block text-sm font-semibold text-secondary mb-2">
+                                Quiz Mode
+                            </label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, defaultMode: 'STAGE' })}
+                                    className={`p-4 rounded-lg border-2 text-left transition-all ${formData.defaultMode === 'STAGE'
+                                        ? 'border-focus bg-role-primary-light'
+                                        : 'border-light hover:border-medium'
+                                        }`}
+                                >
+                                    <div className="font-semibold text-primary">🎤 Stage Mode</div>
+                                    <div className="text-sm text-tertiary mt-1">
+                                        Questions on big screen, answers on phones
+                                    </div>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setFormData({ ...formData, defaultMode: 'PERSONAL' })}
+                                    className={`p-4 rounded-lg border-2 text-left transition-all ${formData.defaultMode === 'PERSONAL'
+                                        ? 'border-focus bg-role-primary-light'
+                                        : 'border-light hover:border-medium'
+                                        }`}
+                                >
+                                    <div className="font-semibold text-primary">📱 Personal Mode</div>
+                                    <div className="text-sm text-tertiary mt-1">
+                                        Questions and answers on participant's phone
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Actions */}
-                <div className="flex justify-end gap-3 mt-8">
-                    <button
-                        type="button"
-                        onClick={handleCancel}
-                        disabled={isLoading}
-                        className="px-6 py-2.5 bg-page text-secondary rounded-lg font-medium hover:opacity-80 disabled:opacity-50"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="px-8 py-2.5 btn-primary rounded-lg font-semibold disabled:opacity-50"
-                    >
-                        {isLoading ? 'Creating...' : 'Create Quiz'}
-                    </button>
-                </div>
-            </form>
-        </div>
+                    {/* Actions */}
+                    <div className="flex justify-end gap-3 mt-8">
+                        <Button
+                            type="button"
+                            onClick={handleCancel}
+                            disabled={isLoading}
+                            variant="secondary"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            variant="primary"
+                        >
+                            {isLoading ? 'Creating...' : 'Create Quiz'}
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </SubdomainLayout>
     );
 };
 

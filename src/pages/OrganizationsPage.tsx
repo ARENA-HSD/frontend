@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { organizationService } from '@/services';
 import { OrganizationCard } from '@/components';
-import { Button, MainLayout } from '@/components';
+import { Button, MainLayout, SEO } from '@/components';
 import type { UserOrganization, Organization } from '@/types';
 
 const OrganizationsPage = () => {
@@ -63,12 +63,9 @@ const OrganizationsPage = () => {
             newHost = `${org.subdomain}.localhost`;
         } else {
             // production
-            const parts = host.split('.');
-            if (parts.length > 2) {
-                newHost = `${org.subdomain}.${parts.slice(-2).join('.')}`;
-            } else {
-                newHost = `${org.subdomain}.${host}`;
-            }
+            const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+            const base = baseDomain || host.split('.').slice(-2).join('.');
+            newHost = `${org.subdomain}.${base}`;
         }
 
         window.location.href = `${window.location.protocol}//${newHost}${port}/manager/quizzes`;
@@ -80,23 +77,29 @@ const OrganizationsPage = () => {
 
     return (
         <MainLayout>
+            <SEO
+                title="My Organizations"
+                description="Manage your Quiz Strike organizations and access your team dashboards."
+                noIndex
+            />
             <div className="max-w-5xl mx-auto px-4 py-12 space-y-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold text-primary">
+                        <h1 className="text-4xl font-['Titan_One',sans-serif] text-primary">
                             Your Organizations
                         </h1>
-                        <p className="text-secondary">
+                        <p className="text-lg">
                             Select an organization to access or create a new one
                         </p>
                     </div>
 
                     <Button
-                        variant="primary"
+                        variant="secondary"
                         onClick={handleCreateNew}
+                        className="px-6 pb-3 pt-2 flex items-center justify-center font-bold gap-2"
                     >
-                        + Create New
+                        + <div className="font-['Titan_One',sans-serif] font-thin pt-1">Create New</div>
                     </Button>
                 </div>
 

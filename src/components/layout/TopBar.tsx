@@ -64,12 +64,9 @@ const TopBar = () => {
                         }
                     } else {
                         // production
-                        const parts = host.split('.');
-                        if (parts.length > 2) {
-                            newHost = `${org.subdomain}.${parts.slice(-2).join('.')}`;
-                        } else {
-                            newHost = `${org.subdomain}.${host}`;
-                        }
+                        const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+                        const base = baseDomain || host.split('.').slice(-2).join('.');
+                        newHost = `${org.subdomain}.${base}`;
                     }
                     
                     window.location.href = `${window.location.protocol}//${newHost}${port}/manager/quizzes`;
@@ -85,10 +82,8 @@ const TopBar = () => {
                     if (baseHost.includes('localhost')) {
                         baseHost = baseHost.replace(/^([a-z0-9-]+)\./i, '');
                     } else {
-                        const parts = baseHost.split('.');
-                        if (parts.length > 2) {
-                            baseHost = parts.slice(-2).join('.');
-                        }
+                        const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+                        baseHost = baseDomain || baseHost.split('.').slice(-2).join('.');
                     }
                     
                     window.location.href = `${window.location.protocol}//${baseHost}${port}/organizations`;

@@ -8,6 +8,7 @@
 import { useLocation } from 'react-router-dom';
 import { Crown, LogOut } from 'lucide-react';
 import { useManagerNavigate } from '@/hooks';
+import { SEO } from '@/components';
 import type { Quiz } from '@/types';
 
 const QuizResultsPage = () => {
@@ -27,6 +28,11 @@ const QuizResultsPage = () => {
 
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-purple-100 to-indigo-100">
+            <SEO
+                title="Quiz Results"
+                description="View the final leaderboard and scores from your Quiz Strike session."
+                noIndex
+            />
             {/* Top Bar */}
             <div className="bg-card px-6 py-3 flex items-center justify-center shadow-sm relative">
                 <div className="font-semibold text-primary text-xl">

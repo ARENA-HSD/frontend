@@ -14,6 +14,7 @@ import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
+import { SEO } from '@/components';
 import type { GameStartingPlayload, LobbyUpdatePlayload, PlayerKickedPlayload, QuestionStartPlayload, ReconnectSuccessHostPlayload, Quiz } from '@/types';
 
 const QuizLobbyPage = () => {
@@ -90,8 +91,21 @@ const QuizLobbyPage = () => {
                 await gameSocket.connect();
                 setWsConnected(true);
 
-                // Host joins the room too (so server knows this is the host)
-                gameSocket.joinRoom(pin, '__HOST__');
+                // Listen for NEED_NICKNAME → auto-send __HOST__
+                const unsubNeedNick = gameSocket.on(WS_EVENTS.NEED_NICKNAME, () => {
+                    unsubNeedNick();
+                    gameSocket.setNickname(pin, '__HOST__');
+                });
+
+                // Listen for JOIN_SUCCESS (new join or after SET_NICKNAME)
+                const unsubJoinSuccess = gameSocket.on(WS_EVENTS.JOIN_SUCCESS, () => {
+                    unsubJoinSuccess();
+                    console.log('Host joined lobby successfully');
+                });
+
+                // Host joins the room with stored session token (if any)
+                const storedToken = localStorage.getItem(`arena_host_session_${pin}`) || undefined;
+                gameSocket.joinRoom(pin, storedToken, 'host');
             } catch (wsErr) {
                 console.warn('WebSocket connection failed, lobby will work without live updates:', wsErr);
             }
@@ -271,6 +285,11 @@ const QuizLobbyPage = () => {
     // ========================================
     return (
         <div className="max-w-6xl mx-auto p-4">
+            <SEO
+                title="Quiz Lobby"
+                description="Waiting for participants to join your Quiz Strike session."
+                noIndex
+            />
             <ReconnectOverlay />
             {/* Top Bar */}
             <div className="bg-card p-4 rounded-lg shadow-sm mb-4 flex items-center justify-between">

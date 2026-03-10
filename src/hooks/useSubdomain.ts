@@ -21,7 +21,19 @@ export const useSubdomain = (): string | null => {
             return null;
         }
 
-        // Extract subdomain from hostname
+        // Use VITE_BASE_DOMAIN if set (handles multi-part TLDs like .com.tr)
+        const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+        if (baseDomain) {
+            if (hostname === baseDomain) {
+                return null;
+            }
+            if (hostname.endsWith(`.${baseDomain}`)) {
+                return hostname.slice(0, hostname.length - baseDomain.length - 1);
+            }
+            return null;
+        }
+
+        // Fallback: extract subdomain from hostname by part count
         const parts = hostname.split('.');
 
         // If only 2 parts (e.g., hsdarena.com), no subdomain

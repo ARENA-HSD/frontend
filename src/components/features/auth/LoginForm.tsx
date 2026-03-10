@@ -40,6 +40,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 disabled={isLoading}
                 required
                 fullWidth
+                className="mb-4"
             />
 
             <Input
@@ -52,11 +53,13 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 disabled={isLoading}
                 required
                 fullWidth
+                className="mb-4"
             />
 
             <Button
                 type="submit"
                 variant="primary"
+                className="font-['Titan_One',sans-serif] text-2xl py-6"
                 fullWidth
                 disabled={isLoading}
             >

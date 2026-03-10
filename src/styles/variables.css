@@ -20,9 +20,11 @@
     /* Deep gray (for text) */
     --color-2: #374151;
     /* Medium gray */
-    --color-3: #3b82f6;
+    --color-3: #2196F3;
+    --color-3-oposite: #ffffff;
     /* Vibrant blue */
-    --color-4: #8b5cf6;
+    --color-4: #F5A623;
+    --color-4-oposite: #ffffff;
     /* Vibrant purple */
     --color-5: #10b981;
     /* Vibrant green */
@@ -44,13 +46,13 @@
     /* Dark gray (tertiary) */
 
     /* Game-specific colors (intentionally isolated) */
-    --color-quiz-a: #14b8a6;
+    --color-quiz-a: #4CAF50;
     /* Teal */
-    --color-quiz-b: #ec4899;
+    --color-quiz-b: #E63329;
     /* Hot pink */
-    --color-quiz-c: #a855f7;
+    --color-quiz-c: #2196F3;
     /* Purple */
-    --color-quiz-d: #f97316;
+    --color-quiz-d: #F5A623;
     /* Orange */
 
     /* ==========================================================================
@@ -134,11 +136,20 @@
     --text-disabled: var(--color-11);
     /* Very light gray */
 
+    --text-primary-oposite: var(--color-3-oposite);
+    --text-secondary-oposite: var(--color-4-oposite);
+
     /* ==========================================================================
      LAYER 5: BORDER COLORS
      Border hierarchy
      ========================================================================== */
 
+    --border-primary: var(--color-3);
+    --border-secondary: var(--color-4);
+    --border-success: var(--color-5);
+    --border-warning: var(--color-6);
+    --border-danger: var(--color-7);
+    --border-info: var(--color-8);
     --border-light: var(--color-11);
     --border-medium: var(--color-12);
     --border-dark: var(--color-13);
@@ -190,6 +201,16 @@
     --btn-secondary-bg-active: var(--role-secondary-active);
     --btn-secondary-text: var(--text-inverse);
 
+    --btn-success-bg: var(--role-success);
+    --btn-success-bg-hover: var(--role-success-hover);
+    --btn-success-bg-active: var(--role-success-active);
+    --btn-success-text: var(--text-inverse);
+
+    --btn-warning-bg: var(--role-warning);
+    --btn-warning-bg-hover: var(--role-warning-hover);
+    --btn-warning-bg-active: var(--role-warning-active);
+    --btn-warning-text: var(--text-inverse);
+
     --btn-danger-bg: var(--role-danger);
     --btn-danger-bg-hover: var(--role-danger-hover);
     --btn-danger-bg-active: var(--role-danger-active);
@@ -223,9 +244,9 @@
 
     /* Card Component Variables */
     --card-bg: var(--surface-card-bg);
-    --card-border: var(--border-light);
+    --card-border: var(--border-secondary);
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --card-hover-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.1);
 
     /* Badge Component Variables */
     --badge-success-bg: var(--role-success-light);

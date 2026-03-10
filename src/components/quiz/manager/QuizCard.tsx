@@ -6,6 +6,7 @@
 
 import { Trash2, Settings } from 'lucide-react';
 import type { Quiz } from '@/types';
+import { Button } from '@/components/ui';
 
 interface QuizCardProps {
     quiz: Quiz;
@@ -17,7 +18,7 @@ interface QuizCardProps {
 const QuizCard = ({ quiz, onStart, onEdit, onDelete }: QuizCardProps) => {
 
     return (
-        <div className="bg-card rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden h-full">
+        <div className="card rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden h-full">
             <div className="p-6 flex flex-col justify-between h-full">
                 <h3 className="font-bold text-lg text-primary mb-2">{quiz.title}</h3>
                 <div className="flex items-center justify-between mb-4">
@@ -39,12 +40,12 @@ const QuizCard = ({ quiz, onStart, onEdit, onDelete }: QuizCardProps) => {
                         </button>
                     </div>
                 </div>
-                <button
+                <Button
                     onClick={onStart}
-                    className="w-full btn-primary py-2.5 rounded-lg font-semibold transition-colors"
+                    variant="primary"
                 >
                     Start Quiz
-                </button>
+                </Button>
             </div>
         </div>
     );

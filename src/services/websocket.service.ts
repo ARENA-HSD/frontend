@@ -25,11 +25,13 @@ export interface WSMessage {
 export const WS_EVENTS = {
     // Client → Server
     JOIN_ROOM: 'JOIN_ROOM',
+    SET_NICKNAME: 'SET_NICKNAME',
     SUBMIT_ANSWER: 'SUBMIT_ANSWER',
     RECONNECT: 'RECONNECT',
 
     // Server → Client (matches games.service.ts)
     JOIN_SUCCESS: 'JOIN_SUCCESS',
+    NEED_NICKNAME: 'NEED_NICKNAME',
     FORCE_DISCONNECT: 'FORCE_DISCONNECT',
 
     // Host → Server
@@ -62,29 +64,48 @@ export const WS_EVENTS = {
 } as const;
 
 // ============================================================================
-// Session Storage Helpers
+// Session Storage Helpers (role-aware: host vs player)
 // ============================================================================
 
-const SESSION_KEY_PREFIX = 'arena_session_';
+export type SessionRole = 'host' | 'player';
+
+const HOST_SESSION_PREFIX = 'arena_host_session_';
+const PLAYER_SESSION_PREFIX = 'arena_player_session_';
 const PIN_KEY = 'arena_pin';
+const ROLE_KEY = 'arena_role';
 
-function saveSession(pin: string, sessionToken: string): void {
-    localStorage.setItem(`${SESSION_KEY_PREFIX}${pin}`, sessionToken);
+function getPrefix(role: SessionRole): string {
+    return role === 'host' ? HOST_SESSION_PREFIX : PLAYER_SESSION_PREFIX;
+}
+
+function saveSession(pin: string, sessionToken: string, role: SessionRole): void {
+    localStorage.setItem(`${getPrefix(role)}${pin}`, sessionToken);
     localStorage.setItem(PIN_KEY, pin);
+    localStorage.setItem(ROLE_KEY, role);
 }
 
-function getSession(): { pin: string; sessionToken: string } | null {
+function getSession(role?: SessionRole): { pin: string; sessionToken: string; role: SessionRole } | null {
     const pin = localStorage.getItem(PIN_KEY);
+    const storedRole = (role || localStorage.getItem(ROLE_KEY) || 'player') as SessionRole;
     if (!pin) return null;
-    const token = localStorage.getItem(`${SESSION_KEY_PREFIX}${pin}`);
+    const token = localStorage.getItem(`${getPrefix(storedRole)}${pin}`);
     if (!token) return null;
-    return { pin, sessionToken: token };
+    return { pin, sessionToken: token, role: storedRole };
 }
 
-function clearSession(): void {
+function clearSession(role?: SessionRole): void {
     const pin = localStorage.getItem(PIN_KEY);
-    if (pin) localStorage.removeItem(`${SESSION_KEY_PREFIX}${pin}`);
+    if (pin) {
+        if (role) {
+            localStorage.removeItem(`${getPrefix(role)}${pin}`);
+        } else {
+            // Clear both if role not specified
+            localStorage.removeItem(`${HOST_SESSION_PREFIX}${pin}`);
+            localStorage.removeItem(`${PLAYER_SESSION_PREFIX}${pin}`);
+        }
+    }
     localStorage.removeItem(PIN_KEY);
+    localStorage.removeItem(ROLE_KEY);
 }
 
 // ============================================================================
@@ -102,6 +123,7 @@ class GameWebSocket {
     private _isConnected = false;
     private _isReconnecting = false;
     private _currentPin: string = '';
+    private _currentRole: SessionRole = 'player';
 
     get isConnected(): boolean {
         return this._isConnected;
@@ -197,9 +219,11 @@ class GameWebSocket {
                 await this.connectInternal();
                 this.shouldReconnect = true;
 
-                // If we have a session, send RECONNECT event
+                // If we have a session, rejoin with stored token (new protocol)
                 if (session) {
-                    this.emit(WS_EVENTS.RECONNECT, {
+                    this._currentPin = session.pin;
+                    this._currentRole = session.role;
+                    this.emit(WS_EVENTS.JOIN_ROOM, {
                         pin: session.pin,
                         sessionToken: session.sessionToken,
                     });
@@ -270,7 +294,7 @@ class GameWebSocket {
         switch (message.type) {
             case WS_EVENTS.JOIN_SUCCESS:
                 if (message.data?.sessionToken && this._currentPin) {
-                    saveSession(this._currentPin, message.data.sessionToken);
+                    saveSession(this._currentPin, message.data.sessionToken, this._currentRole);
                 }
                 break;
 
@@ -280,14 +304,15 @@ class GameWebSocket {
                 break;
 
             case WS_EVENTS.GAME_OVER:
-                clearSession();
+            case WS_EVENTS.FORCE_DISCONNECT:
+                clearSession(this._currentRole);
                 break;
 
             case WS_EVENTS.ERROR:
                 // If we get ERROR during reconnect, treat as failed
                 if (this._isReconnecting) {
                     this._isReconnecting = false;
-                    clearSession();
+                    clearSession(this._currentRole);
                     this.dispatch(WS_EVENTS.RECONNECT_FAILED, {
                         reason: message.data?.message || 'Oturum süresi doldu',
                     });
@@ -359,11 +384,18 @@ class GameWebSocket {
     // Convenience Methods
     // ============================
 
-    /** Participant joins a game room */
-    joinRoom(pin: string, nickname: string): void {
+    /** Join a game room as host or player */
+    joinRoom(pin: string, sessionToken?: string, role: SessionRole = 'player'): void {
         this._currentPin = pin;
+        this._currentRole = role;
         localStorage.setItem(PIN_KEY, pin);
-        this.emit(WS_EVENTS.JOIN_ROOM, { pin, nickname });
+        localStorage.setItem(ROLE_KEY, role);
+        this.emit(WS_EVENTS.JOIN_ROOM, { pin, sessionToken });
+    }
+
+    /** Participant set nickname */
+    setNickname(pin: string, nickname: string): void {
+        this.emit(WS_EVENTS.SET_NICKNAME, { pin, nickname });
     }
 
     /** Host starts the game */
@@ -401,11 +433,13 @@ class GameWebSocket {
 
         this._isReconnecting = true;
         this._currentPin = session.pin;
+        this._currentRole = session.role;
         this.dispatch(WS_EVENTS.RECONNECTING, { attempt: 1, maxAttempts: this.maxReconnectAttempts });
 
         try {
             await this.connect();
-            this.emit(WS_EVENTS.RECONNECT, {
+            // Use JOIN_ROOM with sessionToken (new protocol)
+            this.emit(WS_EVENTS.JOIN_ROOM, {
                 pin: session.pin,
                 sessionToken: session.sessionToken,
             });

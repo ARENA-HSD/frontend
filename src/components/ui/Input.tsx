@@ -36,7 +36,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className={cn('flex flex-col gap-1.5', fullWidth && 'w-full')}>
         {label && (
           <div className="mb-2">
-            <label className="text-primary text-sm font-medium">
+            <label className="text-primary text-md font-medium">
               {label}
               {required && <span className="text-role-danger ml-1">*</span>}
             </label>
@@ -51,7 +51,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 ref={ref}
                 type={type}
                 className={cn(
-                  'flex-1 px-3 py-2 rounded-l-lg border transition-colors',
+                  'flex-1 px-3 py-2 rounded-l-full border transition-colors',
                   'bg-input text-primary placeholder:text-placeholder',
                   'focus:outline-none focus:ring-2 focus:ring-role-primary focus:border-transparent',
                   error
@@ -65,7 +65,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 onChange={onChange}
                 {...props}
               />
-              <div className="px-3 py-2 bg-card border border-l-0 border-divider rounded-r-lg text-tertiary text-sm flex items-center">
+              <div className="px-3 py-2 bg-card border border-l-0 border-divider rounded-r-full text-tertiary text-md flex items-center">
                 {suffix}
               </div>
             </div>
@@ -75,8 +75,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               ref={ref}
               type={type}
               className={cn(
-                'w-full px-3 py-2 rounded-lg border transition-colors',
+                'w-full px-3 py-2 rounded-full border transition-colors ',
                 'bg-input text-primary placeholder:text-placeholder',
+                "shadow-[0_5px_15px_-10px_black]",
                 'focus:outline-none focus:ring-2 focus:ring-role-primary focus:border-transparent',
                 error
                   ? 'border-role-danger focus:ring-role-danger'

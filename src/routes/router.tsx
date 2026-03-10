@@ -14,6 +14,7 @@ import {
     CreateOrganizationPage,
     UpdateOrganizationPage,
     MyInvitationsPage,
+    NotFoundPage,
 } from '@/pages';
 
 // Manager Pages
@@ -98,7 +99,7 @@ const mainDomainRouter = createBrowserRouter([
     // ========== Catch-all ==========
     {
         path: '*',
-        element: <LoginPage />,
+        element: <NotFoundPage />,
     },
 ]);
 

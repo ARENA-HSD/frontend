@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Trash2, Shield, Save, CheckCircle2 } from 'lucide-react';
 import { useAuth, useUser } from '@/hooks';
-import { Button, MainLayout } from '@/components';
+import { Button, Input, MainLayout, SEO } from '@/components';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -107,11 +107,16 @@ const ProfilePage = () => {
 
     return (
         <MainLayout>
+            <SEO
+                title="Profile Settings"
+                description="Manage your Quiz Strike account information and security settings."
+                noIndex
+            />
             <div className="max-w-5xl mx-auto px-4 py-12">
                 {/* Header */}
-                <div className="mb-4 border-b border-light pb-2">
-                    <h1 className="text-2xl font-semibold text-primary">Profile Settings</h1>
-                    <p className="text-tertiary mt-1">Manage your account and preferences.</p>
+                <div className="mb-4 pb-2">
+                    <h1 className="font-['Titan_One',sans-serif] font-thin text-4xl text-primary">Profile Settings</h1>
+                    <p className="mt-1">Manage your account and preferences.</p>
                 </div>
 
                 {/* Status Message */}
@@ -125,37 +130,37 @@ const ProfilePage = () => {
                     </div>
                 )}
 
-                <div className="space-y-12">
+                <div className="space-y-6">
                     {/* Account Information */}
                     <section>
-                        <div className="mb-6">
-                            <h2 className="text-lg font-medium text-primary flex items-center gap-2">
-                                <User className="w-4 h-4 text-tertiary" />
+
+                        <form onSubmit={handleAccountUpdate} className="space-y-4 bg-card border border-[var(--btn-secondary-bg)] rounded-2xl p-6">
+                            <h2 className="font-['Titan_One',sans-serif] font-thin text-xl text-primary flex items-center gap-2">
                                 Account Information
                             </h2>
-                        </div>
+                            <div className="mb-6 flex w-full justify-between gap-6">
+                                <div className="space-y-2 w-full">
+                                    <label className="text-sm font-medium">Name</label>
+                                    <Input
+                                        type="text"
+                                        className="rounded-xl border border-[var(--btn-primary-bg)] shadow-[0_6px_12px_-2px_var(--btn-primary-bg)]"
+                                        value={accountData.name}
+                                        onChange={(e) => setAccountData({ ...accountData, name: e.target.value })}
+                                        disabled={isUpdating}
+                                    />
+                                </div>
+                                <div className="space-y-2 w-full">
+                                    <label className="text-sm font-medium">Email Address</label>
+                                    <Input
+                                        type="email"
+                                        className="rounded-xl border border-[var(--btn-primary-bg)] shadow-[0_6px_12px_-2px_var(--btn-primary-bg)]"
+                                        value={accountData.email}
+                                        onChange={(e) => setAccountData({ ...accountData, email: e.target.value })}
+                                        disabled={isUpdating}
+                                    />
+                                </div>
+                            </div>
 
-                        <form onSubmit={handleAccountUpdate} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-card border border-light rounded-xl p-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-secondary">name</label>
-                                <input
-                                    type="text"
-                                    value={accountData.name}
-                                    onChange={(e) => setAccountData({ ...accountData, name: e.target.value })}
-                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary outline-none transition-all"
-                                    disabled={isUpdating}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-secondary">Email Address</label>
-                                <input
-                                    type="email"
-                                    value={accountData.email}
-                                    onChange={(e) => setAccountData({ ...accountData, email: e.target.value })}
-                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary focus:ring-2 focus:ring-focus outline-none transition-all"
-                                    disabled={isUpdating}
-                                />
-                            </div>
                             <div className="md:col-span-2 flex justify-end">
                                 <Button
                                     variant="primary"
@@ -167,44 +172,43 @@ const ProfilePage = () => {
                                     Save Changes
                                 </Button>
                             </div>
+
                         </form>
                     </section>
 
                     {/* Security */}
                     <section>
-                        <div className="mb-6">
-                            <h2 className="text-lg font-medium text-primary flex items-center gap-2">
-                                <Lock className="w-4 h-4 text-tertiary" />
+
+                        <form onSubmit={handlePasswordUpdate} className="space-y-4 bg-card border border-[var(--btn-secondary-bg)] rounded-2xl p-6">
+                            <h2 className="font-['Titan_One',sans-serif] font-thin text-xl text-primary flex items-center">
                                 Security
                             </h2>
-                        </div>
-
-                        <form onSubmit={handlePasswordUpdate} className="space-y-6 bg-card border border-light rounded-xl p-6 max-w-xl">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-secondary">New Password</label>
-                                <input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    value={passwordData.newPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary focus:ring-2 focus:ring-focus outline-none transition-all"
-                                    disabled={isSecurityUpdating}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-secondary">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    value={passwordData.confirmPassword}
-                                    onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                                    className="w-full bg-page border border-light rounded-lg px-4 py-2 text-primary focus:ring-2 focus:ring-focus outline-none transition-all"
-                                    disabled={isSecurityUpdating}
-                                />
+                            <div className="mb-6 flex w-full justify-between gap-6">
+                                <div className="space-y-2 w-full">
+                                    <label className="text-sm font-medium">New Password</label>
+                                    <Input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={passwordData.newPassword}
+                                        onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                                        className="rounded-xl border border-[var(--btn-primary-bg)] shadow-[0_6px_12px_-2px_var(--btn-primary-bg)]"
+                                        disabled={isSecurityUpdating}
+                                    />
+                                </div>
+                                <div className="space-y-2 w-full">
+                                    <label className="text-sm font-medium">Confirm Password</label>
+                                    <Input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={passwordData.confirmPassword}
+                                        onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                                        className="rounded-xl border border-[var(--btn-primary-bg)] shadow-[0_6px_12px_-2px_var(--btn-primary-bg)]"
+                                        disabled={isSecurityUpdating}
+                                    />
+                                </div>
                             </div>
                             <div className="flex justify-end">
                                 <Button
-                                    variant="outline"
                                     type="submit"
                                     loading={isSecurityUpdating}
                                     className="px-6"
@@ -216,20 +220,20 @@ const ProfilePage = () => {
                     </section>
 
                     {/* Danger Zone */}
-                    <section className="pt-8 border-t border-light">
-                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-role-danger-light border border-role-danger rounded-xl p-6">
+                    <section>
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-role-danger-light border border-role-danger rounded-2xl p-6">
                             <div>
-                                <h3 className="text-lg font-medium text-role-danger">Danger Zone</h3>
-                                <p className="text-sm text-role-danger mt-1" style={{ opacity: 0.8 }}>
+                                <h3 className="font-['Titan_One',sans-serif] font-thin text-xl font-bold text-role-danger">Danger Zone</h3>
+                                <p className="text-sm font-medium text-role-danger mt-1" style={{ opacity: 0.8 }}>
                                     Deleting your account will permanently remove all your data.
                                 </p>
                             </div>
-                            <button
+                            <Button
                                 onClick={handleDeleteAccount}
-                                className="px-6 py-2 btn-danger rounded-lg font-medium transition-colors shadow-sm"
+                                variant="danger"
                             >
                                 Delete Account
-                            </button>
+                            </Button>
                         </div>
                     </section>
                 </div>

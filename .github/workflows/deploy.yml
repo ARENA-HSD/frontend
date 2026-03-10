@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - feature/dashboard
+      - main
 
 jobs:
   deploy:
@@ -21,5 +21,5 @@ jobs:
           port: 17943
           script: |
             cd ~/frontend
-            git pull main
+            git pull origin main
             docker compose -f docker-compose.prod.yml up -d --build

@@ -5,7 +5,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { SubdomainLayout } from "@/components";
+import { Button, SubdomainLayout, SEO } from "@/components";
 import { useMembers } from "@/hooks";
 import { authService } from '@/services';
 import { Trash2, UserPlus, Shield } from "lucide-react";
@@ -57,19 +57,24 @@ const MembersPage = () => {
 
     return (
         <SubdomainLayout>
+            <SEO
+                title="Team Members"
+                description="Manage who has access to your organization on Quiz Strike."
+                noIndex
+            />
             <div className="flex-1 space-y-6 overflow-auto p-4">
                 <div className="flex items-center justify-between bg-card p-6 rounded-xl shadow-sm border border-light">
                     <div>
                         <h2 className="text-2xl font-bold text-primary">Members</h2>
                         <p className="text-tertiary text-sm">Manage who has access to this organization</p>
                     </div>
-                    <button
+                    <Button
                         onClick={handleInviteClick}
-                        className="flex items-center gap-2 btn-primary px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                        variant="primary"
                     >
                         <UserPlus className="w-5 h-5" />
                         Manage Invitations
-                    </button>
+                    </Button>
                 </div>
 
                 {error && (

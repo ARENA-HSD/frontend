@@ -18,6 +18,7 @@ import { Check, X, TrendingUp } from 'lucide-react';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
+import maskotFace from '@/assets/maskot-yüz.png';
 import type {
     QuestionStartPlayload,
     QuestionEndPlayerPlayload,
@@ -51,9 +52,9 @@ const ParticipantGamePage = () => {
     const location = useLocation();
     const state = location.state as any;
     const nickname: string = state?.nickname || 'Player';
-    const gameMode: string = state?.gameMode || 'PERSONAL';
     const initialQuestion: QuestionStartPlayload | null = state?.initialQuestion || null;
     const reconnectData: ReconnectSuccessPlayerPlayload | null = state?.reconnectData || null;
+    const stategameMode: string = state?.gameMode || initialQuestion?.mode || reconnectData?.mode || 'PERSONAL';
 
     // ---------------- Phase ----------------
     const [phase, setPhase] = useState<GamePhase>(() => {
@@ -64,6 +65,8 @@ const ParticipantGamePage = () => {
         }
         return initialQuestion ? 'question' : 'waiting';
     });
+
+    const [gameMode, setGameMode] = useState(stategameMode)
 
     // ------------- Question ----------------
     const [questionIndex, setQuestionIndex] = useState(reconnectData?.currentQuestionIndex ?? initialQuestion?.qIndex ?? 0);
@@ -154,6 +157,7 @@ const ParticipantGamePage = () => {
                 setOptions(payload.options || []);
                 setSelectedAnswer(-1);
                 startTimer(payload.time, payload.serverTime);
+                setGameMode(payload.mode);
                 setPhase('question');
             })
         );
@@ -306,7 +310,8 @@ const ParticipantGamePage = () => {
     // ========================================
     if ((phase === 'question' || phase === 'answered') && gameMode === 'PERSONAL') {
         return (
-            <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+            <div className={'min-h-screen flex flex-col items-center p-4 bg-cover bg-center bg-[url(../assets/images/leaderboard.png)]'}
+                style={{ fontFamily: '"Fredoka", sans-serif' }}>
                 <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 {/* Timer */}
                 <div className="flex justify-center mb-4">
@@ -321,7 +326,7 @@ const ParticipantGamePage = () => {
                 </div>
 
                 {/* Question */}
-                <div className="bg-white/10 backdrop-blur rounded-2xl p-5 mb-4">
+                <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-5 mb-4 w-full max-w-md border border-white/10">
                     {questionMedia && (
                         <div className="w-full h-32 bg-white/10 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
                             <img
@@ -331,13 +336,14 @@ const ParticipantGamePage = () => {
                             />
                         </div>
                     )}
-                    <div className="text-white text-xl font-bold text-center">
+                    <div className="text-white text-xl font-bold text-center"
+                        style={{ textShadow: '0 2px 8px rgba(0,0,0,0.3)' }}>
                         {questionText || `Question ${questionIndex + 1}`}
                     </div>
                 </div>
 
                 {/* Options */}
-                <div className="flex-1 grid grid-cols-1 gap-3">
+                <div className="flex-1 grid grid-cols-1 gap-3 w-full max-w-md">
                     {options.map((option, idx) => {
                         const color = OPTION_COLORS[idx] || OPTION_COLORS[0];
                         const isSelected = selectedAnswer === idx;
@@ -347,12 +353,13 @@ const ParticipantGamePage = () => {
                                 key={idx}
                                 onClick={() => handleSelectAnswer(idx)}
                                 disabled={phase === 'answered'}
-                                className={`w-full p-4 rounded-xl font-bold text-white text-lg transition-all ${color.bg} ${phase === 'answered'
+                                className={`w-full p-4 rounded-xl font-bold text-white text-lg transition-all border-b-[6px] border-black/15 shadow-lg disabled:opacity-100 ${color.bg} ${phase === 'answered'
                                     ? isSelected
                                         ? 'ring-4 ring-white scale-[1.03]'
-                                        : 'opacity-40'
-                                    : `${color.hover} active:scale-95`
+                                        : 'grayscale-[40%] brightness-75'
+                                    : `${color.hover} active:scale-95 active:border-b-[2px]`
                                     }`}
+                                style={{ textShadow: '0 2px 4px rgba(0,0,0,0.2)' }}
                             >
                                 <span className="mr-2">{OPTION_LABELS[idx]}.</span>
                                 {option.text}
@@ -363,7 +370,7 @@ const ParticipantGamePage = () => {
 
                 {/* Answered feedback */}
                 {phase === 'answered' && (
-                    <div className="mt-4 text-center text-white/70 text-sm animate-pulse">
+                    <div className="mt-4 text-center text-white/50 text-sm animate-pulse">
                         Answer submitted! Waiting for results...
                     </div>
                 )}
@@ -376,7 +383,8 @@ const ParticipantGamePage = () => {
     // ========================================
     if ((phase === 'question' || phase === 'answered') && gameMode === 'STAGE') {
         return (
-            <div className="min-h-screen flex flex-col bg-gray-900 p-4">
+            <div className={'min-h-screen flex flex-col items-center p-4 bg-cover bg-center bg-[url(../assets/images/leaderboard.png)]'}
+                style={{ fontFamily: '"Fredoka", sans-serif' }}>
                 <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
                 {/* Timer */}
                 <div className="flex justify-center mb-4">
@@ -391,7 +399,7 @@ const ParticipantGamePage = () => {
                 </div>
 
                 {/* Large color buttons */}
-                <div className="flex-1 grid grid-cols-2 gap-4">
+                <div className="w-full max-w-md grid grid-cols-2 gap-4 flex-1">
                     {[0, 1, 2, 3].map((idx) => {
                         const color = OPTION_COLORS[idx];
                         const isSelected = selectedAnswer === idx;
@@ -401,12 +409,13 @@ const ParticipantGamePage = () => {
                                 key={idx}
                                 onClick={() => handleSelectAnswer(idx)}
                                 disabled={phase === 'answered'}
-                                className={`rounded-2xl font-black text-white text-6xl transition-all flex items-center justify-center ${color.bg} ${phase === 'answered'
+                                className={`rounded-xl font-black text-white text-5xl sm:text-6xl transition-all flex items-center justify-center border-b-[6px] border-black/15 shadow-lg disabled:opacity-100 ${color.bg} ${phase === 'answered'
                                     ? isSelected
                                         ? 'ring-4 ring-white scale-[1.03]'
-                                        : 'opacity-30'
-                                    : `${color.hover} active:scale-95`
+                                        : 'grayscale-[40%] brightness-75'
+                                    : `${color.hover} active:scale-95 active:border-b-[2px]`
                                     }`}
+                                style={{ textShadow: '0 3px 6px rgba(0,0,0,0.25)' }}
                             >
                                 {OPTION_LABELS[idx]}
                             </button>
@@ -429,29 +438,50 @@ const ParticipantGamePage = () => {
     if (phase === 'result') {
         return (
             <div
-                className={`min-h-screen flex items-center justify-center p-4 ${isCorrect
-                    ? 'bg-gradient-to-br from-green-500 to-emerald-600'
-                    : 'bg-gradient-to-br from-red-500 to-rose-600'
+                className={`min-h-screen flex flex-col items-center p-4 bg-cover bg-center ${isCorrect
+                    ? 'bg-[url(../assets/images/correct.png)]'
+                    : 'bg-[url(../assets/images/wrong.png)]'
                     }`}
+                style={{ fontFamily: '"Fredoka", sans-serif' }}
             >
                 <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
-                <div className="text-center">
-                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-white/20 flex items-center justify-center">
-                        {isCorrect ? (
-                            <Check className="w-14 h-14 text-white" />
-                        ) : (
-                            <X className="w-14 h-14 text-white" />
-                        )}
-                    </div>
+                <div className='flex items-center gap-1 my-16'>
+                    <h1 className="text-white text-4xl">
+                        Quiz
+                    </h1>
 
-                    <div className="text-4xl font-black text-white mb-2">
+                    <img src={maskotFace} alt="maskot yüzü" className="w-12 h-14 rotate-12" />
+
+                    <h1 className="text-white text-4xl">
+                        Strike
+                    </h1>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                    {isCorrect ? (
+                        <Check className="text-white" size={100} strokeWidth={5} />
+                    ) : (
+                        <X className="text-white" size={100} strokeWidth={5} />
+                    )}
+
+                    <div className="text-6xl text-white">
                         {isCorrect ? 'Correct!' : 'Wrong!'}
                     </div>
 
                     {isCorrect && pointsEarned > 0 && (
-                        <div className="text-2xl font-bold text-white/90 mb-4">
-                            +{pointsEarned.toLocaleString()} points
-                        </div>
+                        <span
+                            className="text-[7rem] text-white font-[800]"
+                            style={{
+                                textShadow: `
+            0 0 4px #ccff66,
+            0 0 10px #aaee33,
+            0 0 23px #88dd00,
+            0 0 45px #55aa00,
+            0 0 80px #338800
+          `,
+                            }}
+                        >
+                            +{pointsEarned}
+                        </span>
                     )}
 
                     {streak >= 3 && (
@@ -468,7 +498,7 @@ const ParticipantGamePage = () => {
                         Waiting for leaderboard...
                     </div>
                 </div>
-            </div>
+            </div >
         );
     }
 
@@ -479,51 +509,90 @@ const ParticipantGamePage = () => {
         const { rank, totalScore } = statsRef.current;
 
         return (
-            <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+            <div
+                className={'min-h-screen flex flex-col items-center p-4 bg-cover bg-center bg-[url(../assets/images/leaderboard.png)]'}
+                style={{ fontFamily: '"Fredoka", sans-serif' }}
+            >
                 <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
-                <div className="max-w-sm mx-auto">
-                    <h2 className="text-2xl font-black text-white text-center mb-6">
-                        Leaderboard
-                    </h2>
 
-                    <div className="space-y-2 mb-6">
-                        {top5.map((player, idx) => (
-                            <div
-                                key={idx}
-                                className={`flex items-center gap-3 p-4 rounded-xl ${player.nickname === nickname
-                                    ? 'bg-white/30 ring-2 ring-white'
-                                    : 'bg-white/10'
-                                    }`}
-                            >
-                                <div className="text-white font-black text-xl w-8">
-                                    {idx + 1}
-                                </div>
-                                <div className="flex-1 text-white font-semibold">
-                                    {player.nickname}
-                                </div>
-                                <div className="text-white font-bold">
-                                    {player.score.toLocaleString()}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                {/* Logo */}
+                <div className='flex items-center gap-1 mt-8 mb-6'>
+                    <h1 className="text-white text-4xl font-bold">
+                        Quiz
+                    </h1>
+                    <img src={maskotFace} alt="maskot yüzü" className="w-12 h-14 rotate-12" />
+                    <h1 className="text-white text-4xl font-bold">
+                        Strike
+                    </h1>
+                </div>
 
-                    {/* Your position */}
-                    {rank > 0 && (
-                        <div className="bg-card rounded-2xl p-5 text-center">
-                            <div className="text-tertiary text-sm mb-1">Your Position</div>
-                            <div className="text-4xl font-black text-role-primary mb-1">
-                                #{rank}
+                {/* Leaderboard List */}
+                <div className="w-full max-w-sm space-y-2 mb-6">
+                    {top5.map((player, idx) => (
+                        <div
+                            key={idx}
+                            className={`flex items-center gap-3 p-4 rounded-xl backdrop-blur-sm ${player.nickname === nickname
+                                ? 'bg-white/30 ring-2 ring-white'
+                                : 'bg-white/10'
+                                }`}
+                        >
+                            <div className="text-white font-black text-xl w-8">
+                                {idx + 1}
                             </div>
-                            <div className="text-lg font-bold text-primary">
-                                {totalScore.toLocaleString()} points
+                            <div className="flex-1 text-white font-semibold">
+                                {player.nickname}
+                            </div>
+                            <div className="text-white font-bold">
+                                {player.score.toLocaleString()}
                             </div>
                         </div>
-                    )}
+                    ))}
+                </div>
 
-                    <div className="mt-6 text-center text-white/50 text-sm animate-pulse">
-                        Next question coming...
+                {/* Your position - glowing rank */}
+                {rank > 0 && (
+                    <div className="flex flex-col items-center gap-2">
+                        <div
+                            style={{
+                                position: 'absolute',
+                                width: '200px',
+                                height: '200px',
+                                borderRadius: '50%',
+                                background: 'rgba(120, 60, 220, 0.35)',
+                                filter: 'blur(50px)',
+                                zIndex: 0,
+                            }}
+                        />
+                        <span
+                            className="font-black"
+                            style={{
+                                position: 'relative',
+                                zIndex: 1,
+                                fontSize: '5rem',
+                                color: 'white',
+                                textShadow: `
+                                    0 0 5px rgba(255,255,255,0.6),
+                                    0 0 15px rgba(200,180,255,0.5),
+                                    0 0 40px rgba(160,120,255,0.7)
+                                `,
+                            }}
+                        >
+                            #{rank}
+                        </span>
+                        <span
+                            className="font-black text-white mt-[-30px] z-10"
+                            style={{
+                                fontSize: '2rem',
+                                textShadow: `0 0 10px rgba(0,0,0,1), 0 0 50px rgba(157,0,255,1)`,
+                            }}
+                        >
+                            {totalScore.toLocaleString()}
+                        </span>
                     </div>
+                )}
+
+                <div className="mt-6 text-center text-white/50 text-sm animate-pulse">
+                    Next question coming...
                 </div>
             </div>
         );
@@ -536,27 +605,79 @@ const ParticipantGamePage = () => {
         const { rank, totalScore } = statsRef.current;
 
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+            <div
+                className={'min-h-screen flex flex-col items-center p-4 bg-cover bg-center bg-[url(../assets/images/leaderboard.png)]'}
+                style={{ fontFamily: '"Fredoka", sans-serif' }}
+            >
                 <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
-                <div className="bg-card rounded-3xl p-8 shadow-2xl text-center max-w-sm w-full">
+
+                {/* Logo */}
+                <div className='flex items-center gap-1 mt-16'>
+                    <h1 className="text-white text-4xl font-bold">
+                        Quiz
+                    </h1>
+                    <img src={maskotFace} alt="maskot yüzü" className="w-12 h-14 rotate-12" />
+                    <h1 className="text-white text-4xl font-bold">
+                        Strike
+                    </h1>
+                </div>
+
+                {/* Skor Alanı */}
+                <div className="flex flex-col items-center gap-2">
                     {rank > 0 ? (
                         <>
-                            <div className="text-tertiary text-sm mb-2">Your Current Position</div>
-                            <div className="text-6xl font-black text-role-primary mb-2">
+                            {/* Mor blur arka plan */}
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    width: '320px',
+                                    height: '320px',
+                                    borderRadius: '50%',
+                                    background: 'rgba(120, 60, 220, 0.45)',
+                                    filter: 'blur(60px)',
+                                    zIndex: 0,
+                                }}
+                            />
+
+                            {/* Rank - büyük beyaz glow yazı */}
+                            <span
+                                className="font-black"
+                                style={{
+                                    position: 'relative',
+                                    zIndex: 1,
+                                    fontSize: '10rem',
+                                    color: 'white',
+                                    textShadow: `
+            0 0 5px rgba(255,255,255,0.6),
+            0 0 15px rgba(200,180,255,0.5),
+            0 0 40px rgba(160,120,255,0.7),
+            0 0 80px rgba(140,90,255,0.6),
+            0 0 130px rgba(120,60,255,0.4)
+        `,
+                                    WebkitTextStroke: '1px rgba(255,255,255,0.3)',
+                                }}
+                            >
                                 #{rank}
-                            </div>
-                            <div className="text-2xl font-bold text-primary mb-4">
-                                {totalScore.toLocaleString()} points
-                            </div>
+                            </span>
+                            {/* Puan */}
+                            <span
+                                className="font-black text-white mt-[-75px] z-10"
+                                style={{
+                                    fontSize: '4rem',
+                                    textShadow: `
+            0 0 10px rgba(0, 0, 0, 1),
+            0 0 50px rgba(157, 0, 255, 1)
+        `,
+                                }}
+                            >
+                                {totalScore.toLocaleString()}
+                            </span>
                         </>
                     ) : (
-                        <div className="text-2xl font-bold text-gray-800 mb-4">
+                        <div className="text-2xl font-bold text-white mt-8">
                             Waiting for results...
                         </div>
                     )}
-                    <div className="text-tertiary text-sm">
-                        Look at the screen for full leaderboard
-                    </div>
                 </div>
             </div>
         );

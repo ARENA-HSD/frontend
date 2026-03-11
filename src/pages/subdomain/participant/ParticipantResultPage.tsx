@@ -8,7 +8,8 @@
 import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { Crown, RotateCw } from 'lucide-react';
-import { SEO } from '@/components';
+import { HeaderLogo, SEO } from '@/components';
+import Confetti from '@/components/quiz/shared/Confetti';
 import type { LeaderboardEntry } from '@/types';
 
 const ParticipantResultPage = () => {
@@ -24,10 +25,6 @@ const ParticipantResultPage = () => {
     const wrongAnswers = state?.wrongAnswers || 0;
     const gameMode = state?.gameMode || 'PERSONAL';
 
-    const handlePlayAgain = () => {
-        navigate('/join');
-    };
-
     const first = podium[0];
     const second = podium[1];
     const third = podium[2];
@@ -39,21 +36,42 @@ const ParticipantResultPage = () => {
         const myPodiumIdx = podium.findIndex(p => p.nickname === nickname);
 
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 p-4">
-                <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
-                    <div className="text-center mb-8">
-                        <div className="text-4xl font-black text-gray-900 mb-2">Quiz Complete!</div>
-                        <div className="text-gray-600">Great job!</div>
+            <div
+                className={'min-h-screen flex flex-col items-center justify-center p-4 bg-cover bg-center bg-[url(../assets/images/leaderboard.png)]'}
+                style={{ fontFamily: '"Fredoka", sans-serif' }}
+            >
+                <SEO
+                    title="Your Results"
+                    description="See how you did in the Quiz Strike session."
+                    noIndex
+                />
+                <Confetti />
+                <div className="card">
+                    <div className='scale-50 mt-[-90px]'>
+                        <HeaderLogo />
+                    </div>
+                    <div className="text-center mb-6">
+                        <div className="text-3xl font-black text-primary">Quiz Complete!</div>
                     </div>
 
-                    <div className="space-y-4 mb-6">
-                        <div className="flex items-center justify-between p-4 bg-role-primary-light rounded-xl">
-                            <div className="text-secondary font-semibold">Total Points</div>
-                            <div className="text-3xl font-black text-role-primary">{myTotalScore.toLocaleString()}</div>
+                    <div className="space-y-3 mb-6">
+                        {/* Total Points */}
+                        <div className="flex items-center bg-blue-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                            <div className="bg-blue-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
+                                Total Points
+                            </div>
+                            <div className="flex-1 text-right pr-6 text-4xl font-black text-blue-700">
+                                {myTotalScore.toLocaleString()}
+                            </div>
                         </div>
-                        <div className="flex items-center justify-between p-4 bg-yellow-50 rounded-xl">
-                            <div className="text-secondary font-semibold">Final Position</div>
-                            <div className="text-3xl font-black text-yellow-600">#{myRank || '-'}</div>
+                        {/* Final Position */}
+                        <div className="flex items-center bg-yellow-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                            <div className="bg-yellow-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
+                                Final Position
+                            </div>
+                            <div className="flex-1 text-right pr-6 text-3xl font-black text-yellow-700">
+                                #{myRank || '-'}
+                            </div>
                         </div>
                     </div>
 
@@ -66,10 +84,10 @@ const ParticipantResultPage = () => {
                                 const isMe = p.nickname === nickname;
                                 return (
                                     <div key={idx} className="text-center flex-1">
-                                        <div className={`${heights[idx]} ${colors[idx]} rounded-t-lg flex items-center justify-center ${isMe ? 'ring-2 ring-focus' : ''}`}>
+                                        <div className={`${heights[idx]} ${colors[idx]} rounded-t-lg flex items-center justify-center ${isMe ? 'ring-2 ring-blue-500' : ''}`}>
                                             <span className="text-white font-black text-lg">{idx + 1}</span>
                                         </div>
-                                        <div className={`text-xs font-bold mt-1 ${isMe ? 'text-role-primary' : 'text-secondary'}`}>
+                                        <div className={`text-xs font-bold mt-1 ${isMe ? 'text-blue-600' : 'text-secondary'}`}>
                                             {p.nickname}
                                         </div>
                                         <div className="text-xs text-tertiary">{(p.score ?? 0).toLocaleString()}</div>
@@ -79,7 +97,7 @@ const ParticipantResultPage = () => {
                         </div>
                     )}
 
-                    <div className="text-center text-lg font-semibold text-secondary">
+                    <div className="text-center text-lg font-semibold text-gray">
                         Thank you for playing! 🎓
                     </div>
                 </div>
@@ -91,48 +109,61 @@ const ParticipantResultPage = () => {
     // STAGE MODE: Stats summary card
     // ========================================
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-600 p-4">
+        <div
+            className={'min-h-screen flex flex-col items-center justify-center p-4 bg-cover bg-center bg-[url(../assets/images/leaderboard.png)]'}
+            style={{ fontFamily: '"Fredoka", sans-serif' }}
+        >
             <SEO
                 title="Your Results"
                 description="See how you did in the Quiz Strike session."
                 noIndex
             />
-            <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
-                <div className="text-center mb-8">
-                    <div className="text-4xl font-black text-primary mb-2">Quiz Complete!</div>
-                    <div className="text-secondary">Great job!</div>
+            <Confetti />
+            <div className="card">
+                <div className='scale-50 mt-[-90px]'>
+                    <HeaderLogo />
+                </div>
+                <div className="text-center mb-6">
+                    <div className="text-3xl font-black text-primary">Quiz Complete!</div>
                 </div>
 
-                <div className="space-y-4 mb-6">
-                    <div className="flex items-center justify-between p-4 bg-role-primary-light rounded-xl">
-                        <div className="text-secondary font-semibold">Total Points</div>
-                        <div className="text-3xl font-black text-role-primary">{myTotalScore.toLocaleString()}</div>
+                <div className="space-y-3 mb-6">
+                    {/* Total Points */}
+                    <div className="flex items-center bg-blue-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                        <div className="bg-blue-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
+                            Total Points
+                        </div>
+                        <div className="flex-1 text-right pr-6 text-4xl font-black text-blue-700">
+                            {myTotalScore.toLocaleString()}
+                        </div>
                     </div>
+                    {/* Correct Answers */}
                     {correctAnswers > 0 && (
-                        <div className="flex items-center justify-between p-4 bg-role-success-light rounded-xl">
-                            <div className="text-secondary font-semibold">Correct Answers</div>
-                            <div className="text-2xl font-bold text-role-success">{correctAnswers}</div>
+                        <div className="flex items-center bg-green-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                            <div className="bg-green-500 text-white font-bold text-lg px-5 py-3 rounded-full whitespace-nowrap">
+                                Correct Answers
+                            </div>
+                            <div className="flex-1 text-right pr-6 text-3xl font-black text-green-700">
+                                {correctAnswers}
+                            </div>
                         </div>
                     )}
+                    {/* Wrong Answers */}
                     {wrongAnswers > 0 && (
-                        <div className="flex items-center justify-between p-4 bg-role-danger-light rounded-xl">
-                            <div className="text-secondary font-semibold">Wrong Answers</div>
-                            <div className="text-2xl font-bold text-role-danger">{wrongAnswers}</div>
+                        <div className="flex items-center bg-red-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                            <div className="bg-red-400 text-white font-bold text-lg px-5 py-3 rounded-full whitespace-nowrap">
+                                Wrong Answers
+                            </div>
+                            <div className="flex-1 text-right pr-6 text-3xl font-black text-red-600">
+                                {wrongAnswers}
+                            </div>
                         </div>
                     )}
                 </div>
 
-                <div className="text-center text-lg font-semibold text-gray-700 mb-6">
+                <div className="text-center text-lg font-semibold text-gray">
                     Thank you for playing! 🎓
                 </div>
-
-                <button
-                    onClick={handlePlayAgain}
-                    className="w-full py-4 btn-primary rounded-xl text-lg font-bold hover:shadow-lg flex items-center justify-center gap-2"
-                >
-                    <RotateCw className="w-5 h-5" />
-                    Play Again
-                </button>
             </div>
         </div>
     );

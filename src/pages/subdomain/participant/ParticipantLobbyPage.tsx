@@ -13,6 +13,7 @@ import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
 import type { ForceDisconnectPlayload, GameStartingPlayload, QuestionStartPlayload, ReconnectSuccessPlayerPlayload } from '@/types';
 import maskot from "@/assets/maskot.png";
+import Countdown from '@/components/quiz/shared/Countdown';
 
 const ParticipantLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -128,20 +129,7 @@ const ParticipantLobbyPage = () => {
     // ========================================
     if (phase === 'countdown') {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
-                <div className="text-center">
-                    <div className="text-white text-2xl font-bold mb-6 animate-pulse">
-                        Get Ready!
-                    </div>
-                    <div className="text-white text-9xl font-black">
-                        {countdown > 0 ? countdown : '🚀'}
-                    </div>
-                    <div className="text-white/60 text-lg mt-6">
-                        Question is coming...
-                    </div>
-                </div>
-            </div>
+            <Countdown countdown={countdown} />
         );
     }
 

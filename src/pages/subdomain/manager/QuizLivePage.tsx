@@ -441,29 +441,26 @@ const QuizLivePage = () => {
                     {/* Question Card Container */}
                     <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-4 md:p-6 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink relative z-40 min-h-0 flex-1 max-h-[85vh]">
                         {/* Question Media Area */}
-                        <div className="w-full max-w-lg lg:max-w-xl h-28 md:h-40 max-h-[25vh] bg-gray-100 rounded-[24px] overflow-hidden shadow-inner mb-3 md:mb-5 border border-gray-200 flex items-center justify-center shrink-0">
-                            {questionMedia ? (
+                        {questionMedia ? (
+                            <div className="w-full max-w-lg lg:max-w-xl h-28 md:h-40 max-h-[25vh] bg-gray-100 rounded-[24px] overflow-hidden shadow-inner mb-3 md:mb-5 border border-gray-200 flex items-center justify-center shrink-0">
                                 <img src={questionMedia} alt="Question" className="w-full h-full object-contain" />
-                            ) : (
-                                <div className="w-full h-28 md:h-40 flex items-center justify-center text-gray-300">
-                                    <TrendingUp className="w-10 h-10 opacity-20" />
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        ) : null}
+
 
                         {/* Question Text */}
-                        <div className="w-full text-center mb-3 md:mb-6 px-2 md:px-4 shrink min-h-0 overflow-y-auto">
+                        <div className="w-full text-center mb-3 md:mb-6 px-2 md:px-4 shrink min-h-0 overflow-hidden">
                             <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight">
                                 {questionText}
                             </h2>
                         </div>
 
                         {/* Answers Grid */}
-                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 lg:gap-4 mt-auto shrink-0">
+                        <div className={`w-full grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3 lg:gap-4 shrink-0 ${!questionMedia ? 'flex-1' : 'mt-auto'}`}>
                             {(options || []).map((option, idx) => (
                                 <div
                                     key={idx}
-                                    className="bg-white p-2.5 md:p-4 rounded-[16px] md:rounded-[20px] shadow-[0_3px_12px_rgba(0,0,0,0.04)] border-[2px] border-gray-100 flex items-center justify-center group transition-all shrink-0 min-h-[3.5rem] md:min-h-[4rem] hover:border-gray-200 cursor-default"
+                                    className={`bg-white p-2.5 md:p-4 rounded-[16px] md:rounded-[20px] shadow-[0_3px_12px_rgba(0,0,0,0.04)] border-[2px] border-gray-100 flex items-center justify-center group transition-all shrink-0 ${!questionMedia ? 'min-h-[5rem] md:min-h-[6rem]' : 'min-h-[3.5rem] md:min-h-[4rem]'} hover:border-gray-200 cursor-default`}
                                 >
                                     <span className="text-base md:text-lg lg:text-2xl font-black text-gray-800 group-hover:scale-[1.02] transition-transform text-center select-none">
                                         {option.text}
@@ -551,7 +548,7 @@ const QuizLivePage = () => {
                                     <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full gap-2">
                                         {count > 0 ? (
                                             <div
-                                                className={`w-full max-w-[70px] flex flex-col items-center justify-start rounded-t-xl transition-all duration-1000 ease-out ${isCorrect ? 'bg-[#22c55e]' : 'bg-[#e2e8f0]'}`}
+                                                className={`w-full max-w-[150px] flex flex-col items-center justify-start rounded-t-xl transition-all duration-1000 ease-out ${isCorrect ? 'bg-[#22c55e]' : 'bg-[#e2e8f0]'}`}
                                                 style={{ height: `${heightPercent}%`, minHeight: '3rem' }}
                                             >
                                                 <div className={`mt-2 font-black text-xl lg:text-2xl ${isCorrect ? 'text-white' : 'text-gray-500'}`}>
@@ -564,7 +561,7 @@ const QuizLivePage = () => {
                                             </div>
                                         )}
                                         <div className="text-gray-800 font-black text-xs lg:text-sm text-center truncate w-full px-1">
-                                            {option.text}
+                                            {String.fromCharCode(65 + idx)}
                                         </div>
                                     </div>
                                 )

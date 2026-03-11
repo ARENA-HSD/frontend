@@ -216,6 +216,7 @@ export interface QuestionStartPlayload {
     qIndex: number;
     time: number;
     serverTime: number;
+    mode: 'PERSONAL' | 'STAGE';
     text?: string;         // Included in PERSONAL mode
     mediaUrl?: string;     // Included in PERSONAL mode
     options?: QuestionOption[]; // Filtered by mode

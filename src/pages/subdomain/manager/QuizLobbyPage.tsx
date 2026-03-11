@@ -15,7 +15,12 @@ import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
+import { HeaderLogo } from '@/components/layout';
+import countdownBg from '@/assets/images/background.png';
+import maskotWaving from '@/assets/maskot-elsalliyor.png';
+import maskotBase from '@/assets/maskot.png';
 import type { GameStartingPlayload, LobbyUpdatePlayload, PlayerKickedPlayload, QuestionStartPlayload, ReconnectSuccessHostPlayload, Quiz } from '@/types';
+import Countdown from '@/components/quiz/shared/Countdown';
 
 const QuizLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -34,6 +39,14 @@ const QuizLobbyPage = () => {
     const [phase, setPhase] = useState<'lobby' | 'countdown'>('lobby');
     const [countdown, setCountdown] = useState(1);
     const [copied, setCopied] = useState(false);
+    const [winHeight, setWinHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
+
+    // Track window height for responsive scaling
+    useEffect(() => {
+        const handleResize = () => setWinHeight(window.innerHeight);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Build join URL using subdomain
     const joinUrl = subdomain ? `${window.location.host}/join?pin=${gamePin}` : '';
@@ -137,8 +150,7 @@ const QuizLobbyPage = () => {
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
                 setPhase('countdown');
-                const diffSeconds = Math.floor((Date.now() - payload.serverTime) / 1000);
-                setCountdown(payload.countDown - diffSeconds);
+                setCountdown(payload.countDown);
             })
         );
 
@@ -155,8 +167,8 @@ const QuizLobbyPage = () => {
         // Listen for player kicked confirmation
         unsubs.push(
             gameSocket.on(WS_EVENTS.PLAYER_KICKED, (payload: PlayerKickedPlayload) => {
-                setRecentPlayers(prev => prev.filter(name => name !== payload.nickname));
-                setParticipantCount(prev => Math.max(0, prev - 1));
+                setRecentPlayers((prev: string[]) => prev.filter(name => name !== payload.nickname));
+                setParticipantCount((prev: number) => Math.max(0, prev - 1));
             })
         );
 
@@ -201,23 +213,29 @@ const QuizLobbyPage = () => {
         };
     }, [wsConnected]);
 
+    // Countdown interval — only depends on phase, not countdown value
     useEffect(() => {
-        if (phase === 'countdown') {
-            const interval = setInterval(() => {
-                setCountdown(prev => prev - 1);
-            }, 1000);
-            return () => clearInterval(interval);
-        }
-        if (countdown <= 0) {
-            navigate(`/manager/quizzes/${quizId}/live`, {
-                state: {
-                    gameId,
-                    gamePin,
-                    quiz,
+        if (phase !== 'countdown') return;
+        const interval = setInterval(() => {
+            setCountdown((prev: number) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
                 }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [phase]);
+
+    // Navigate when countdown reaches 0
+    useEffect(() => {
+        if (phase === 'countdown' && countdown <= 0) {
+            navigate(`/manager/quizzes/${quizId}/live`, {
+                state: { gameId, gamePin, quiz },
             });
         }
-    }, [phase, countdown, navigate]);
+    }, [countdown, phase, navigate, quizId, gameId, gamePin, quiz]);
 
     // ========================================
     // Actions
@@ -258,159 +276,153 @@ const QuizLobbyPage = () => {
     // ========================================
     if (phase === 'countdown') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
-                <ReconnectOverlay />
-                <div className="text-center">
-                    <div className="text-white text-2xl font-bold mb-6 animate-pulse">
-                        Get Ready!
-                    </div>
-                    <div className="text-white text-9xl font-black">
-                        {countdown > 0 ? countdown : '🚀'}
-                    </div>
-                    <div className="text-white/60 text-lg mt-6">
-                        Question is coming...
-                    </div>
-                </div>
-            </div>
+            <Countdown countdown={countdown} />
         );
     }
 
     // Split players into tiers for the cascade display
     const largePlayers = recentPlayers.slice(0, 3);
     const mediumPlayers = recentPlayers.slice(3, 8);
-    const smallPlayers = recentPlayers.slice(8);
-
-    // ========================================
+    const smallPlayers = recentPlayers.slice(8)    // ========================================
     // Render
     // ========================================
     return (
-        <div className="max-w-6xl mx-auto p-4">
+        <div className="h-screen flex flex-col overflow-hidden p-4 md:p-6 lg:p-8 bg-transparent">
             <SEO
                 title="Quiz Lobby"
                 description="Waiting for participants to join your Quiz Strike session."
                 noIndex
             />
             <ReconnectOverlay />
-            {/* Top Bar */}
-            <div className="bg-card p-4 rounded-lg shadow-sm mb-4 flex items-center justify-between">
-                <button className="px-4 py-2 bg-page text-secondary rounded-lg font-medium hover:opacity-80 flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    Manage Participants
-                </button>
-                <div className="text-xl font-bold text-primary">{quiz.title}</div>
-                <div className="flex items-center gap-2">
-                    {wsConnected && (
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" title="Connected" />
-                    )}
-                    <span className="text-sm text-tertiary">
-                        {wsConnected ? 'Live' : 'Offline'}
-                    </span>
-                </div>
-            </div>
 
-            {/* PIN & QR Display */}
-            <div className="flex">
-                {/* QR Code */}
-                {joinUrl && (
-                    <div className="flex flex-col items-center bg-card rounded-2xl p-8 shadow-lg">
-                        <div className="text-sm text-tertiary font-medium mb-2">Game PIN</div>
-                        <div className="text-6xl font-black text-role-primary tracking-widest mb-4">
-                            {gamePin || '------'}
-                        </div>
-                        <div className="text-sm text-tertiary font-medium mb-3">Scan to Join</div>
-                        <div className="bg-card p-3 rounded-xl border-2 border-light">
-                            <QRCodeSVG
-                                value={joinUrl}
-                                size={160}
-                                level="H"
-                                bgColor={getComputedStyle(document.documentElement).getPropertyValue('--surface-card-bg').trim() || '#ffffff'}
-                                fgColor={getComputedStyle(document.documentElement).getPropertyValue('--role-primary').trim() || '#3b82f6'}
-                            />
-                        </div>
-                        <div className="mt-3 flex items-center gap-2 bg-page rounded-lg px-3 py-2 max-w-xs">
-                            <span className="text-xs text-secondary truncate select-all font-mono">
-                                {joinUrl}
-                            </span>
-                            <button
-                                onClick={copyToClipboard}
-                                className="flex-shrink-0 p-1 rounded hover:bg-gray-200 transition-colors"
-                                title="Copy link"
-                            >
-                                {copied ? (
-                                    <Check className="w-4 h-4 text-green-500" />
-                                ) : (
-                                    <Copy className="w-4 h-4 text-tertiary" />
-                                )}
-                            </button>
+            {/* Premium Header Bar - Slimmer for better fit */}
+            <div className="w-full max-w-7xl mx-auto mb-6 flex items-center justify-between flex-shrink-0">
+                {/* Logo & Maskot */}
+                <HeaderLogo />
+
+                {/* Header Actions Card - Glassmorphic feel */}
+                <div className="flex-1 max-w-3xl bg-white/95 backdrop-blur-md rounded-2xl shadow-xl px-4 py-3 flex items-center justify-between md:ml-[-60px] z-10 border border-white/50">
+                    <button className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold transition-all border-b-2 border-black/10 active:translate-y-[1px] active:border-b-0">
+                        <Users className="w-5 h-5 text-blue-500" />
+                        <span className="text-xs font-black uppercase tracking-tight hidden sm:inline">Manage Participants</span>
+                    </button>
+
+                    <div className="flex flex-col items-center px-4 overflow-hidden">
+                        <h1 className="text-lg md:text-xl font-black text-gray-900 uppercase tracking-tighter truncate leading-none mb-1">
+                            {quiz.title}
+                        </h1>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">PIN: {gamePin}</span>
                         </div>
                     </div>
-                )}
 
-                {/* Participants */}
-                <div className="mb-6 w-full p-4">
-                    <h3 className="text-lg font-semibold text-secondary mb-3 flex items-center gap-2">
-                        <Users className="w-5 h-5" />
-                        Participants ({participantCount})
-                    </h3>
-
-                    {participantCount === 0 ? (
-                        <div className="text-center py-12">
-                            <div className="text-tertiary text-lg animate-pulse">
-                                Waiting for participants to join...
-                            </div>
-                        </div>
-                    ) : (
-                        <>
-                            {/* Large tiles - first 3 */}
-                            {largePlayers.length > 0 && (
-                                <div className="flex flex-wrap justify-evenly items-center mb-3">
-                                    {largePlayers.map((name, idx) => (
-                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-card p-4 rounded-lg shadow-sm animate-fadeIn hover:bg-page hover:line-through">
-                                            <div className="text-xl font-semibold text-primary">{name}</div>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Medium tiles - next 5 */}
-                            {mediumPlayers.length > 0 && (
-                                <div className="flex flex-wrap justify-evenly items-center mb-3">
-                                    {mediumPlayers.map((name, idx) => (
-                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-card p-3 rounded-lg shadow-sm hover:bg-page hover:line-through">
-                                            <div className="text-lg font-medium text-primary">{name}</div>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Small tiles - remaining */}
-                            {smallPlayers.length > 0 && (
-                                <div className="flex flex-wrap justify-evenly items-center pb-2 gap-2">
-                                    {smallPlayers.map((name, idx) => (
-                                        <button key={idx} onClick={() => handleKickPlayer(name)} className="bg-card px-4 py-2 rounded-lg shadow-sm whitespace-nowrap hover:bg-page hover:line-through">
-                                            <div className="text-sm font-medium text-secondary">{name}</div>
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </>
-                    )}
+                    <div className="flex items-center gap-2 bg-emerald-500 px-3 py-1 rounded-full border-b-2 border-black/10">
+                        <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+                        <span className="text-white text-xs font-black uppercase">Live</span>
+                    </div>
                 </div>
             </div>
 
+            {/* Main Content Grid - Flex-1 with min-h-0 for scroll-less behavior */}
+            <div className="w-full max-w-7xl mx-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 min-h-0 mb-6">
 
-            {/* Start Button */}
-            <div className="flex justify-center">
+                {/* Left Column: Join Info */}
+                <div className="bg-white rounded-[32px] shadow-2xl py-20 flex flex-col items-center justify-center border-b-[6px] border-black/10 relative overflow-hidden h-full min-h-[350px]">
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-500 via-purple-500 to-orange-500" />
+
+                    <div className="flex flex-col items-center justify-center space-y-2 lg:space-y-4 w-full">
+                        <div className="flex flex-col items-center">
+                            <div className="text-xs lg:text-sm font-black text-gray-400 uppercase tracking-widest mb-1">Game PIN</div>
+                            <div className="text-4xl lg:text-7xl font-black text-[#f5a623] drop-shadow-[0_4px_0_rgba(0,0,0,0.05)] tracking-tighter italic leading-none">
+                                {gamePin || '------'}
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col items-center w-full">
+                            <div className="text-xs lg:text-sm font-black text-gray-900 uppercase tracking-wider mb-2 lg:mb-4">Scan to Join</div>
+
+                            <div className="flex flex-col items-center w-full">
+                                <QRCodeSVG
+                                    value={joinUrl}
+                                    size={winHeight < 700 ? 120 : winHeight < 900 ? 160 : 200}
+                                    level="H"
+                                    includeMargin={false}
+                                    fgColor="#111"
+                                />
+                                {/* Copy Link Input Group */}
+                                <div className="w-full max-w-sm flex items-center bg-gray-50 rounded-full p-1 border border-gray-200 mt-2 lg:mt-4">
+                                    <div className="flex-1 px-4 text-[10px] lg:text-xs font-medium text-gray-400 truncate lowercase">
+                                        {joinUrl.replace(/^https?:\/\//, '')}
+                                    </div>
+                                    <button
+                                        onClick={copyToClipboard}
+                                        className={`px-4 lg:px-6 py-1.5 lg:py-2 rounded-full font-black uppercase tracking-wider text-[10px] lg:text-xs transition-all active:scale-95 ${copied
+                                            ? 'bg-emerald-500 text-white'
+                                            : 'bg-gray-900 text-white hover:bg-black'
+                                            }`}
+                                    >
+                                        {copied ? 'Copied!' : 'Copy'}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+                {/* Right Column: Participants */}
+                <div className="flex flex-col h-full min-h-0">
+                    <div className="flex items-center justify-between mb-3 px-4">
+                        <div className="text-xl font-black text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] uppercase italic tracking-tighter">
+                            Participants
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-white text-sm font-bold">
+                            {participantCount} Joined
+                        </div>
+                    </div>
+
+                    <div className="flex-1 bg-white rounded-[32px] shadow-2xl p-6 lg:p-8 border-b-[6px] border-black/10 relative flex flex-col min-h-0">
+                        <div className="absolute top-0 left-0 w-full h-1.5 bg-blue-500" />
+
+                        {participantCount === 0 ? (
+                            <div className="flex-1 flex flex-col items-center justify-center text-center">
+                                <div className="text-2xl lg:text-3xl font-black text-gray-900 uppercase tracking-tight max-w-[240px] leading-none mb-4 opacity-20">
+                                    Waiting for participants...
+                                </div>
+                                <div className="w-16 h-1 bg-gray-100 rounded-full animate-pulse" />
+                            </div>
+                        ) : (
+                            <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200 hover:scrollbar-thumb-gray-300">
+                                <div className="flex flex-wrap gap-3 content-start pb-4">
+                                    {recentPlayers.map((name, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => handleKickPlayer(name)}
+                                            className="bg-gray-100 px-4 py-2 lg:px-6 lg:py-3 rounded-xl font-black text-gray-800 uppercase tracking-tighter shadow-sm hover:bg-red-50 hover:text-red-600 hover:line-through transition-all border-b-2 border-black/5 active:translate-y-[1px] active:border-b-0"
+                                        >
+                                            {name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer Action: Start Button - Fixed at bottom of flex column */}
+            <div className="flex-shrink-0 flex justify-center pb-2">
                 <button
                     onClick={handleStartGame}
                     disabled={isStarting || participantCount === 0}
-                    className={`px-12 py-4 rounded-lg text-xl font-bold shadow-lg flex items-center gap-3 transition-all ${isStarting || participantCount === 0
-                        ? 'bg-page text-tertiary cursor-not-allowed'
-                        : 'btn-primary hover:shadow-xl'
+                    className={`group relative flex items-center gap-4 px-12 lg:px-20 py-4 lg:py-6 rounded-full text-xl lg:text-2xl font-black uppercase italic tracking-tighter transition-all shadow-[0_8px_0_rgba(200,130,0,1)] active:shadow-none active:translate-y-[8px] ${isStarting || participantCount === 0
+                        ? 'bg-gray-400 text-white cursor-not-allowed grayscale'
+                        : 'bg-[#f5a623] text-white hover:bg-[#f6b03c]'
                         }`}
                 >
-                    <Zap className="w-6 h-6" />
-                    {isStarting ? 'Starting...' : 'Start Quiz'}
+                    <Zap className={`w-6 h-6 lg:w-8 lg:h-8 fill-current ${!isStarting && participantCount > 0 ? "animate-pulse" : ""}`} />
+                    <span>{isStarting ? 'Starting...' : 'Start Quiz'}</span>
                 </button>
             </div>
         </div>

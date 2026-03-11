@@ -79,13 +79,6 @@ const Sidebar = ({ isOpen = true, onClose, navItems: navItemsProp }: SidebarProp
                         />
                     ))}
                 </nav>
-
-                {/* Sidebar Footer */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <div className="text-xs text-tertiary text-center">
-                        HSD Arena v2
-                    </div>
-                </div>
             </aside>
         </>
     );

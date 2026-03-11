@@ -11,6 +11,7 @@ import { organizationService } from '@/services';
 import { OrganizationCard } from '@/components';
 import { Button, MainLayout, SEO } from '@/components';
 import type { UserOrganization, Organization } from '@/types';
+import TitleHeader from '@/components/layout/TitleHeader';
 
 const OrganizationsPage = () => {
     const navigate = useNavigate();
@@ -82,26 +83,8 @@ const OrganizationsPage = () => {
                 description="Manage your Quiz Strike organizations and access your team dashboards."
                 noIndex
             />
-            <div className="max-w-5xl mx-auto px-4 py-12 space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-4xl font-['Titan_One',sans-serif] text-primary">
-                            Your Organizations
-                        </h1>
-                        <p className="text-lg">
-                            Select an organization to access or create a new one
-                        </p>
-                    </div>
-
-                    <Button
-                        variant="secondary"
-                        onClick={handleCreateNew}
-                        className="px-6 pb-3 pt-2 flex items-center justify-center font-bold gap-2"
-                    >
-                        + <div className="font-['Titan_One',sans-serif] font-thin pt-1">Create New</div>
-                    </Button>
-                </div>
+            <div className="max-w-5xl mx-auto space-y-6">
+                <TitleHeader title='Your Organizations' description='Select an organization to access or create a new one' isButton buttonText='Create New' buttonIcon='+' onClick={handleCreateNew} />
 
                 {/* Loading */}
                 {isLoading && (

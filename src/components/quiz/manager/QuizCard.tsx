@@ -18,8 +18,8 @@ interface QuizCardProps {
 const QuizCard = ({ quiz, onStart, onEdit, onDelete }: QuizCardProps) => {
 
     return (
-        <div className="card rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden h-full">
-            <div className="p-6 flex flex-col justify-between h-full">
+        <div className="card shadow-md hover:shadow-xl transition-shadow overflow-hidden h-full">
+            <div className="flex flex-col justify-between h-full">
                 <h3 className="font-bold text-lg text-primary mb-2">{quiz.title}</h3>
                 <div className="flex items-center justify-between mb-4">
                     <div className="text-sm text-tertiary">

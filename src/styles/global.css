@@ -7,6 +7,7 @@
 
 @import './variables.css';
 @import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap');
 
 /* ============================================================================
    Tailwind Directives
@@ -36,6 +37,12 @@
         font-family: var(--font-sans);
         font-size: var(--text-base);
         line-height: var(--leading-normal);
+    }
+
+    @media (max-width: 768px) {
+        body {
+            background-image: url("../assets/images/background-mobile.png");
+        }
     }
 
     /* Headings */

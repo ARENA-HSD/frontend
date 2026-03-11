@@ -61,7 +61,7 @@ const OrganizationCard = ({ organization, onAccess, onRefresh }: OrganizationCar
                 <div className="flex-1 min-w-0">
                     <h3 className="text-xl font-['Titan_One',sans-serif] text-primary mb-1 truncate">{name}</h3>
                     <p className=" text-sm truncate">
-                        {subdomain}.hsdarena.com
+                        {subdomain}.quizstrike.com.tr
                     </p>
                 </div>
                 <div className="flex flex-col items-end gap-2">

@@ -56,7 +56,7 @@ const RegisterPage = () => {
                         </a>
                     </p>
                 </div>
-                <img src={maskot} alt="maskot" className='w-[30%] mb-16 md:mr-16' />
+                <img src={maskot} alt="maskot" className='w-[30%] mb-8 md:mr-16' />
             </div>
         </MainLayout>
     );

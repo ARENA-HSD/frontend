@@ -36,7 +36,8 @@ const EditQuestionPage = () => {
                 quizId,
                 questionId
             );
-            setQuestion(response.data!.question);
+            const r = response as any;
+            setQuestion(r?.data?.question || r?.question || r);
         } catch (error) {
             console.error('Failed to load question:', error);
         } finally {
@@ -83,33 +84,27 @@ const EditQuestionPage = () => {
                 description="Edit an existing quiz question."
                 noIndex
             />
-            <div className="max-w-4xl mx-auto p-6">
-                {/* Header */}
-                <div className="bg-card p-6 rounded-lg shadow-sm mb-6">
-                    <div className="flex items-center justify-between">
+            <div className="w-full flex flex-col h-full overflow-y-auto overflow-x-hidden scrollbar-hide">
+                <div className="max-w-4xl mx-auto w-full">
+                    {/* Header */}
+                    <div className="flex items-center mb-8 gap-4">
                         <button
                             onClick={handleCancel}
-                            className="flex items-center gap-2 text-secondary hover:text-primary"
+                            className="p-2 -ml-2 text-primary hover:bg-page rounded-full transition-colors flex items-center justify-center cursor-pointer active:scale-95"
+                            title="Back to Quiz"
                         >
-                            <ArrowLeft className="w-5 h-5" />
-                            Back to Quiz
+                            <ArrowLeft className="w-8 h-8 stroke-[3]" />
                         </button>
-                        <div className="flex flex-col items-center gap-2">
-                            <div className="text-xl font-bold text-primary">Edit Question</div>
-                            <div className="text-sm text-tertiary">Question {question.orderIndex + 1}</div>
-                        </div>
-                        <button className="text-tertiary hover:text-secondary">
-                            <MoreVertical className="w-6 h-6" />
-                        </button>
+                        <h1 className="text-4xl font-black text-primary">Edit Question</h1>
                     </div>
-                </div>
 
-                {/* Editor */}
-                <QuestionEditor
-                    question={question}
-                    onUpdate={handleSave}
-                    onCancel={handleCancel}
-                />
+                    {/* Editor */}
+                    <QuestionEditor
+                        question={question}
+                        onUpdate={handleSave}
+                        onCancel={handleCancel}
+                    />
+                </div>
             </div>
         </SubdomainLayout>
     );

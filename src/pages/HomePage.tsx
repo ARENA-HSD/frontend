@@ -41,7 +41,7 @@ const HomePage = () => {
                         </Link>
                     </div>
                 </div>
-                <img src={maskot} alt="maskot" className='w-[30%] mb-16' />
+                <img src={maskot} alt="maskot" className='w-[30%] mb-8' />
             </div>
         </MainLayout>
     );

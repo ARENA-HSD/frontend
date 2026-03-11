@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button, MainLayout, SEO } from '@/components';
 import { MailboxIcon, CheckCircle2, XCircle, Building2 } from 'lucide-react';
 import { getMyInvitations, respondToInvitation } from '@/services/invitation.service';
+import TitleHeader from '@/components/layout/TitleHeader';
 
 interface Invitation {
     id: string;
@@ -64,14 +65,8 @@ const MyInvitationsPage = () => {
                 description="View and respond to organization invitations on Quiz Strike."
                 noIndex
             />
-            <div className="max-w-5xl mx-auto px-4 py-12 w-full">
-                {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-4xl font-['Titan_One',sans-serif] text-primary flex items-center gap-3">
-                        My Invitations
-                    </h1>
-                    <p className="mt-2 text-lg ">Manage pending invitations across all organizations.</p>
-                </div>
+            <div className="max-w-5xl mx-auto w-full">
+                <TitleHeader title='My Invitations' description='Manage pending invitations across all organizations.' />
 
                 {error && (
                     <div className="bg-role-danger-light text-role-danger p-4 rounded-xl border border-role-danger mb-6">

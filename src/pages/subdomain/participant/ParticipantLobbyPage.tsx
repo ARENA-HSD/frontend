@@ -12,6 +12,8 @@ import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
 import type { ForceDisconnectPlayload, GameStartingPlayload, QuestionStartPlayload, ReconnectSuccessPlayerPlayload } from '@/types';
+import maskot from "@/assets/maskot.png";
+import Countdown from '@/components/quiz/shared/Countdown';
 
 const ParticipantLobbyPage = () => {
     const navigate = useManagerNavigate();
@@ -47,8 +49,8 @@ const ParticipantLobbyPage = () => {
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
                 setPhase('countdown');
-                const diffSeconds = Math.floor((Date.now() - payload.serverTime) / 1000);
-                setCountdown(payload.countDown - diffSeconds);
+                console.log(payload.countDown)
+                setCountdown(payload.countDown);
             })
         );
 
@@ -106,84 +108,77 @@ const ParticipantLobbyPage = () => {
         };
     }, [navigate, state]);
 
+    // Countdown interval — only depends on phase, not countdown value
     useEffect(() => {
-        if (phase === 'countdown') {
-            const interval = setInterval(() => {
-                setCountdown(prev => prev - 1);
-            }, 1000);
-            return () => clearInterval(interval);
-        }
-        if (countdown <= 0) {
-            navigate('/play/game', {
-                state: {
-                    ...state,
+        if (phase !== 'countdown') return;
+        const interval = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
                 }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [phase]);
+
+    // Navigate when countdown reaches 0
+    useEffect(() => {
+        if (phase === 'countdown' && countdown <= 0) {
+            navigate('/play/game', {
+                state: { ...state },
+                replace: true,
             });
         }
-    }, [phase, countdown, navigate, state]);
+    }, [countdown, phase, navigate, state]);
 
     // ========================================
     // RENDER: Countdown
     // ========================================
     if (phase === 'countdown') {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
-                <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
-                <div className="text-center">
-                    <div className="text-white text-2xl font-bold mb-6 animate-pulse">
-                        Get Ready!
-                    </div>
-                    <div className="text-white text-9xl font-black">
-                        {countdown > 0 ? countdown : '🚀'}
-                    </div>
-                    <div className="text-white/60 text-lg mt-6">
-                        Question is coming...
-                    </div>
-                </div>
-            </div>
+            <Countdown countdown={countdown} />
         );
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-black/20">
             <SEO
                 title="Game Lobby"
                 description="Waiting for the quiz to start. Get ready to play!"
                 noIndex
             />
             <ReconnectOverlay onNavigateToJoin={() => navigate('/join')} />
-            <div className="text-center">
-                {/* Connected Badge */}
-                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur px-6 py-3 rounded-full mb-8">
-                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-                    <span className="text-white font-semibold">Connected</span>
-                </div>
+            <div className="flex flex-col gap-4 w-[80%] max-w-[400px] text-center">
 
-                {/* Avatar */}
-                <div className="w-24 h-24 bg-white/20 backdrop-blur rounded-full mx-auto mb-6 flex items-center justify-center">
-                    <span className="text-4xl font-black text-white">
-                        {nickname.charAt(0).toUpperCase()}
-                    </span>
-                </div>
+                <div className='bg-card shadow-[0_10px_15px_-12px_rgba(0,0,0,1)] rounded-2xl w-full flex flex-col items-center gap-2 py-10'>
+                    <h1 className='text-4xl font-black'>Welcome!</h1>
+                    <h2 className="text-3xl font-black text-blue-500">{nickname}</h2>
 
-                {/* Nickname */}
-                <h2 className="text-3xl font-black text-white mb-2">{nickname}</h2>
-                <p className="text-white/70 text-lg mb-8">You're in!</p>
+                </div>
 
                 {/* Waiting Message */}
-                <div className="bg-white/10 backdrop-blur rounded-2xl p-6 max-w-xs mx-auto">
-                    <div className="text-white/80 text-lg font-medium">
-                        Waiting for the host to start{dots}
+                <div className="flex flex-col items-center gap-2 text-white">
+                    <div className='flex items-center gap-2 font-bold'>
+                        <div className='w-4 h-4 rounded-full bg-green-500'></div>
+                        <div className="text-xl">
+                            Connected
+                        </div>
+                    </div>
+                    <div className='text-sm text-white/80'>
+                        Waiting for host to start{dots}
                     </div>
                 </div>
 
                 {/* PIN reminder */}
                 {pin && (
-                    <div className="mt-6 text-white/40 text-sm">
+                    <div className="mt-2 text-white/60 text-sm">
                         Game PIN: {pin}
                     </div>
                 )}
             </div>
+            <img src={maskot} alt="maskot" className='fixed w-[40%] rotate-[15deg] bottom-0 right-0 mb-8 mr-4' />
         </div>
     );
 };

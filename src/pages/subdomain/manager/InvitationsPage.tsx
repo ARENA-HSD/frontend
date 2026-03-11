@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, SubdomainLayout, SEO } from "@/components";
+import { Button, SubdomainLayout, SEO, Input } from "@/components";
 import { useInvitations } from "@/hooks";
 import { UserPlus, ArrowLeft, Trash2, Clock, CheckCircle, XCircle, Calendar } from "lucide-react";
 import { formatTimeAgo } from '@/lib/timeUtils';
@@ -54,6 +54,23 @@ const InvitationsPage = () => {
         }
     };
 
+    const getAvatarColor = (name: string) => {
+        const colors = [
+            'bg-role-warning text-inverse',
+            'bg-role-primary text-inverse',
+            'bg-role-danger text-inverse',
+            'bg-role-success text-inverse',
+            'bg-role-secondary text-inverse',
+        ];
+        let hash = 0;
+        if (name) {
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+        }
+        return colors[Math.abs(hash) % colors.length];
+    };
+
     return (
         <SubdomainLayout>
             <SEO
@@ -61,111 +78,112 @@ const InvitationsPage = () => {
                 description="Send and manage member invitations for your organization."
                 noIndex
             />
-            <div className="flex-1 space-y-6 overflow-auto p-4">
-                {/* Header */}
-                <div className="flex items-center justify-between bg-card p-6 rounded-xl shadow-sm border border-light">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate('/manager/members')}
-                            className="p-2 text-tertiary hover:text-secondary hover:bg-page rounded-lg transition-colors"
-                        >
-                            <ArrowLeft className="w-6 h-6" />
-                        </button>
-                        <div>
-                            <h2 className="text-2xl font-bold text-primary">Invitations</h2>
-                            <p className="text-tertiary text-sm">Send and manage member invitations</p>
-                        </div>
-                    </div>
+            <div className="w-full flex flex-col h-full overflow-hidden">
+
+                {/* Header Section */}
+                <div className="flex items-center mb-4 gap-4">
+                    <button
+                        onClick={() => navigate('/manager/members')}
+                        className="p-2 -ml-2 text-primary hover:bg-page rounded-full transition-colors flex items-center justify-center cursor-pointer active:scale-95"
+                    >
+                        <ArrowLeft className="w-8 h-8 stroke-[3]" />
+                    </button>
+                    <h1 className="text-4xl font-black text-primary">Invitations</h1>
                 </div>
 
+                {error && (
+                    <div className="bg-role-danger-light text-role-danger p-4 rounded-lg border border-role-danger italic mb-6">
+                        {error}
+                    </div>
+                )}
+
                 {/* Invite Form */}
-                <div className="bg-card p-6 rounded-xl shadow-sm border border-light">
-                    <form onSubmit={handleSendInvite} className="flex gap-4 items-end">
-                        <div className="flex-1 space-y-2">
-                            <label className="text-sm font-semibold text-secondary block">Invite by Username</label>
-                            <div className="relative">
-                                <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-tertiary" />
-                                <input
-                                    type="text"
-                                    value={inviteUsername}
-                                    onChange={(e) => setInviteUsername(e.target.value)}
-                                    placeholder="Enter username to invite..."
-                                    className="w-full pl-10 pr-4 py-2 bg-page border border-light rounded-lg outline-none transition-all"
-                                />
-                            </div>
+                <div className="mb-4">
+                    <label className="text-lg font-bold text-primary block mb-3">Invite by Username</label>
+                    <form onSubmit={handleSendInvite} className="flex gap-4 items-center">
+                        <div className="flex-1 relative max-w-xl">
+                            <Input
+                                type="text"
+                                value={inviteUsername}
+                                onChange={(e) => setInviteUsername(e.target.value)}
+                                placeholder="Enter username to invite..."
+                                className="px-6 py-3 text-lg ml-2"
+                            />
                         </div>
                         <Button
+                            variant="primary"
                             type="submit"
                             disabled={isInviting || !inviteUsername.trim()}
-                            variant="primary"
+                            className="text-lg font-bold px-6 py-3"
                         >
                             {isInviting ? 'Sending...' : 'Send Invitation'}
                         </Button>
                     </form>
                 </div>
 
-                {error && (
-                    <div className="bg-role-danger-light text-role-danger p-4 rounded-lg border border-role-danger italic">
-                        {error}
-                    </div>
-                )}
-
-                {/* Invitations List */}
-                <div className="bg-card rounded-xl shadow-sm border border-light overflow-hidden">
+                {/* Invitations List Section */}
+                <div className="flex-1 min-h-0 overflow-hidden mt-4">
                     {isLoading ? (
                         <div className="p-12 text-center text-tertiary">
                             <div className="animate-spin w-8 h-8 border-4 border-focus border-t-transparent rounded-full mx-auto mb-4"></div>
                             Loading invitations...
                         </div>
                     ) : (
-                        <table className="w-full text-left">
-                            <thead className="bg-page border-b border-light">
-                                <tr>
-                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Invitee</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-tertiary uppercase tracking-wider">Sent</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-light">
+                        <div className="w-full h-full flex flex-col overflow-hidden">
+                            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 pb-2 border-b border-light text-sm font-bold text-primary uppercase tracking-wider">
+                                <div>INVITEE</div>
+                                <div className="w-40 text-left">STATUS</div>
+                                <div className="w-32 text-left">SENT</div>
+                                <div className="w-20 text-right">ACTIONS</div>
+                            </div>
+
+                            <div className="flex flex-col gap-0 overflow-y-auto scrollbar-hide">
                                 {invitations.length > 0 ? invitations.map((inv) => (
-                                    <tr key={inv.id} className="hover:bg-role-primary-light/20 transition-colors">
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="font-semibold text-primary">{inv.inviteeUsername || 'Enriching...'}</div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                    <div key={inv.id} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 items-center py-4 border-b border-light hover:bg-page transition-colors px-2 rounded-lg">
+                                        <div className="flex items-center gap-4">
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${getAvatarColor(inv.inviteeUsername || '')}`}>
+                                                {(inv.inviteeUsername || 'U').substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="font-bold text-primary text-xl leading-tight">
+                                                    {inv.inviteeUsername || 'Enriching...'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="w-40 flex items-center justify-start">
                                             <div className="flex items-center gap-2">
                                                 {getStatusIcon(inv.status)}
-                                                <span className="text-sm font-medium capitalize">{inv.status.toLowerCase()}</span>
+                                                <span className={`text-base font-semibold capitalize ${inv.status.toUpperCase() === 'ACCEPTED' ? 'text-emerald-500' :
+                                                    inv.status.toUpperCase() === 'PENDING' ? 'text-amber-500' :
+                                                        'text-red-500'
+                                                    }`}>
+                                                    {inv.status.toLowerCase()}
+                                                </span>
                                             </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2 text-sm text-tertiary">
-                                                <Calendar className="w-4 h-4" />
-                                                {formatTimeAgo(inv.createdAt)}
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                                            {inv.status === 'PENDING' && (
-                                                <button
-                                                    onClick={() => handleRemoveInvitation(inv.id)}
-                                                    className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors"
-                                                    title="Cancel Invitation"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
+                                        </div>
+
+                                        <div className="w-32 flex items-center justify-start text-base text-secondary font-medium">
+                                            {formatTimeAgo(inv.createdAt)}
+                                        </div>
+
+                                        <div className="w-20 flex justify-end">
+                                            <button
+                                                onClick={() => handleRemoveInvitation(inv.id)}
+                                                className="p-2 text-tertiary hover:text-role-danger hover:bg-role-danger-light rounded-lg transition-colors bg-card border border-light hover:border-role-danger"
+                                                title="Cancel Invitation"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </div>
+                                    </div>
                                 )) : (
-                                    <tr>
-                                        <td colSpan={4} className="px-6 py-12 text-center text-tertiary italic">
-                                            No active invitations.
-                                        </td>
-                                    </tr>
+                                    <div className="py-12 text-center text-tertiary italic">
+                                        No active invitations.
+                                    </div>
                                 )}
-                            </tbody>
-                        </table>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>

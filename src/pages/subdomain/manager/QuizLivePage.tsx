@@ -388,9 +388,7 @@ const QuizLivePage = () => {
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
                     <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-2 md:mb-4 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
-                        <div className="hidden lg:flex shrink-0 z-50">
-                            <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
-                        </div>
+                        <HeaderLogo />
 
                         {/* Top Bar - Right next to Logo */}
                         <div className="flex-1 w-full bg-white rounded-[24px] shadow-[0_5px_0_rgba(0,0,0,0.12)] border-[3px] border-black/5 p-1.5 md:p-2 flex items-center justify-between pointer-events-auto z-40">
@@ -507,9 +505,7 @@ const QuizLivePage = () => {
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
                     <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-2 md:mb-4 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
-                        <div className="hidden lg:flex shrink-0 z-50">
-                            <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
-                        </div>
+                        <HeaderLogo />
 
                         {/* Top Bar - Right next to Logo */}
                         <div className="flex-1 w-full bg-white rounded-[24px] shadow-[0_5px_0_rgba(0,0,0,0.12)] border-[3px] border-black/5 p-1.5 md:p-2 flex items-center justify-between pointer-events-auto z-40">
@@ -590,8 +586,8 @@ const QuizLivePage = () => {
                                     <div
                                         key={idx}
                                         className={`relative p-3 lg:p-4 rounded-[16px] lg:rounded-[20px] flex flex-col items-center justify-center text-center transition-all min-h-[4rem] lg:min-h-[5rem] ${isCorrect
-                                                ? 'bg-[#ecfdf5] border-[3px] border-[#10b981] text-[#047857]'
-                                                : 'bg-white border-[2px] border-gray-200 text-gray-400 opacity-60'
+                                            ? 'bg-[#ecfdf5] border-[3px] border-[#10b981] text-[#047857]'
+                                            : 'bg-white border-[2px] border-gray-200 text-gray-400 opacity-60'
                                             }`}
                                     >
                                         <span className={`text-base lg:text-xl leading-tight ${isCorrect ? 'font-black' : 'font-bold'}`}>
@@ -640,9 +636,7 @@ const QuizLivePage = () => {
                     {/* Header Row Container - Tightly coupled Logo and Bar perfectly aligned left to the Question Card */}
                     <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-4 lg:mb-6 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
-                        <div className="hidden lg:flex shrink-0 z-50">
-                            <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
-                        </div>
+                        <HeaderLogo />
 
                         {/* Top Bar - Right next to Logo */}
                         <div className="flex-1 w-full flex-col sm:flex-row bg-white rounded-[24px] shadow-[0_5px_0_rgba(0,0,0,0.12)] border-[3px] border-black/5 p-1.5 md:p-2 flex items-center justify-between pointer-events-auto z-40 gap-2 sm:gap-0">
@@ -856,9 +850,7 @@ const QuizLivePage = () => {
                     {/* Header Row Container */}
                     <div className="w-full max-w-5xl flex flex-row items-center justify-start gap-1 md:gap-2 mb-2 md:mb-4 z-50 shrink-0 relative">
                         {/* Logo - Static and scaled */}
-                        <div className="hidden lg:flex shrink-0 z-50">
-                            <HeaderLogo scale={0.65} className="m-0 drop-shadow-xl" />
-                        </div>
+                        <HeaderLogo />
 
                         {/* Top Bar - Right next to Logo */}
                         <div className="flex-1 w-full bg-white rounded-[24px] shadow-[0_5px_0_rgba(0,0,0,0.12)] border-[3px] border-black/5 p-1.5 md:p-2 flex items-center justify-between pointer-events-auto z-40">
@@ -891,12 +883,12 @@ const QuizLivePage = () => {
 
                     {/* Card */}
                     <div className="w-full max-w-5xl bg-white rounded-[32px] md:rounded-[40px] shadow-2xl p-4 md:p-6 lg:p-8 flex flex-col items-center border-b-[6px] md:border-b-[8px] border-black/5 shrink relative z-40 min-h-0 flex-1 max-h-[85vh]">
-                        
+
                         {/* Title Area */}
                         <div className="w-full flex-none flex flex-col items-center justify-center relative pt-4 md:pt-6 mb-4 md:mb-6">
                             {/* Confetti Background */}
                             {confettiPieces.map((confetti, i) => (
-                                <div 
+                                <div
                                     key={i}
                                     className={`absolute rounded-sm ${confetti.color} ${confetti.rotate} animate-pulse ${confetti.delay} ${confetti.size || 'w-2 md:w-3 max-w-[12px] h-4 md:h-6 max-h-[24px]'}`}
                                     style={{ top: confetti.top, left: confetti.left }}
@@ -914,12 +906,12 @@ const QuizLivePage = () => {
 
                         {/* Podium Container - 3D CSS Blocks */}
                         <div className="flex items-end justify-center w-full max-w-3xl relative z-10 mx-auto mt-auto px-4 md:px-8">
-                            
+
                             {/* 2nd Place (Silver) */}
                             <div className="flex flex-col items-center z-20 w-[110px] sm:w-[130px] md:w-[180px] relative">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
-                                        {second?.nickname || second?.nick || '---'}
+                                        {second?.nickname || '---'}
                                     </div>
                                     <div className="text-xs md:text-lg font-bold text-gray-700 mt-1">
                                         {second ? `${(second.score || 0).toLocaleString()}` : '0'} 🔥
@@ -938,7 +930,7 @@ const QuizLivePage = () => {
                             <div className="flex flex-col items-center z-30 w-[130px] sm:w-[160px] md:w-[220px] relative -mx-2 md:-mx-4">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-base md:text-3xl font-black text-black leading-tight truncate w-full px-1">
-                                        {first?.nickname || first?.nick || '---'}
+                                        {first?.nickname || '---'}
                                     </div>
                                     <div className="text-sm md:text-xl font-bold text-gray-700 mt-1">
                                         {first ? `${(first.score || 0).toLocaleString()}` : '0'} 🔥
@@ -957,7 +949,7 @@ const QuizLivePage = () => {
                             <div className="flex flex-col items-center z-10 w-[110px] sm:w-[130px] md:w-[180px] relative -ml-1 md:-ml-2">
                                 <div className="text-center w-full z-40 absolute bottom-full pb-[35px] md:pb-[45px]">
                                     <div className="text-sm md:text-xl font-black text-black leading-tight truncate w-full px-1">
-                                        {third?.nickname || third?.nick || '---'}
+                                        {third?.nickname || '---'}
                                     </div>
                                     <div className="text-xs md:text-lg font-bold text-gray-700 mt-1">
                                         {third ? `${(third.score || 0).toLocaleString()}` : '0'} 🔥

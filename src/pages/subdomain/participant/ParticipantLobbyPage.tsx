@@ -49,8 +49,8 @@ const ParticipantLobbyPage = () => {
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
                 setPhase('countdown');
-                const diffSeconds = Math.floor((Date.now() - payload.serverTime) / 1000);
-                setCountdown(payload.countDown - diffSeconds);
+                console.log(payload.countDown)
+                setCountdown(payload.countDown);
             })
         );
 
@@ -108,21 +108,30 @@ const ParticipantLobbyPage = () => {
         };
     }, [navigate, state]);
 
+    // Countdown interval — only depends on phase, not countdown value
     useEffect(() => {
-        if (phase === 'countdown') {
-            const interval = setInterval(() => {
-                setCountdown(prev => prev - 1);
-            }, 1000);
-            return () => clearInterval(interval);
-        }
-        if (countdown <= 0) {
-            navigate('/play/game', {
-                state: {
-                    ...state,
+        if (phase !== 'countdown') return;
+        const interval = setInterval(() => {
+            setCountdown(prev => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
                 }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [phase]);
+
+    // Navigate when countdown reaches 0
+    useEffect(() => {
+        if (phase === 'countdown' && countdown <= 0) {
+            navigate('/play/game', {
+                state: { ...state },
+                replace: true,
             });
         }
-    }, [phase, countdown, navigate, state]);
+    }, [countdown, phase, navigate, state]);
 
     // ========================================
     // RENDER: Countdown

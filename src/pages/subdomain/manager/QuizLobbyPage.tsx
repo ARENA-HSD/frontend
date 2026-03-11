@@ -150,8 +150,7 @@ const QuizLobbyPage = () => {
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
                 setPhase('countdown');
-                const diffSeconds = Math.floor((Date.now() - payload.serverTime) / 1000);
-                setCountdown(payload.countDown - diffSeconds);
+                setCountdown(payload.countDown);
             })
         );
 
@@ -214,23 +213,29 @@ const QuizLobbyPage = () => {
         };
     }, [wsConnected]);
 
+    // Countdown interval — only depends on phase, not countdown value
     useEffect(() => {
-        if (phase === 'countdown') {
-            const interval = setInterval(() => {
-                setCountdown((prev: number) => prev - 1);
-            }, 1000);
-            return () => clearInterval(interval);
-        }
-        if (countdown <= 0) {
-            navigate(`/manager/quizzes/${quizId}/live`, {
-                state: {
-                    gameId,
-                    gamePin,
-                    quiz,
+        if (phase !== 'countdown') return;
+        const interval = setInterval(() => {
+            setCountdown((prev: number) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
                 }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [phase]);
+
+    // Navigate when countdown reaches 0
+    useEffect(() => {
+        if (phase === 'countdown' && countdown <= 0) {
+            navigate(`/manager/quizzes/${quizId}/live`, {
+                state: { gameId, gamePin, quiz },
             });
         }
-    }, [phase, countdown, navigate]);
+    }, [countdown, phase, navigate, quizId, gameId, gamePin, quiz]);
 
     // ========================================
     // Actions
@@ -293,9 +298,7 @@ const QuizLobbyPage = () => {
             {/* Premium Header Bar - Slimmer for better fit */}
             <div className="w-full max-w-7xl mx-auto mb-6 flex items-center justify-between flex-shrink-0">
                 {/* Logo & Maskot */}
-                <div className="flex items-center">
-                    <HeaderLogo scale={0.75} className="hidden md:inline-flex" />
-                </div>
+                <HeaderLogo />
 
                 {/* Header Actions Card - Glassmorphic feel */}
                 <div className="flex-1 max-w-3xl bg-white/95 backdrop-blur-md rounded-2xl shadow-xl px-4 py-3 flex items-center justify-between md:ml-[-60px] z-10 border border-white/50">

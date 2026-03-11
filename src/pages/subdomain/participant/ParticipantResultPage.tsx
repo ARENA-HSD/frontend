@@ -140,7 +140,7 @@ const ParticipantResultPage = () => {
                     {/* Correct Answers */}
                     {correctAnswers > 0 && (
                         <div className="flex items-center bg-green-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
-                            <div className="bg-green-500 text-white font-bold text-lg px-5 py-3 rounded-full whitespace-nowrap">
+                            <div className="bg-green-500 text-white font-bold text-lg px-5 py-4 rounded-full whitespace-nowrap">
                                 Correct Answers
                             </div>
                             <div className="flex-1 text-right pr-6 text-3xl font-black text-green-700">
@@ -151,7 +151,7 @@ const ParticipantResultPage = () => {
                     {/* Wrong Answers */}
                     {wrongAnswers > 0 && (
                         <div className="flex items-center bg-red-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
-                            <div className="bg-red-400 text-white font-bold text-lg px-5 py-3 rounded-full whitespace-nowrap">
+                            <div className="bg-red-400 text-white font-bold text-lg px-5 py-4 rounded-full whitespace-nowrap">
                                 Wrong Answers
                             </div>
                             <div className="flex-1 text-right pr-6 text-3xl font-black text-red-600">

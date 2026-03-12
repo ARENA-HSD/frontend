@@ -73,6 +73,13 @@ const MainLayout = ({ children, sidebar = true, navItems }: MainLayoutProps) => 
                 <header className="">
                     <div className="h-auto flex items-center justify-between">
                         <HeaderLogo />
+                        {process.env.NODE_ENV === 'development' && (
+                            <div className="hidden lg:flex px-4 py-1.5 rounded-full bg-yellow-100 border border-yellow-300 shadow-sm">
+                                <span className="text-sm font-semibold text-yellow-700 tracking-wide">
+                                    You are on <span className="font-extrabold">DEVELOPMENT</span> environment
+                                </span>
+                            </div>
+                        )}
                         <div className="flex items-center gap-4 mr-4">
                             <ThemeSwitcher />
                             {isAuthenticated && !isPublicRoute && (

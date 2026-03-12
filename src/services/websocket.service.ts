@@ -134,59 +134,102 @@ class GameWebSocket {
     }
 
     /**
-     * Connect to the WebSocket server
+     * Connect to the WebSocket server.
+     * Retries internally up to 3 times before rejecting — handles
+     * Cloudflare edge / first-attempt failures transparently.
      */
     connect(path?: string): Promise<void> {
         const wsPath = path || import.meta.env.VITE_WS_PATH || '/ws';
+
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            return Promise.resolve();
+        }
+
+        this.url = `${WS_BASE_URL}${wsPath}`;
+        this.shouldReconnect = true;
+
         return new Promise((resolve, reject) => {
-            if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-                resolve();
-                return;
-            }
+            let settled = false;
+            let attempt = 0;
+            const maxInitialAttempts = 3;
 
-            this.url = `${WS_BASE_URL}${wsPath}`;
-            this.shouldReconnect = true;
+            const tryConnect = () => {
+                attempt++;
 
-            try {
-                this.ws = new WebSocket(this.url);
-
-                this.ws.onopen = () => {
-                    console.log('🔌 WebSocket connected:', this.url);
-                    this._isConnected = true;
-                    this.reconnectAttempts = 0;
-                    resolve();
-                };
-
-                this.ws.onmessage = (event) => {
-                    try {
-                        const message: WSMessage = JSON.parse(event.data);
-                        console.log('📩 WS received:', message.type, message.data);
-                        this.handleInternalEvents(message);
-                        this.dispatch(message.type, message.data);
-                    } catch (err) {
-                        console.error('Failed to parse WS message:', event.data);
+                try {
+                    // Clean up previous broken socket before retrying
+                    if (this.ws) {
+                        this.ws.onopen = null;
+                        this.ws.onclose = null;
+                        this.ws.onerror = null;
+                        this.ws.onmessage = null;
                     }
-                };
 
-                this.ws.onclose = (event) => {
-                    console.log('🔌 WebSocket closed:', event.code, event.reason);
-                    this._isConnected = false;
+                    this.ws = new WebSocket(this.url);
 
-                    if (this.shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
-                        this.attemptReconnect();
+                    this.ws.onopen = () => {
+                        console.log('🔌 WebSocket connected:', this.url);
+                        this._isConnected = true;
+                        this.reconnectAttempts = 0;
+                        if (!settled) {
+                            settled = true;
+                            resolve();
+                        }
+                    };
+
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const message: WSMessage = JSON.parse(event.data);
+                            console.log('📩 WS received:', message.type, message.data);
+                            this.handleInternalEvents(message);
+                            this.dispatch(message.type, message.data);
+                        } catch (err) {
+                            console.error('Failed to parse WS message:', event.data);
+                        }
+                    };
+
+                    this.ws.onclose = (event) => {
+                        console.log('🔌 WebSocket closed:', event.code, event.reason);
+                        this._isConnected = false;
+
+                        // Still in initial connect phase — retry before rejecting
+                        if (!settled) {
+                            if (attempt < maxInitialAttempts) {
+                                const delay = 1000 * attempt;
+                                console.log(`🔄 Connect attempt ${attempt}/${maxInitialAttempts} failed, retrying in ${delay}ms...`);
+                                setTimeout(tryConnect, delay);
+                                return;
+                            }
+                            // All initial attempts exhausted
+                            settled = true;
+                            reject(new Error('WebSocket connection failed after retries'));
+                            return;
+                        }
+
+                        // Connection was established and now dropped — normal reconnection
+                        if (this.shouldReconnect && this.reconnectAttempts < this.maxReconnectAttempts) {
+                            this.attemptReconnect();
+                        }
+                    };
+
+                    this.ws.onerror = (error) => {
+                        console.error('🔌 WebSocket error:', error);
+                        this._isConnected = false;
+                        // Don't reject here — onclose will handle retry/rejection
+                    };
+                } catch (err) {
+                    if (!settled) {
+                        if (attempt < maxInitialAttempts) {
+                            setTimeout(tryConnect, 1000 * attempt);
+                        } else {
+                            settled = true;
+                            reject(err);
+                        }
                     }
-                };
+                }
+            };
 
-                this.ws.onerror = (error) => {
-                    console.error('🔌 WebSocket error:', error);
-                    this._isConnected = false;
-                    if (this.reconnectAttempts === 0) {
-                        reject(error);
-                    }
-                };
-            } catch (err) {
-                reject(err);
-            }
+            tryConnect();
         });
     }
 

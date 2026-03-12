@@ -73,15 +73,20 @@ const QuizLobbyPage = () => {
         };
     }, [quizId, subdomain]);
 
-    // Page-refresh reconnect for host
+    // Page-refresh reconnect for host — only if we already have
+    // a gamePin from THIS lobby session (not a stale one from localStorage)
     useEffect(() => {
-        if (!gameSocket.isConnected && gameSocket.hasSession()) {
+        if (gamePin && !gameSocket.isConnected && gameSocket.hasSession()) {
             gameSocket.reconnectWithSession();
         }
-    }, []);
+    }, [gamePin]);
 
     const initializeLobby = async () => {
         if (!quizId || !subdomain) return;
+
+        // Clear any stale session from previous games to prevent
+        // background reconnect from joining an old game room
+        gameSocket.clearStoredSession();
 
         try {
             setIsLoading(true);

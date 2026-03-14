@@ -16,12 +16,14 @@ import type { AuthUser } from '@/types';
 interface LoginPayload {
     email: string;
     password: string;
+    cfTurnstileToken: string;
 }
 
 interface RegisterPayload {
     username: string;
     email: string;
     password: string;
+    cfTurnstileToken: string;
 }
 
 interface LoginResponse {

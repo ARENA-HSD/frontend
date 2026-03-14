@@ -6,6 +6,8 @@
 
 import { useLogin } from '@/hooks';
 import { Input, Button } from '@/components';
+import { Turnstile } from '@marsidev/react-turnstile';
+import { TURNSTILE_SITE_KEY } from '@/lib/constants';
 
 interface LoginFormProps {
     onSuccess?: () => void;
@@ -19,6 +21,7 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
         isLoading,
         setEmail,
         setPassword,
+        setCfTurnstileToken,
         handleSubmit,
     } = useLogin(onSuccess);
 
@@ -65,6 +68,15 @@ const LoginForm = ({ onSuccess }: LoginFormProps) => {
             >
                 {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
+
+            <div className="flex justify-center">
+                <Turnstile
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={setCfTurnstileToken}
+                    onExpire={() => setCfTurnstileToken('')}
+                    options={{ theme: 'auto' }}
+                />
+            </div>
         </form>
     );
 };

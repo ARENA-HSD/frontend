@@ -13,12 +13,14 @@ import { AUTH_TOKEN_KEY } from '@/lib/constants';
 interface LoginCredentials {
     email: string;
     password: string;
+    cfTurnstileToken: string;
 }
 
 interface RegisterData {
     username: string;
     email: string;
     password: string;
+    cfTurnstileToken: string;
 }
 
 interface AuthContextValue {

@@ -6,6 +6,8 @@
 
 import { useRegister } from '@/hooks';
 import { Input, Button } from '@/components';
+import { Turnstile } from '@marsidev/react-turnstile';
+import { TURNSTILE_SITE_KEY } from '@/lib/constants';
 
 interface RegisterFormProps {
     onSuccess?: () => void;
@@ -21,6 +23,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         setUsername,
         setEmail,
         setPassword,
+        setCfTurnstileToken,
         handleSubmit,
     } = useRegister(onSuccess);
 
@@ -80,6 +83,15 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
             >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
+
+            <div className="flex justify-center">
+                <Turnstile
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onSuccess={setCfTurnstileToken}
+                    onExpire={() => setCfTurnstileToken('')}
+                    options={{ theme: 'auto' }}
+                />
+            </div>
         </form>
     );
 };

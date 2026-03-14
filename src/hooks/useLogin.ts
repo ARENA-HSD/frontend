@@ -5,14 +5,13 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { isValidEmail } from '@/utils';
 
 interface LoginCredentials {
     email: string;
     password: string;
-    cfTurnstileToken: string;
+    cfTurnstileToken?: string;
 }
 
 interface AuthError {
@@ -36,7 +35,15 @@ interface UseLoginReturn {
     clearErrors: () => void;
 }
 
-export const useLogin = (onSuccess?: () => void): UseLoginReturn => {
+interface UseLoginOptions {
+    requireTurnstile?: boolean;
+}
+
+export const useLogin = (
+    onSuccess?: () => void,
+    options: UseLoginOptions = {}
+): UseLoginReturn => {
+    const { requireTurnstile = true } = options;
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -57,7 +64,7 @@ export const useLogin = (onSuccess?: () => void): UseLoginReturn => {
             newErrors.password = 'Password is required';
         }
 
-        if (!cfTurnstileToken) {
+        if (requireTurnstile && !cfTurnstileToken) {
             newErrors.general = 'Please complete Turnstile verification';
         }
 
@@ -76,8 +83,15 @@ export const useLogin = (onSuccess?: () => void): UseLoginReturn => {
         setErrors({});
 
         try {
-            const credentials: LoginCredentials = { email, password, cfTurnstileToken };
+            const credentials: LoginCredentials = {
+                email,
+                password,
+                ...(requireTurnstile && cfTurnstileToken
+                    ? { cfTurnstileToken }
+                    : {}),
+            };
             await login(credentials);
+
             onSuccess?.();
         } catch (error) {
             const authError = error as AuthError;

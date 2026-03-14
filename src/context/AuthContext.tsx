@@ -13,7 +13,7 @@ import { AUTH_TOKEN_KEY } from '@/lib/constants';
 interface LoginCredentials {
     email: string;
     password: string;
-    cfTurnstileToken: string;
+    cfTurnstileToken?: string;
 }
 
 interface RegisterData {

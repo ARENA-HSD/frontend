@@ -1,17 +1,21 @@
+import type { MouseEvent } from 'react';
 import { Link } from "react-router-dom";
 import { cn } from '@/utils/cn';
 
+interface SidebarItemData {
+    variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
+    size?: 'sm' | 'md' | 'lg';
+    loading?: boolean;
+    label: string;
+    icon: string;
+    path?: string;
+    disabled?: boolean;
+    badge?: string;
+    onClick?: () => void | Promise<void>;
+}
+
 interface SidebarItemProps {
-    item: {
-        variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
-        size?: 'sm' | 'md' | 'lg';
-        loading?: boolean;
-        label: string;
-        icon: string;
-        path: string;
-        disabled?: boolean;
-        badge?: string;
-    };
+    item: SidebarItemData;
     onClose?: () => void;
     isActive: (path: string) => boolean;
 }
@@ -31,26 +35,64 @@ const variantStyles = {
 };
 
 const SidebarItem = ({ item, onClose, isActive }: SidebarItemProps) => {
-    const active = isActive(item.path) && !item.disabled;
+    const active = !!item.path && isActive(item.path) && !item.disabled;
+    const isActionItem = !item.path || !!item.onClick;
+    const inactiveStyle = item.variant === 'danger'
+        ? 'text-role-danger hover:bg-role-danger-light'
+        : 'text-primary hover:bg-role-primary-light';
     const variant = item.variant ?? 'primary';
     const size = item.size ?? 'md';
+    const commonClassName = cn(
+        'inline-flex w-full items-center justify-start gap-3 font-medium rounded-xl transition-all focus:outline-none',
+        sizeStyles[size],
+        active ? variantStyles[variant] : inactiveStyle,
+        item.disabled && 'opacity-50 cursor-not-allowed',
+    );
+
+    const handleClick = (e?: MouseEvent<HTMLButtonElement>) => {
+        if (item.disabled) {
+            e?.preventDefault();
+            return;
+        }
+
+        onClose?.();
+        if (item.onClick) {
+            void item.onClick();
+        }
+    };
+
+    if (isActionItem) {
+        return (
+            <button
+                type="button"
+                onClick={handleClick}
+                disabled={item.disabled}
+                className={commonClassName}
+                style={{
+                    opacity: item.disabled ? 'var(--state-disabled-opacity)' : undefined,
+                }}
+            >
+                <span className="text-xl">{item.icon}</span>
+                <span className="font-medium">{item.label}</span>
+
+                {item.badge && (
+                    <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-role-info-light text-role-info">
+                        {item.badge}
+                    </span>
+                )}
+            </button>
+        );
+    }
 
     return (
         <Link
             key={item.path}
-            to={item.disabled ? '#' : item.path}
+            to={item.disabled ? '#' : item.path!}
             onClick={(e) => {
                 if (item.disabled) e.preventDefault();
-                onClose?.();
+                handleClick();
             }}
-            className={cn(
-                'inline-flex items-center gap-3 font-medium rounded-xl transition-all focus:outline-none',
-                sizeStyles[size],
-                active
-                    ? variantStyles[variant]
-                    : 'text-primary hover:bg-role-primary-light',
-                item.disabled && 'opacity-50 cursor-not-allowed',
-            )}
+            className={commonClassName}
             style={{
                 opacity: item.disabled ? 'var(--state-disabled-opacity)' : undefined,
             }}

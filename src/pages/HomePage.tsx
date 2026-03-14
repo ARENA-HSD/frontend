@@ -12,7 +12,7 @@ const HomePage = () => {
     return (
         <MainLayout sidebar={false}>
             <SEO
-                title="Quiz Strike | Interactive Quiz Platform"
+                title="Interactive Quiz Platform"
                 description="Create and host interactive quizzes for your organization with Quiz Strike. Get started for free."
                 canonical="https://quizstrike.com.tr"
             />

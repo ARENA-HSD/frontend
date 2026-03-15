@@ -5,13 +5,13 @@
  */
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { isValidEmail } from '@/utils';
 
 interface LoginCredentials {
     email: string;
     password: string;
+    cfTurnstileToken?: string;
 }
 
 interface AuthError {
@@ -30,14 +30,24 @@ interface UseLoginReturn {
     isLoading: boolean;
     setEmail: (email: string) => void;
     setPassword: (password: string) => void;
+    setCfTurnstileToken: (token: string) => void;
     handleSubmit: (e: React.FormEvent) => Promise<void>;
     clearErrors: () => void;
 }
 
-export const useLogin = (onSuccess?: () => void): UseLoginReturn => {
+interface UseLoginOptions {
+    requireTurnstile?: boolean;
+}
+
+export const useLogin = (
+    onSuccess?: () => void,
+    options: UseLoginOptions = {}
+): UseLoginReturn => {
+    const { requireTurnstile = true } = options;
     const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [cfTurnstileToken, setCfTurnstileToken] = useState('');
     const [errors, setErrors] = useState<UseLoginReturn['errors']>({});
     const [isLoading, setIsLoading] = useState(false);
 
@@ -52,6 +62,10 @@ export const useLogin = (onSuccess?: () => void): UseLoginReturn => {
 
         if (!password) {
             newErrors.password = 'Password is required';
+        }
+
+        if (requireTurnstile && !cfTurnstileToken) {
+            newErrors.general = 'Please complete Turnstile verification';
         }
 
         setErrors(newErrors);
@@ -69,8 +83,15 @@ export const useLogin = (onSuccess?: () => void): UseLoginReturn => {
         setErrors({});
 
         try {
-            const credentials: LoginCredentials = { email, password };
+            const credentials: LoginCredentials = {
+                email,
+                password,
+                ...(requireTurnstile && cfTurnstileToken
+                    ? { cfTurnstileToken }
+                    : {}),
+            };
             await login(credentials);
+
             onSuccess?.();
         } catch (error) {
             const authError = error as AuthError;
@@ -93,6 +114,7 @@ export const useLogin = (onSuccess?: () => void): UseLoginReturn => {
         isLoading,
         setEmail,
         setPassword,
+        setCfTurnstileToken,
         handleSubmit,
         clearErrors,
     };

@@ -39,6 +39,17 @@ export const MOCK_API_DELAY = {
 
 export const AUTH_TOKEN_KEY = 'hsd_arena_auth_token';
 export const USER_DATA_KEY = 'hsd_arena_user_data';
+export const TURNSTILE_TEST_SITE_KEY = '1x00000000000000000000AA';
+
+const isLocalDevelopmentHost =
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+// Use Cloudflare's public test key in local development to avoid hostname authorization errors.
+export const TURNSTILE_SITE_KEY =
+    IS_DEVELOPMENT && isLocalDevelopmentHost
+        ? TURNSTILE_TEST_SITE_KEY
+        : import.meta.env.VITE_TURNSTILE_SITE_KEY || TURNSTILE_TEST_SITE_KEY;
 
 /**
  * JWT token expiration time (7 days in milliseconds)

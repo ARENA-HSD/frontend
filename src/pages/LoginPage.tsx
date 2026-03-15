@@ -52,7 +52,10 @@ const LoginPage = () => {
                             }
                         </p>
                     </div>
-                    <LoginForm onSuccess={handleSuccess} />
+                    <LoginForm
+                        onSuccess={handleSuccess}
+                        requireTurnstile={!subdomain}
+                    />
                     {!subdomain && (
                         <p className="text-sm text-tertiary text-center">
                             Don't have an account?{' '}

@@ -12,18 +12,18 @@ const HomePage = () => {
     return (
         <MainLayout sidebar={false}>
             <SEO
-                title="Quiz Strike | Interactive Quiz Platform"
+                title="Interactive Quiz Platform"
                 description="Create and host interactive quizzes for your organization with Quiz Strike. Get started for free."
                 canonical="https://quizstrike.com.tr"
             />
-            <div className="h-full flex items-center justify-between">
-                <div className="space-y-8 w-full">
+            <div className="h-full flex items-center justify-between sm:flex-row flex-col-reverse">
+                <div className="space-y-8 w-full m-4 md:p-0">
                     <div>
-                        <h1 className="text-8xl text-primary mb-4 font-['Titan_One',sans-serif]">
+                        <h1 className="text-6xl md:text-8xl text-primary mb-4 font-['Titan_One',sans-serif]">
                             Welcome to Quiz Strike
 
                         </h1>
-                        <p className="text-3xl font-[500] max-w-2xl">
+                        <p className="text-2xl md:text-3xl font-[500] max-w-2xl">
                             Create and host interactive quizzes for your organization
 
                         </p>
@@ -41,7 +41,7 @@ const HomePage = () => {
                         </Link>
                     </div>
                 </div>
-                <img src={maskot} alt="maskot" className='w-[30%] mb-8' />
+                <img src={maskot} alt="maskot" className='w-[60%] md:w-[30%] md:mb-8' />
             </div>
         </MainLayout>
     );

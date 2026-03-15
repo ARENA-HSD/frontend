@@ -13,6 +13,7 @@ interface RegisterData {
     username: string;
     email: string;
     password: string;
+    cfTurnstileToken: string;
 }
 
 interface AuthError {
@@ -36,6 +37,7 @@ interface UseRegisterReturn {
     setUsername: (value: string) => void;
     setEmail: (value: string) => void;
     setPassword: (value: string) => void;
+    setCfTurnstileToken: (value: string) => void;
 
     handleSubmit: (e: React.FormEvent) => Promise<void>;
     clearErrors: () => void;
@@ -47,6 +49,7 @@ export const useRegister = (onSuccess?: () => void): UseRegisterReturn => {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [cfTurnstileToken, setCfTurnstileToken] = useState('');
 
     const [errors, setErrors] = useState<UseRegisterReturn['errors']>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -83,6 +86,10 @@ export const useRegister = (onSuccess?: () => void): UseRegisterReturn => {
             newErrors.password = 'Password must contain at least one number';
         }
 
+        if (!cfTurnstileToken) {
+            newErrors.general = 'Please complete Turnstile verification';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -102,6 +109,7 @@ export const useRegister = (onSuccess?: () => void): UseRegisterReturn => {
                 username,
                 email,
                 password,
+                cfTurnstileToken,
             };
 
             await register(data);
@@ -129,6 +137,7 @@ export const useRegister = (onSuccess?: () => void): UseRegisterReturn => {
         setUsername,
         setEmail,
         setPassword,
+        setCfTurnstileToken,
         handleSubmit,
         clearErrors,
     };

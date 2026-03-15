@@ -17,6 +17,37 @@ import TitleHeader from '@/components/layout/TitleHeader';
 type QuizListApiResponse = ApiResponse<Quiz[] | { quizzes?: Quiz[] }>;
 
 const QUIZ_SKELETON_COUNT = 7;
+const quizzesCache = new Map<string, Quiz[]>();
+const quizzesInFlight = new Map<string, Promise<Quiz[]>>();
+
+const fetchQuizzesDeduped = async (subdomain: string): Promise<Quiz[]> => {
+    const cached = quizzesCache.get(subdomain);
+    if (cached) {
+        return cached;
+    }
+
+    const inFlight = quizzesInFlight.get(subdomain);
+    if (inFlight) {
+        return inFlight;
+    }
+
+    const request = (async () => {
+        try {
+            const response = await quizService.getQuizzes(subdomain) as QuizListApiResponse;
+            const quizzesList = Array.isArray(response.data)
+                ? response.data
+                : response.data?.quizzes ?? [];
+
+            quizzesCache.set(subdomain, quizzesList);
+            return quizzesList;
+        } finally {
+            quizzesInFlight.delete(subdomain);
+        }
+    })();
+
+    quizzesInFlight.set(subdomain, request);
+    return request;
+};
 
 const QuizListPage = () => {
     const navigate = useManagerNavigate();
@@ -32,10 +63,7 @@ const QuizListPage = () => {
 
         try {
             setIsLoading(true);
-            const response = await quizService.getQuizzes(subdomain) as QuizListApiResponse;
-            const quizzesList = Array.isArray(response.data)
-                ? response.data
-                : response.data?.quizzes ?? [];
+            const quizzesList = await fetchQuizzesDeduped(subdomain);
             setQuizzes(quizzesList);
         } catch (error) {
             console.error('Failed to load quizzes:', error);
@@ -72,6 +100,7 @@ const QuizListPage = () => {
     const handleDeleteQuiz = async (quizId: string) => {
         if (confirm('Are you sure you want to delete this quiz?')) {
             await quizService.deleteQuiz(subdomain!, quizId);
+            quizzesCache.delete(subdomain!);
             void loadQuizzes();
         }
     };

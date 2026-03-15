@@ -8,6 +8,7 @@ import { useState, useCallback, useEffect } from 'react';
 import * as orgService from '@/services/organization.service';
 import { useAuth } from './useAuth';
 import { useSubdomain } from './useSubdomain';
+import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
 import type { MemberWithUser } from '@/types';
 
 export const useMembers = () => {
@@ -18,13 +19,18 @@ export const useMembers = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchMembers = useCallback(async () => {
+    const fetchMembers = useCallback(async (force = false) => {
         if (!orgDomain || !authUser) return;
+        const requestKey = `members:${orgDomain}`;
 
         setIsLoading(true);
         setError(null);
         try {
-            const response: any = await orgService.getMembers(orgDomain);
+            const response: any = await dedupeRequest(
+                requestKey,
+                async () => orgService.getMembers(orgDomain),
+                { cacheMs: 3000, force }
+            );
             console.log('Members API Response:', response);
 
             if (response.success && response.data?.members) {
@@ -41,11 +47,12 @@ export const useMembers = () => {
     }, [orgDomain, authUser]);
 
     useEffect(() => {
-        fetchMembers();
+        void fetchMembers();
     }, [fetchMembers]);
 
     const changeRole = async (memberId: string, role: string) => {
         if (!orgDomain || !authUser) return { success: false, message: 'Not authenticated' };
+        const requestKey = `members:${orgDomain}`;
 
         setIsLoading(true);
         try {
@@ -53,6 +60,7 @@ export const useMembers = () => {
             if (response.success) {
                 // Update the state using the old data structure so populated user data is preserved
                 setMembers(prev => prev.map(m => m.userId === memberId || m.id === memberId ? { ...m, role: role as any } : m));
+                invalidateDedupedRequest(requestKey);
                 return { success: true };
             } else {
                 return { success: false, message: response.message };
@@ -66,12 +74,14 @@ export const useMembers = () => {
 
     const remove = async (memberId: string) => {
         if (!orgDomain || !authUser) return { success: false, message: 'Not authenticated' };
+        const requestKey = `members:${orgDomain}`;
 
         setIsLoading(true);
         try {
             const response = await orgService.removeMember(orgDomain, memberId);
             if (response.success) {
                 setMembers(prev => prev.filter(m => m.id !== memberId));
+                invalidateDedupedRequest(requestKey);
                 return { success: true };
             } else {
                 return { success: false, message: response.message };
@@ -87,7 +97,7 @@ export const useMembers = () => {
         members,
         isLoading,
         error,
-        refetch: fetchMembers,
+        refetch: () => fetchMembers(true),
         changeRole,
         remove
     };

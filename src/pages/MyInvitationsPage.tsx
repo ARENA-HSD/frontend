@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button, MainLayout, SEO } from '@/components';
 import { MailboxIcon, CheckCircle2, XCircle, Building2 } from 'lucide-react';
 import { getMyInvitations, respondToInvitation } from '@/services/invitation.service';
+import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
 import TitleHeader from '@/components/layout/TitleHeader';
 
 interface Invitation {
@@ -20,11 +21,16 @@ const MyInvitationsPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [actionLoading, setActionLoading] = useState<string | null>(null); // invitationId
 
-    const fetchInvitations = async () => {
+    const fetchInvitations = async (force = false) => {
+        const requestKey = 'main:my-invitations';
         setIsLoading(true);
         setError(null);
         try {
-            const response = await getMyInvitations();
+            const response = await dedupeRequest(
+                requestKey,
+                async () => getMyInvitations(),
+                { cacheMs: 3000, force }
+            );
             if (response.success && response.data?.invitations) {
                 setInvitations(response.data.invitations);
             } else {
@@ -38,7 +44,7 @@ const MyInvitationsPage = () => {
     };
 
     useEffect(() => {
-        fetchInvitations();
+        void fetchInvitations();
     }, []);
 
     const handleAction = async (invitationId: string, status: 'ACCEPTED' | 'REJECTED') => {
@@ -48,6 +54,7 @@ const MyInvitationsPage = () => {
             if (response.success) {
                 // Remove the handled invitation from the list
                 setInvitations(prev => prev.filter(inv => inv.id !== invitationId));
+                invalidateDedupedRequest('main:my-invitations');
             } else {
                 alert(response.message || `Failed to ${status.toLowerCase()} invitation`);
             }

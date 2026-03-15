@@ -12,6 +12,32 @@ import maskotUzgun960Webp from '@/assets/optimized/maskot-uzgun-960.webp';
 const NotFoundPage = () => {
     const navigate = useNavigate();
 
+    const handleGoHome = () => {
+        const { protocol, hostname, port } = window.location;
+        const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+
+        let targetHost = hostname;
+
+        if (baseDomain) {
+            // Explicitly configured base domain is the most reliable source
+            targetHost = baseDomain;
+        } else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            targetHost = hostname;
+        } else if (hostname.endsWith('.localhost')) {
+            // org.localhost -> localhost
+            targetHost = 'localhost';
+        } else {
+            // Fallback for production domains without VITE_BASE_DOMAIN
+            const parts = hostname.split('.');
+            if (parts.length > 2) {
+                targetHost = parts.slice(-2).join('.');
+            }
+        }
+
+        const targetPort = port ? `:${port}` : '';
+        window.location.href = `${protocol}//${targetHost}${targetPort}/`;
+    };
+
     return (
         <MainLayout sidebar={false}>
             <SEO
@@ -40,7 +66,7 @@ const NotFoundPage = () => {
                             Go Back
                         </button>
                         <button
-                            onClick={() => navigate('/')}
+                            onClick={handleGoHome}
                             className="px-5 py-2 rounded-lg bg-role-primary text-white hover:opacity-90 transition-opacity text-sm font-medium"
                         >
                             Go Home

@@ -11,6 +11,7 @@ import { Users, Check, TrendingUp, Crown, BookOpen, Clock, Layers } from 'lucide
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService, questionService } from '@/services';
+import { dedupeRequest } from '@/lib/requestDedup';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
 import { HeaderLogo } from '@/components/layout';
@@ -115,23 +116,32 @@ const QuizLivePage = () => {
         };
     }, [quizId, subdomain]);
 
-    const loadQuizData = async () => {
+    const loadQuizData = async (force = false) => {
         if (!quizId || !subdomain) return;
         const orgDomain = subdomain;
+        const requestKey = `quiz-live:${orgDomain}:${quizId}`;
 
         try {
             setIsLoading(true);
 
-            // Fetch quiz if not in state (e.g. page refresh)
+            const [quizResponse, questionsResponse] = await dedupeRequest(
+                requestKey,
+                async () => {
+                    return Promise.all([
+                        quizService.getQuiz(orgDomain, quizId),
+                        questionService.getQuestions(orgDomain, quizId),
+                    ]);
+                },
+                { cacheMs: 3000, force }
+            );
+
+            const qr = quizResponse as any;
+            const questionsr = questionsResponse as any;
+
             if (!quiz) {
-                const quizResponse = await quizService.getQuiz(orgDomain, quizId);
-                const qr = quizResponse as any;
                 setQuiz(qr?.data?.quiz || qr?.data || qr);
             }
 
-            // Fetch questions
-            const questionsResponse = await questionService.getQuestions(orgDomain, quizId);
-            const questionsr = questionsResponse as any;
             const qList = questionsr?.data?.questions || (Array.isArray(questionsr?.data) ? questionsr.data : []);
             setQuestions(Array.isArray(qList) ? qList : []);
         } catch (error) {

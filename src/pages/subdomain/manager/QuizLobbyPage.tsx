@@ -13,6 +13,7 @@ import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { gameService } from '@/services';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
 import { quizService } from '@/services';
+import { dedupeRequest } from '@/lib/requestDedup';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
 import { HeaderLogo } from '@/components/layout';
@@ -83,6 +84,7 @@ const QuizLobbyPage = () => {
 
     const initializeLobby = async () => {
         if (!quizId || !subdomain) return;
+        const requestKey = `quiz-lobby-init:${subdomain}:${quizId}`;
 
         // Clear any stale session from previous games to prevent
         // background reconnect from joining an old game room
@@ -91,13 +93,20 @@ const QuizLobbyPage = () => {
         try {
             setIsLoading(true);
 
-            // 1. Fetch quiz info
-            const quizResponse = await quizService.getQuiz(subdomain, quizId);
+            const [quizResponse, gameResponse] = await dedupeRequest(
+                requestKey,
+                async () => {
+                    return Promise.all([
+                        quizService.getQuiz(subdomain, quizId),
+                        gameService.createGame(quizId),
+                    ]);
+                }
+            );
+
             const qr = quizResponse as any;
             setQuiz(qr?.data?.quiz || qr?.data || qr);
 
             // 2. Create game session (POST /games)
-            const gameResponse = await gameService.createGame(quizId);
             const gr = gameResponse as any;
             const gId = gr?.gameId || gr?.data?.gameId || '';
             const pin = gr?.pin || gr?.data?.pin || '';

@@ -7,6 +7,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import * as userService from '@/services/user.service';
 import { useAuth } from '@/hooks/useAuth';
+import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
 import type { User } from '@/types';
 
 /**
@@ -24,10 +25,16 @@ export const useUsers = () => {
             return;
         }
 
+        const requestKey = 'main:users:list';
+
         setIsLoading(true);
         setError(null);
         try {
-            const response = await userService.getAllUsers();
+            const response = await dedupeRequest(
+                requestKey,
+                async () => userService.getAllUsers(),
+                { cacheMs: 3000 }
+            );
             if (response.success && response.data) {
                 setUsers(response.data.users);
             } else {
@@ -63,16 +70,22 @@ export const useUser = (userId?: string) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchUser = useCallback(async (id: string) => {
+    const fetchUser = useCallback(async (id: string, force = false) => {
         if (!authUser) {
             setError('Authentication required');
             return;
         }
 
+        const requestKey = `main:user:${id}`;
+
         setIsLoading(true);
         setError(null);
         try {
-            const response = await userService.getUser(id);
+            const response = await dedupeRequest(
+                requestKey,
+                async () => userService.getUser(id),
+                { cacheMs: 3000, force }
+            );
             if (response.success && response.data) {
                 setUser(response.data.user);
             } else {
@@ -101,6 +114,7 @@ export const useUser = (userId?: string) => {
             const response = await userService.updateUser(userId, data);
             if (response.success && response.data) {
                 setUser(response.data.user);
+                invalidateDedupedRequest(`main:user:${userId}`);
                 return { success: true, data: response.data };
             } else {
                 setError(response.message || 'Failed to update user');
@@ -125,6 +139,7 @@ export const useUser = (userId?: string) => {
             const response = await userService.deleteUser(userId);
             if (response.success) {
                 setUser(null);
+                invalidateDedupedRequest(`main:user:${userId}`);
                 return { success: true };
             } else {
                 setError(response.message || 'Failed to delete user');
@@ -143,7 +158,7 @@ export const useUser = (userId?: string) => {
         user,
         isLoading,
         error: authUser ? error : 'Please login to perform user operations',
-        refetch: () => userId && fetchUser(userId),
+        refetch: () => userId && fetchUser(userId, true),
         update,
         remove
     };

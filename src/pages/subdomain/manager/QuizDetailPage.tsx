@@ -4,7 +4,7 @@
  * View and manage questions in a quiz with drag-and-drop reordering
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { Plus, Edit2, Trash2, ArrowLeft, Settings, GripVertical } from 'lucide-react';
 import {
@@ -26,6 +26,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { quizService, questionService } from '@/services';
+import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
 import type { Quiz, Question } from '@/types';
 import { Button, SubdomainLayout, SEO } from '@/components';
 
@@ -129,22 +130,23 @@ const QuizDetailPage = () => {
         navigate('/manager/quizzes');
     };
 
-    useEffect(() => {
-        if (quizId && subdomain) {
-            loadQuizData();
-        }
-    }, [quizId, subdomain]);
-
-    const loadQuizData = async () => {
+    const loadQuizData = useCallback(async (force = false) => {
         if (!quizId || !subdomain) return;
         const orgDomain = subdomain;
+        const requestKey = `quiz-detail:${orgDomain}:${quizId}`;
 
         try {
             setIsLoading(true);
-            const [quizResponse, questionsResponse] = await Promise.all([
-                quizService.getQuiz(orgDomain, quizId),
-                questionService.getQuestions(orgDomain, quizId)
-            ]);
+            const [quizResponse, questionsResponse] = await dedupeRequest(
+                requestKey,
+                async () => {
+                    return Promise.all([
+                        quizService.getQuiz(orgDomain, quizId),
+                        questionService.getQuestions(orgDomain, quizId),
+                    ]);
+                },
+                { cacheMs: 3000, force }
+            );
 
             // Handle wrapped API responses: { success, data: { ... } }
             const qr = quizResponse as any;
@@ -167,7 +169,13 @@ const QuizDetailPage = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [quizId, subdomain]);
+
+    useEffect(() => {
+        if (quizId && subdomain) {
+            void loadQuizData();
+        }
+    }, [quizId, subdomain, loadQuizData]);
 
     // ── Drag & Drop Handler ──────────────────────────────────────────────
 
@@ -232,7 +240,8 @@ const QuizDetailPage = () => {
 
         try {
             await questionService.deleteQuestion(subdomain, quizId, questionId);
-            await loadQuizData();
+            invalidateDedupedRequest(`quiz-detail:${subdomain}:${quizId}`);
+            await loadQuizData(true);
         } catch (error) {
             console.error('Failed to delete question:', error);
         }

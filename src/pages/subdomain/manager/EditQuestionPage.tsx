@@ -4,11 +4,12 @@
  * Edit existing question
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowLeft, MoreVertical } from 'lucide-react';
 import { useManagerNavigate, useSubdomain } from '@/hooks';
 import { questionService } from '@/services';
+import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
 import type { Question, UpdateQuestionData } from '@/types';
 import QuestionEditor from '@/components/quiz/manager/QuestionEditor';
 import { SubdomainLayout, SEO } from '@/components';
@@ -20,21 +21,18 @@ const EditQuestionPage = () => {
     const [question, setQuestion] = useState<Question | undefined>(undefined);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        if (questionId && quizId && subdomain) {
-            loadQuestion();
-        }
-    }, [questionId, quizId, subdomain]);
-
-    const loadQuestion = async () => {
+    const loadQuestion = useCallback(async (force = false) => {
         if (!questionId || !quizId || !subdomain) return;
+        const requestKey = `question-detail:${subdomain}:${quizId}:${questionId}`;
 
         try {
             setIsLoading(true);
-            const response = await questionService.getQuestion(
-                subdomain,
-                quizId,
-                questionId
+            const response = await dedupeRequest(
+                requestKey,
+                async () => {
+                    return questionService.getQuestion(subdomain, quizId, questionId);
+                },
+                { cacheMs: 3000, force }
             );
             const r = response as any;
             setQuestion(r?.data?.question || r?.question || r);
@@ -43,7 +41,13 @@ const EditQuestionPage = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [questionId, quizId, subdomain]);
+
+    useEffect(() => {
+        if (questionId && quizId && subdomain) {
+            void loadQuestion();
+        }
+    }, [questionId, quizId, subdomain, loadQuestion]);
 
     const handleSave = async (data: UpdateQuestionData) => {
         if (!questionId || !quizId || !subdomain) return;
@@ -54,6 +58,7 @@ const EditQuestionPage = () => {
             questionId,
             data
         );
+        invalidateDedupedRequest(`question-detail:${subdomain}:${quizId}:${questionId}`);
         navigate(`/manager/quizzes/${quizId}`);
     };
 

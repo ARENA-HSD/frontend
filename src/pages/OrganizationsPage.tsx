@@ -4,10 +4,11 @@
  * Main dashboard showing user's organizations (fetched from API)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { organizationService } from '@/services';
+import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
 import { OrganizationCard } from '@/components';
 import { Button, MainLayout, SEO } from '@/components';
 import type { UserOrganization, Organization } from '@/types';
@@ -19,14 +20,15 @@ const OrganizationsPage = () => {
     const [organizations, setOrganizations] = useState<UserOrganization[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        fetchOrganizations();
-    }, []);
-
-    const fetchOrganizations = async () => {
+    const fetchOrganizations = useCallback(async (force = false) => {
+        const requestKey = 'main:organizations:list';
         try {
             setIsLoading(true);
-            const response = await organizationService.getUserOrganizations();
+            const response = await dedupeRequest(
+                requestKey,
+                async () => organizationService.getUserOrganizations(),
+                { cacheMs: 3000, force }
+            );
             const r = response as any;
 
             // API returns: { success, data: { organizations: [...] } }
@@ -52,7 +54,11 @@ const OrganizationsPage = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        void fetchOrganizations();
+    }, [fetchOrganizations]);
 
     const handleAccessOrganization = (org: UserOrganization) => {
         // Redirect to the real subdomain
@@ -115,7 +121,10 @@ const OrganizationsPage = () => {
                                     key={org.id}
                                     organization={org}
                                     onAccess={handleAccessOrganization}
-                                    onRefresh={fetchOrganizations}
+                                    onRefresh={() => {
+                                        invalidateDedupedRequest('main:organizations:list');
+                                        void fetchOrganizations(true);
+                                    }}
                                 />
                             ))}
                         </div>

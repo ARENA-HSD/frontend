@@ -4,9 +4,10 @@
  * Ensures subdomain exists and is valid
  */
 
-import { type ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { type ReactNode, useEffect } from 'react';
 import { useSubdomain, useBranding } from '@/hooks';
+import { Loader } from '@/components';
+import { NotFoundPage } from '@/pages';
 
 interface SubdomainGuardProps {
     children: ReactNode;
@@ -15,20 +16,30 @@ interface SubdomainGuardProps {
 const SubdomainGuard = ({ children }: SubdomainGuardProps) => {
     const subdomain = useSubdomain();
 
-    // Apply organization branding colors (--color-3, --color-4) globally
-    useBranding(subdomain);
+    // Fetches branding and organization validity in a single deduplicated request
+    const { isLoading: isCheckingOrganization, organizationExists } = useBranding(subdomain);
+
+    useEffect(() => {
+        if (!subdomain) {
+            window.location.href = window.location.origin.replace(/^https?:\/\/[^.]+\./, 'http://');
+        }
+    }, [subdomain]);
 
     // If no subdomain, redirect to main domain
     if (!subdomain) {
-        window.location.href = window.location.origin.replace(/^https?:\/\/[^.]+\./, 'http://');
         return null;
     }
 
-    // TODO: Validate organization exists and is active when API is ready
-    const organizationExists = true; // Mock for now
+    if (isCheckingOrganization) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-page">
+                <Loader text="Organization checking..." />
+            </div>
+        );
+    }
 
     if (!organizationExists) {
-        return <Navigate to="/organization-not-found" replace />;
+        return <NotFoundPage />;
     }
 
     return <>{children}</>;

@@ -24,12 +24,15 @@ const ThemeSwitcher = () => {
                     <button
                         key={key}
                         onClick={() => changeTheme(key)}
+                        type="button"
+                        aria-pressed={isActive}
+                        aria-label={`${label} theme`}
                         className={`
                             flex items-center gap-1.5 px-3 py-1.5 rounded-full text-md font-bold
                             transition-all duration-200 ease-in-out
                             ${isActive
-                                ? 'bg-role-primary text-inverse shadow-sm scale-105'
-                                : 'text-tertiary hover:text-primary hover:bg-card'
+                                ? 'bg-role-primary text-[color-mix(in_srgb,var(--role-primary),black_85%)] shadow-sm scale-105'
+                                : 'text-secondary hover:text-primary hover:bg-card'
                             }
                         `}
                         title={label}

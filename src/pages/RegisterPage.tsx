@@ -8,6 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { MainLayout, SEO } from '@/components';
 import { RegisterForm } from '@/components';
 import maskot from "@/assets/maskot-elsalliyor.png"
+import maskot320Webp from '@/assets/optimized/maskot-elsalliyor-320.webp';
+import maskot640Webp from '@/assets/optimized/maskot-elsalliyor-640.webp';
+import maskot960Webp from '@/assets/optimized/maskot-elsalliyor-960.webp';
 import { useAuth } from '@/hooks';
 import { useEffect } from 'react';
 import { useSubdomain } from '@/hooks';
@@ -38,8 +41,8 @@ const RegisterPage = () => {
                 title="Create Account"
                 description="Sign up for Quiz Strike and start building interactive quizzes for your organization."
             />
-            <div className="h-full flex items-center justify-between">
-                <div className="space-y-2 w-full max-w-[50%]">
+            <div className="h-full flex items-center justify-between sm:flex-row flex-col-reverse">
+                <div className="space-y-2 w-full max-w-[80%] sm:max-w-[50%]">
                     <div className="">
                         <h1 className="text-5xl text-primary mb-1 font-['Titan_One',sans-serif]">
                             Create Your Account
@@ -56,7 +59,22 @@ const RegisterPage = () => {
                         </a>
                     </p>
                 </div>
-                <img src={maskot} alt="maskot" className='w-[30%] mb-8 md:mr-16' />
+                <picture className="w-[30%] mb-8 md:mr-16">
+                    <source
+                        type="image/webp"
+                        srcSet={`${maskot320Webp} 320w, ${maskot640Webp} 640w, ${maskot960Webp} 960w`}
+                        sizes="(max-width: 768px) 35vw, 30vw"
+                    />
+                    <img
+                        src={maskot}
+                        alt="maskot"
+                        className="w-full h-auto"
+                        width={1670}
+                        height={1689}
+                        loading="lazy"
+                        decoding="async"
+                    />
+                </picture>
             </div>
         </MainLayout>
     );

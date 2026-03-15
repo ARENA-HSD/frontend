@@ -6,6 +6,9 @@
 
 import countdownBg from '@/assets/images/background.png';
 import maskotBase from '@/assets/maskot.png'
+import maskot160Webp from '@/assets/optimized/maskot-160.webp';
+import maskot320Webp from '@/assets/optimized/maskot-320.webp';
+import maskot480Webp from '@/assets/optimized/maskot-480.webp';
 import { ReconnectOverlay } from '@/components/ui';
 
 interface CountdownProps {
@@ -52,7 +55,22 @@ const Countdown = ({ countdown }: CountdownProps) => {
                 className="absolute bottom-[-20px] right-[-30px] lg:bottom-[-40px] lg:right-[-60px] w-[300px] lg:w-[450px] select-none pointer-events-none"
                 style={{ transform: 'rotate(-15deg)' }}
             >
-                <img src={maskotBase} alt="Mascot" className="w-full h-auto drop-shadow-2xl" />
+                <picture>
+                    <source
+                        type="image/webp"
+                        srcSet={`${maskot160Webp} 160w, ${maskot320Webp} 320w, ${maskot480Webp} 480w`}
+                        sizes="(max-width: 1024px) 300px, 450px"
+                    />
+                    <img
+                        src={maskotBase}
+                        alt="Mascot"
+                        className="w-full h-auto drop-shadow-2xl"
+                        width={1051}
+                        height={758}
+                        loading="eager"
+                        decoding="async"
+                    />
+                </picture>
             </div>
         </div>
     );

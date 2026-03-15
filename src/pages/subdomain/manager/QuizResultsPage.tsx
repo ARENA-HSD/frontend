@@ -11,7 +11,7 @@ import { LogOut, TrendingUp } from 'lucide-react';
 import { useManagerNavigate } from '@/hooks';
 import { SEO } from '@/components';
 import { HeaderLogo } from '@/components/layout';
-import backgroundBg from '@/assets/images/background.png';
+import backgroundBg from '@/assets/optimized/background-1280.webp';
 import type { Quiz } from '@/types';
 
 const QuizResultsPage = () => {

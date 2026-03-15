@@ -1,4 +1,7 @@
 import maskot from '@/assets/maskot.png';
+import maskot160Webp from '@/assets/optimized/maskot-160.webp';
+import maskot320Webp from '@/assets/optimized/maskot-320.webp';
+import maskot480Webp from '@/assets/optimized/maskot-480.webp';
 
 
 const COLORS = ["#E63329", "#2196F3", "#F5A623", "#4CAF50"] as const;
@@ -77,12 +80,22 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
                     <span style={{ color: COLORS[3] }}>ike</span>
                 </span>
             </div>
-            <img
-                src={maskot}
-                alt="Quiz Strike Maskot"
-                className="w-auto object-contain relative top-[6px]"
-                style={{ width: imgWidth, left: imgLeft }}
-            />
+            <picture className="w-auto object-contain relative top-[6px]" style={{ width: imgWidth, left: imgLeft }}>
+                <source
+                    type="image/webp"
+                    srcSet={`${maskot160Webp} 160w, ${maskot320Webp} 320w, ${maskot480Webp} 480w`}
+                    sizes="(max-width: 640px) 88px, (max-width: 1024px) 150px, 200px"
+                />
+                <img
+                    src={maskot}
+                    alt="Quiz Strike Maskot"
+                    className="w-full h-auto"
+                    width={1051}
+                    height={758}
+                    loading="eager"
+                    decoding="async"
+                />
+            </picture>
         </div>
     );
 };

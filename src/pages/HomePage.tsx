@@ -7,6 +7,9 @@
 import { Link } from 'react-router-dom';
 import { MainLayout, Button, SEO } from '@/components';
 import maskot from "@/assets/maskot-elsalliyor.png"
+import maskot320Webp from '@/assets/optimized/maskot-elsalliyor-320.webp';
+import maskot640Webp from '@/assets/optimized/maskot-elsalliyor-640.webp';
+import maskot960Webp from '@/assets/optimized/maskot-elsalliyor-960.webp';
 
 const HomePage = () => {
     return (
@@ -41,7 +44,23 @@ const HomePage = () => {
                         </Link>
                     </div>
                 </div>
-                <img src={maskot} alt="maskot" className='w-[60%] md:w-[30%] md:mb-8' />
+                <picture className='w-[60%] md:w-[30%] md:mb-8'>
+                    <source
+                        type="image/webp"
+                        srcSet={`${maskot320Webp} 320w, ${maskot640Webp} 640w, ${maskot960Webp} 960w`}
+                        sizes="(max-width: 768px) 60vw, 30vw"
+                    />
+                    <img
+                        src={maskot}
+                        alt="maskot"
+                        className="w-full h-auto"
+                        width={1670}
+                        height={1689}
+                        loading="eager"
+                        fetchPriority="high"
+                        decoding="async"
+                    />
+                </picture>
             </div>
         </MainLayout>
     );

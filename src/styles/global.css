@@ -6,8 +6,6 @@
  */
 
 @import './variables.css';
-@import url('https://fonts.googleapis.com/css2?family=Titan+One&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600&display=swap');
 
 /* ============================================================================
    Tailwind Directives
@@ -30,7 +28,11 @@
     }
 
     body {
-        background-image: url("../assets/images/background.png");
+        background-image: image-set(
+            url("../assets/optimized/background-768.webp") type("image/webp") 1x,
+            url("../assets/optimized/background-1280.webp") type("image/webp") 2x,
+            url("../assets/images/background.png") type("image/png") 2x
+        );
         background-size: cover;
         background-position: center;
         color: var(--text-primary);
@@ -41,7 +43,11 @@
 
     @media (max-width: 768px) {
         body {
-            background-image: url("../assets/images/background-mobile.png");
+            background-image: image-set(
+                url("../assets/optimized/background-mobile-480.webp") type("image/webp") 1x,
+                url("../assets/optimized/background-mobile-768.webp") type("image/webp") 2x,
+                url("../assets/images/background-mobile.png") type("image/png") 2x
+            );
         }
     }
 

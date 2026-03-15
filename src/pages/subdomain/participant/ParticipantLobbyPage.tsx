@@ -13,6 +13,9 @@ import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
 import type { ForceDisconnectPlayload, GameStartingPlayload, QuestionStartPlayload, ReconnectSuccessPlayerPlayload } from '@/types';
 import maskot from "@/assets/maskot.png";
+import maskot160Webp from '@/assets/optimized/maskot-160.webp';
+import maskot320Webp from '@/assets/optimized/maskot-320.webp';
+import maskot480Webp from '@/assets/optimized/maskot-480.webp';
 import Countdown from '@/components/quiz/shared/Countdown';
 
 const ParticipantLobbyPage = () => {
@@ -178,7 +181,22 @@ const ParticipantLobbyPage = () => {
                     </div>
                 )}
             </div>
-            <img src={maskot} alt="maskot" className='fixed w-[40%] rotate-[15deg] bottom-0 right-0 mb-8 mr-4' />
+            <picture className='fixed w-[40%] rotate-[15deg] bottom-0 right-0 mb-8 mr-4'>
+                <source
+                    type="image/webp"
+                    srcSet={`${maskot160Webp} 160w, ${maskot320Webp} 320w, ${maskot480Webp} 480w`}
+                    sizes="40vw"
+                />
+                <img
+                    src={maskot}
+                    alt="maskot"
+                    className="w-full h-auto"
+                    width={1051}
+                    height={758}
+                    loading="lazy"
+                    decoding="async"
+                />
+            </picture>
         </div>
     );
 };

@@ -14,7 +14,7 @@ import { quizService, questionService } from '@/services';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
 import { HeaderLogo } from '@/components/layout';
-import backgroundBg from '@/assets/images/background.png';
+import backgroundBg from '@/assets/optimized/background-1280.webp';
 import maskot from '@/assets/maskot.png';
 import maskotElsalliyor from '@/assets/maskot-elsalliyor.png';
 import type {

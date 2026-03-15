@@ -5,6 +5,9 @@
 import { useNavigate } from 'react-router-dom';
 import { MainLayout, SEO } from '@/components';
 import maskotUzgun from '@/assets/maskot-uzgun.png';
+import maskotUzgun320Webp from '@/assets/optimized/maskot-uzgun-320.webp';
+import maskotUzgun640Webp from '@/assets/optimized/maskot-uzgun-640.webp';
+import maskotUzgun960Webp from '@/assets/optimized/maskot-uzgun-960.webp';
 
 const NotFoundPage = () => {
     const navigate = useNavigate();
@@ -44,11 +47,22 @@ const NotFoundPage = () => {
                         </button>
                     </div>
                 </div>
-                <img
-                    src={maskotUzgun}
-                    alt="mascot sad"
-                    className="w-[30%] mb-16 md:mr-16"
-                />
+                <picture className="w-[30%] mb-16 md:mr-16">
+                    <source
+                        type="image/webp"
+                        srcSet={`${maskotUzgun320Webp} 320w, ${maskotUzgun640Webp} 640w, ${maskotUzgun960Webp} 960w`}
+                        sizes="(max-width: 768px) 35vw, 30vw"
+                    />
+                    <img
+                        src={maskotUzgun}
+                        alt="mascot sad"
+                        className="w-full h-auto"
+                        width={1516}
+                        height={1689}
+                        loading="lazy"
+                        decoding="async"
+                    />
+                </picture>
             </div>
         </MainLayout>
     );

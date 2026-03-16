@@ -101,15 +101,15 @@ const ParticipantGamePage = () => {
     const startTimer = useCallback((duration: number, srvTime: number) => {
         clearTimer();
 
-        // Immediately set so UI doesn't flash 0
-        const initialElapsed = Math.floor((Date.now() - srvTime) / 1000);
-        setTimeLeft(Math.max(0, duration - initialElapsed));
+        // Set initial value from server duration
+        setTimeLeft(Math.max(0, duration));
 
         timerRef.current = setInterval(() => {
-            const elapsed = Math.floor((Date.now() - srvTime) / 1000);
-            const remaining = Math.max(0, duration - elapsed);
-            setTimeLeft(remaining);
-            if (remaining <= 0) clearTimer();
+            setTimeLeft((prev) => {
+                const remaining = Math.max(0, prev - 1);
+                if (remaining <= 0) clearTimer();
+                return remaining;
+            });
         }, 1000);
     }, [clearTimer]);
 

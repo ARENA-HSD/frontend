@@ -14,12 +14,9 @@ const QuizTimer = ({ timeLeft, totalTime }: QuizTimerProps) => {
     const strokeDasharray = 2 * Math.PI * 45; // radius = 45
     const strokeDashoffset = strokeDasharray - (strokeDasharray * percentage) / 100;
 
-    // Color based on time left
-    const getColor = () => {
-        if (percentage > 50) return '#10b981'; // green
-        if (percentage > 25) return '#f59e0b'; // yellow
-        return '#ef4444'; // red
-    };
+    // Color class based on time left
+    const colorClass = percentage > 50 ? 'text-emerald-500' : percentage > 25 ? 'text-amber-500' : 'text-red-500';
+    const strokeColor = percentage > 50 ? '#10b981' : percentage > 25 ? '#f59e0b' : '#ef4444';
 
     return (
         <div className="relative w-32 h-32">
@@ -38,7 +35,7 @@ const QuizTimer = ({ timeLeft, totalTime }: QuizTimerProps) => {
                     cx="64"
                     cy="64"
                     r="45"
-                    stroke={getColor()}
+                    stroke={strokeColor}
                     strokeWidth="8"
                     fill="none"
                     strokeDasharray={strokeDasharray}
@@ -50,7 +47,7 @@ const QuizTimer = ({ timeLeft, totalTime }: QuizTimerProps) => {
 
             {/* Time text */}
             <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-3xl font-bold" style={{ color: getColor() }}>
+                <span className={`text-3xl font-bold ${colorClass}`}>
                     {timeLeft}
                 </span>
             </div>

@@ -11,8 +11,7 @@ import { quizService } from '@/services';
 import type { ApiResponse, Quiz } from '@/types';
 import QuizCard from '@/components/quiz/manager/QuizCard';
 import QuizCardSkeleton from '@/components/quiz/manager/QuizCardSkeleton';
-import { Button, SubdomainLayout, SEO } from '@/components';
-import TitleHeader from '@/components/layout/TitleHeader';
+import { Button, SubdomainLayout, SEO, TitleHeader } from '@/components';
 
 type QuizListApiResponse = ApiResponse<Quiz[] | { quizzes?: Quiz[] }>;
 

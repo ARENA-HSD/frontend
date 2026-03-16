@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Button, MainLayout, SEO } from '@/components';
+import { Button, MainLayout, SEO, TitleHeader } from '@/components';
 import { MailboxIcon, CheckCircle2, XCircle, Building2 } from 'lucide-react';
 import { getMyInvitations, respondToInvitation } from '@/services/invitation.service';
 import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
-import TitleHeader from '@/components/layout/TitleHeader';
 
 interface Invitation {
     id: string;

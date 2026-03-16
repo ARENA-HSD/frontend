@@ -56,7 +56,7 @@ const LeaderboardDisplay = ({ entries, maxEntries = 5 }: LeaderboardDisplayProps
                             <div className="text-sm text-tertiary">
                                 {entry.correctAnswers ?? 0} correct
                                 {(entry.streak ?? 0) > 0 && (
-                                    <span className="ml-2 text-orange-600 flex items-center gap-1 inline-flex">
+                                    <span className="ml-2 text-orange-600 inline-flex items-center gap-1">
                                         <TrendingUp className="w-3 h-3" />
                                         {entry.streak} streak
                                     </span>

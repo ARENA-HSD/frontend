@@ -30,7 +30,7 @@ interface UseCreateOrganizationReturn {
 }
 
 export const useCreateOrganization = (onSuccess?: () => void): UseCreateOrganizationReturn => {
-    const { user, checkAuth } = useAuth();
+    const { checkAuth } = useAuth();
 
     const [name, setName] = useState('');
     const [subdomain, setSubdomain] = useState('');
@@ -63,7 +63,7 @@ export const useCreateOrganization = (onSuccess?: () => void): UseCreateOrganiza
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!validateForm() || !user) {
+        if (!validateForm()) {
             return;
         }
 
@@ -74,10 +74,9 @@ export const useCreateOrganization = (onSuccess?: () => void): UseCreateOrganiza
             const data: CreateOrganizationData = {
                 name,
                 subdomain: subdomain.toLowerCase(),
-                package: packageType,
             };
 
-            await organizationService.mockCreateOrganization(data, user.id);
+            await organizationService.createOrganization(data);
 
             // Refresh user data to include new organization
             await checkAuth();

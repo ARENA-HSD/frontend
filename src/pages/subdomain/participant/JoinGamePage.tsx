@@ -256,7 +256,7 @@ const JoinGamePage = () => {
             <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-sm">
                 {/* Header */}
                 <div className="flex flex-col items-center mb-8">
-                    <div className="scale-75">
+                    <div className="scale-75 m-auto">
                         <HeaderLogo />
                     </div>
                     <h1 className="text-2xl font-black text-primary mb-2">Join the fun!</h1>

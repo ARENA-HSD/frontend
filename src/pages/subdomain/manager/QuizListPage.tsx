@@ -19,7 +19,11 @@ const QUIZ_SKELETON_COUNT = 7;
 const quizzesCache = new Map<string, Quiz[]>();
 const quizzesInFlight = new Map<string, Promise<Quiz[]>>();
 
-const fetchQuizzesDeduped = async (subdomain: string): Promise<Quiz[]> => {
+const fetchQuizzesDeduped = async (subdomain: string, forceRefresh = false): Promise<Quiz[]> => {
+    if (forceRefresh) {
+        quizzesCache.delete(subdomain);
+    }
+
     const cached = quizzesCache.get(subdomain);
     if (cached) {
         return cached;
@@ -54,7 +58,7 @@ const QuizListPage = () => {
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const loadQuizzes = useCallback(async () => {
+    const loadQuizzes = useCallback(async (forceRefresh = false) => {
         if (!subdomain) {
             setIsLoading(false);
             return;
@@ -62,7 +66,7 @@ const QuizListPage = () => {
 
         try {
             setIsLoading(true);
-            const quizzesList = await fetchQuizzesDeduped(subdomain);
+            const quizzesList = await fetchQuizzesDeduped(subdomain, forceRefresh);
             setQuizzes(quizzesList);
         } catch (error) {
             console.error('Failed to load quizzes:', error);
@@ -73,7 +77,7 @@ const QuizListPage = () => {
 
     useEffect(() => {
         if (subdomain) {
-            void loadQuizzes();
+            void loadQuizzes(true);
         } else {
             console.warn('No subdomain detected, cannot load quizzes');
             setIsLoading(false);
@@ -81,6 +85,9 @@ const QuizListPage = () => {
     }, [loadQuizzes, subdomain]);
 
     const handleCreateQuiz = () => {
+        if (subdomain) {
+            quizzesCache.delete(subdomain);
+        }
         navigate('/manager/quizzes/new');
     };
 

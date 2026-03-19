@@ -3,6 +3,7 @@
  */
 
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useSubdomain } from '@/hooks';
 import ProtectedRoute from './ProtectedRoute';
 import SubdomainGuard from './SubdomainGuard';
@@ -38,7 +39,22 @@ import {
     ParticipantGamePage,
     ParticipantResultPage,
 } from '@/pages/subdomain/participant';
+import {
+    AdminInfoPage,
+    AdminUsersPage,
+    AdminOrganizationsPage,
+} from '@/pages/subdomain/admin';
 import ProfilePage from '@/pages/ProfilePage';
+
+const SubdomainHomePage = () => {
+    const subdomain = useSubdomain();
+
+    if (subdomain === 'admin') {
+        return <Navigate to="/admin/info" replace />;
+    }
+
+    return <QuizListPage />;
+};
 
 /**
  * Main Domain Router
@@ -112,7 +128,7 @@ const subdomainRouter = createBrowserRouter([
         element: (
             <SubdomainGuard>
                 <ProtectedRoute>
-                    <QuizListPage />
+                    <SubdomainHomePage />
                 </ProtectedRoute>
             </SubdomainGuard>
         ),
@@ -123,6 +139,38 @@ const subdomainRouter = createBrowserRouter([
             <SubdomainGuard>
                 <LoginPage />
             </SubdomainGuard>
+        ),
+    },
+    {
+        path: '/admin',
+        element: (
+            <ProtectedRoute>
+                <Navigate to="/admin/info" replace />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/admin/info',
+        element: (
+            <ProtectedRoute>
+                <AdminInfoPage />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/admin/users',
+        element: (
+            <ProtectedRoute>
+                <AdminUsersPage />
+            </ProtectedRoute>
+        ),
+    },
+    {
+        path: '/admin/organizations',
+        element: (
+            <ProtectedRoute>
+                <AdminOrganizationsPage />
+            </ProtectedRoute>
         ),
     },
     // Manager Routes
@@ -264,7 +312,7 @@ const subdomainRouter = createBrowserRouter([
         element: (
             <SubdomainGuard>
                 <ProtectedRoute>
-                    <QuizListPage />
+                    <SubdomainHomePage />
                 </ProtectedRoute>
             </SubdomainGuard>
         ),

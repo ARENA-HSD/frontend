@@ -72,10 +72,10 @@ const Modal = ({
     };
 
     return (
-        <div className="fixed inset-0 z-modal flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+                className="absolute inset-0 z-0 bg-black/50 backdrop-blur-sm transition-opacity"
                 onClick={handleBackdropClick}
                 aria-hidden="true"
             />
@@ -83,7 +83,7 @@ const Modal = ({
             {/* Modal Content */}
             <div
                 className={cn(
-                    'relative bg-card rounded-xl shadow-2xl',
+                    'relative z-10 bg-card rounded-xl shadow-2xl',
                     'transform transition-all',
                     'animate-in fade-in zoom-in-95 duration-200',
                     'w-full',

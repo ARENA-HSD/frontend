@@ -9,4 +9,5 @@ export * as questionService from './question.service';
 export * as gameService from './game.service';
 export * as userService from './user.service';
 export * as invitationService from './invitation.service';
+export * as adminService from './admin.service';
 export { gameSocket, WS_EVENTS } from './websocket.service';

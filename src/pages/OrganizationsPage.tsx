@@ -9,10 +9,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { organizationService } from '@/services';
 import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
-import { OrganizationCard } from '@/components';
-import { Button, MainLayout, SEO } from '@/components';
+import { OrganizationCard, Button, MainLayout, SEO, TitleHeader } from '@/components';
 import type { UserOrganization, Organization } from '@/types';
-import TitleHeader from '@/components/layout/TitleHeader';
 
 const OrganizationsPage = () => {
     const navigate = useNavigate();

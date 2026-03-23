@@ -54,7 +54,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 return;
             }
 
+            // Restore user immediately from localStorage for fast render
             setUser(currentUser);
+
+            // Then fetch fresh organizations from API (roles may have changed)
+            try {
+                const orgsResponse = await organizationService.getUserOrganizations();
+                if (orgsResponse.success && orgsResponse.data) {
+                    const orgsWithRole: UserOrganization[] = orgsResponse.data.map(org => ({
+                        id: org.organization.id,
+                        name: org.organization.name,
+                        subdomain: org.organization.subdomain,
+                        role: (org as any).role || 'MANAGER',
+                        branding: org.organization.branding,
+                    }));
+
+                    const updatedUser = { ...currentUser, organizations: orgsWithRole };
+                    setUser(updatedUser);
+                    authService.saveUserData(updatedUser);
+                }
+            } catch {
+                // User may not have organizations or API is unreachable — keep cached data
+            }
         } catch (error) {
             setUser(null);
             authService.clearAuthData();
@@ -74,12 +95,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 const orgsResponse = await organizationService.getUserOrganizations();
                 if (orgsResponse.success && orgsResponse.data) {
                     const orgsWithRole: UserOrganization[] = orgsResponse.data.map(org => ({
-                        id: org.id,
-                        name: org.name,
-                        subdomain: org.subdomain,
-                        package: org.package,
+                        id: org.organization.id,
+                        name: org.organization.name,
+                        subdomain: org.organization.subdomain,
                         role: (org as any).role || 'MANAGER',
-                        branding: org.branding,
+                        branding: org.organization.branding,
                     }));
 
                     const updatedUser = { ...response.user, organizations: orgsWithRole };

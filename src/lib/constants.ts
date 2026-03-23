@@ -288,6 +288,14 @@ export const API_ROUTES = {
 
     // Logs
     LOGS: (orgDomain: string) => `/org/${orgDomain}/logs`,
+
+    // Web Admin
+    ADMIN_USERS: '/admin/users',
+    ADMIN_USERS_SEARCH: '/admin/users/search',
+    ADMIN_USER_BY_ID: (userId: string) => `/admin/users/${userId}`,
+    ADMIN_INFO: '/admin/info',
+    ADMIN_ORGANIZATIONS: '/admin/organizations',
+    ADMIN_ORGANIZATION_BY_ID: (orgId: string) => `/admin/organizations/${orgId}`,
 } as const;
 
 // ============================================================================

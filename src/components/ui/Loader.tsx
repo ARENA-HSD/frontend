@@ -40,6 +40,8 @@ const Loader = ({
         />
     );
 
+    const DELAY_CLASSES = ['delay-0', 'delay-150', 'delay-300'] as const;
+
     const Dots = () => (
         <div className={cn('flex space-x-2', className)}>
             {[0, 1, 2].map((i) => (
@@ -50,9 +52,9 @@ const Loader = ({
                         size === 'sm' && 'w-2 h-2',
                         size === 'md' && 'w-3 h-3',
                         size === 'lg' && 'w-4 h-4',
-                        size === 'xl' && 'w-5 h-5'
+                        size === 'xl' && 'w-5 h-5',
+                        DELAY_CLASSES[i]
                     )}
-                    style={{ animationDelay: `${i * 0.15}s` }}
                 />
             ))}
         </div>

@@ -63,9 +63,6 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                     widthStyles,
                     className,
                 )}
-                style={{
-                    opacity: disabled ? 'var(--state-disabled-opacity)' : undefined,
-                }}
                 disabled={disabled || loading}
                 {...props}
             >

@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Trash2, Shield, Save, CheckCircle2 } from 'lucide-react';
 import { useAuth, useUser } from '@/hooks';
-import { Button, Input, MainLayout, SEO } from '@/components';
-import TitleHeader from '@/components/layout/TitleHeader';
+import { Button, Input, MainLayout, SEO, TitleHeader } from '@/components';
 
 const ProfilePage = () => {
     const navigate = useNavigate();
@@ -212,8 +211,8 @@ const ProfilePage = () => {
                     <section>
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-role-danger-light border border-role-danger rounded-2xl p-6">
                             <div>
-                                <h3 className="font-['Titan_One',sans-serif] font-thin text-xl font-bold text-role-danger">Danger Zone</h3>
-                                <p className="text-sm font-medium text-role-danger mt-1" style={{ opacity: 0.8 }}>
+                                <h3 className="font-['Titan_One',sans-serif] text-xl font-bold text-role-danger">Danger Zone</h3>
+                                <p className="text-sm font-medium text-role-danger mt-1 opacity-80">
                                     Deleting your account will permanently remove all your data.
                                 </p>
                             </div>

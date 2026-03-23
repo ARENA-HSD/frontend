@@ -1,16 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 import maskot from '@/assets/maskot.png';
 import maskot160Webp from '@/assets/optimized/maskot-160.webp';
 import maskot320Webp from '@/assets/optimized/maskot-320.webp';
 import maskot480Webp from '@/assets/optimized/maskot-480.webp';
-
-
-const COLORS = ["#E63329", "#2196F3", "#F5A623", "#4CAF50"] as const;
 
 interface HeaderLogoProps {
     size?: 'sm' | 'md' | 'lg';
 }
 
 const HeaderLogo = ({ size }: HeaderLogoProps) => {
+    const navigate = useNavigate();
     let strokeWidth = `${11}px`;
     let fontSize = `${50}px`;
     let gap = `${16}px`;
@@ -53,31 +52,26 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
         paintOrder: "stroke fill",
     };
 
-    // navigate to home page when logo is clicked
-    const navigateToHome = () => {
-        window.location.href = '/';
-    };
-
     return (
         <div
-            className={`inline-flex items-end ${containerMargin} ${containerHeight}`}
+            className={`inline-flex items-end cursor-pointer ${containerMargin} ${containerHeight}`}
             style={{ gap }}
-            onClick={navigateToHome}
+            onClick={() => navigate('/')}
         >
-            <div className="flex flex-col" style={{ gap: `${2}px` }}>
+            <div className="flex flex-col gap-[2px]">
                 <span
                     className="block select-none font-['Titan_One',sans-serif]"
                     style={textStyle}
                 >
-                    <span style={{ color: COLORS[0] }}>Qu</span>
-                    <span style={{ color: COLORS[1] }}>iz</span>
+                    <span className="text-[#E63329]">Qu</span>
+                    <span className="text-[#2196F3]">iz</span>
                 </span>
                 <span
                     className="block select-none font-['Titan_One',sans-serif]"
                     style={textStyle}
                 >
-                    <span style={{ color: COLORS[2] }}>Str</span>
-                    <span style={{ color: COLORS[3] }}>ike</span>
+                    <span className="text-[#F5A623]">Str</span>
+                    <span className="text-[#4CAF50]">ike</span>
                 </span>
             </div>
             <picture className="w-auto object-contain relative top-[6px]" style={{ width: imgWidth, left: imgLeft }}>

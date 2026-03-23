@@ -372,6 +372,13 @@ class GameWebSocket {
         this._isConnected = false;
         this._isReconnecting = false;
         if (this.ws) {
+            // CRITICAL: Null out handlers BEFORE close() to prevent
+            // the old socket's onclose from triggering attemptReconnect()
+            // when connect() is called immediately after disconnect().
+            this.ws.onopen = null;
+            this.ws.onclose = null;
+            this.ws.onerror = null;
+            this.ws.onmessage = null;
             this.ws.close(1000, 'Client disconnect');
             this.ws = null;
         }
@@ -429,6 +436,12 @@ class GameWebSocket {
 
     /** Join a game room as host or player */
     joinRoom(pin: string, sessionToken?: string, role: SessionRole = 'player'): void {
+        // Clear any stale session from a previous game to prevent token conflicts
+        const oldPin = localStorage.getItem(PIN_KEY);
+        if (oldPin && oldPin !== pin) {
+            clearSession(); // wipe old game's tokens completely
+        }
+
         this._currentPin = pin;
         this._currentRole = role;
         localStorage.setItem(PIN_KEY, pin);

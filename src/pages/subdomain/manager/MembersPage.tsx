@@ -5,12 +5,11 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { Button, SubdomainLayout, SEO } from "@/components";
+import { Button, SubdomainLayout, SEO, TitleHeader } from "@/components";
 import { useMembers } from "@/hooks";
 import { authService } from '@/services';
 import { Trash2, UserPlus, Shield } from "lucide-react";
 import { useState, useEffect } from 'react';
-import TitleHeader from '@/components/layout/TitleHeader';
 
 const MembersPage = () => {
     const navigate = useNavigate();

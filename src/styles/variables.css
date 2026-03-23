@@ -246,20 +246,6 @@
     --card-bg: var(--surface-card-bg);
     --card-border: var(--border-secondary);
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    --card-hover-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.1);
-
-    /* Badge Component Variables */
-    --badge-success-bg: var(--role-success-light);
-    --badge-success-text: color-mix(in srgb, var(--role-success), black 30%);
-
-    --badge-danger-bg: var(--role-danger-light);
-    --badge-danger-text: color-mix(in srgb, var(--role-danger), black 30%);
-
-    --badge-warning-bg: var(--role-warning-light);
-    --badge-warning-text: color-mix(in srgb, var(--role-warning), black 30%);
-
-    --badge-info-bg: var(--role-info-light);
-    --badge-info-text: color-mix(in srgb, var(--role-info), black 30%);
 
     /* ==========================================================================
      TYPOGRAPHY
@@ -449,11 +435,9 @@
     --surface-overlay: rgba(0, 0, 0, 0.8);
 
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
-    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
 }
-
-/* ============================================================================
-   OCEAN THEME OVERRIDES
+/* ==========================================================================
+    OCEAN MODE OVERRIDES
    A warm midnight-blue aesthetic — neither light nor dark.
    Deep navy surfaces with teal/cyan accents for a premium feel.
    Triggered by data-theme="ocean" attribute on <html>
@@ -491,7 +475,6 @@
     --surface-overlay: rgba(0, 0, 0, 0.7);
 
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
-    --card-hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
 }
 
 /* ============================================================================

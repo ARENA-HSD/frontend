@@ -28,7 +28,7 @@ const sizeStyles = {
 
 const variantStyles = {
     primary: 'text-primary-oposite btn-primary shadow-[0_6px_12px_-2px_var(--btn-primary-bg)] bg-gradient-to-b from-[var(--btn-primary-bg)] to-[color-mix(in_srgb,var(--btn-primary-bg),black_40%)]',
-    secondary: 'text-secondary-oposite btn-secondary shadow-[0_6px_12px_-2px_var(--btn-secondary-bg)] bg-gradient-to-b from-[var(--btn-secondary-bg)] to-[color-mix(in_srgb,var((--btn-secondary-bg),black_40%)]',
+    secondary: 'text-secondary-oposite btn-secondary shadow-[0_6px_12px_-2px_var(--btn-secondary-bg)] bg-gradient-to-b from-[var(--btn-secondary-bg)] to-[color-mix(in_srgb,var(--btn-secondary-bg),black_40%)]',
     danger: 'text-danger btn-danger shadow-[0_6px_12px_-2px_var(--btn-danger-bg)] bg-gradient-to-b from-[var(--btn-danger-bg)] to-[color-mix(in_srgb,var(--btn-danger-bg),black_40%)]',
     ghost: 'text-ghost btn-ghost shadow-[0_6px_12px_-2px_var(--btn-ghost-bg)] bg-gradient-to-b from-[var(--btn-ghost-bg)] to-[color-mix(in_srgb,var(--btn-ghost-bg),black_40%)]',
     outline: 'text-outline btn-outline shadow-[0_6px_12px_-2px_var(--btn-outline-bg)] bg-gradient-to-b from-[var(--btn-outline-bg)] to-[color-mix(in_srgb,var(--btn-outline-bg),black_40%)]',
@@ -68,9 +68,6 @@ const SidebarItem = ({ item, onClose, isActive }: SidebarItemProps) => {
                 onClick={handleClick}
                 disabled={item.disabled}
                 className={commonClassName}
-                style={{
-                    opacity: item.disabled ? 'var(--state-disabled-opacity)' : undefined,
-                }}
             >
                 <span className="text-xl">{item.icon}</span>
                 <span className="font-medium">{item.label}</span>
@@ -93,9 +90,6 @@ const SidebarItem = ({ item, onClose, isActive }: SidebarItemProps) => {
                 handleClick();
             }}
             className={commonClassName}
-            style={{
-                opacity: item.disabled ? 'var(--state-disabled-opacity)' : undefined,
-            }}
         >
             <span className="text-xl">{item.icon}</span>
             <span className="font-medium">{item.label}</span>

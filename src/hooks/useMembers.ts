@@ -31,10 +31,7 @@ export const useMembers = () => {
                 async () => orgService.getMembers(orgDomain),
                 { cacheMs: 3000, force }
             );
-            console.log('Members API Response:', response);
-
             if (response.success && response.data?.members) {
-                console.log(response.data.members);
                 setMembers(response.data.members);
             } else {
                 setError(response.message || 'Failed to fetch members');

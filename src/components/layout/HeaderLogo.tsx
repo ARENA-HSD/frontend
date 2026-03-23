@@ -63,15 +63,15 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
                     className="block select-none font-['Titan_One',sans-serif]"
                     style={textStyle}
                 >
-                    <span className="text-[#E63329]">Qu</span>
-                    <span className="text-[#2196F3]">iz</span>
+                    <span className="text-[#E63329]" translate='no'>Qu</span>
+                    <span className="text-[#2196F3]" translate='no'>iz</span>
                 </span>
                 <span
                     className="block select-none font-['Titan_One',sans-serif]"
                     style={textStyle}
                 >
-                    <span className="text-[#F5A623]">Str</span>
-                    <span className="text-[#4CAF50]">ike</span>
+                    <span className="text-[#F5A623]" translate='no'>Str</span>
+                    <span className="text-[#4CAF50]" translate='no'>ike</span>
                 </span>
             </div>
             <picture className="w-auto object-contain relative top-[6px]" style={{ width: imgWidth, left: imgLeft }}>

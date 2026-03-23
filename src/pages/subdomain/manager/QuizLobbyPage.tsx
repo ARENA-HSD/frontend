@@ -227,6 +227,26 @@ const QuizLobbyPage = () => {
         };
     }, [wsConnected]);
 
+    // ========================================
+    // Polling fallback: fetch player count via HTTP in case pub/sub lost
+    // ========================================
+    useEffect(() => {
+        if (!gamePin || phase !== 'lobby') return;
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const summary = await gameService.getGameSummary(gamePin) as any;
+                if (summary?.totalPlayers != null && summary.totalPlayers > participantCount) {
+                    setParticipantCount(summary.totalPlayers);
+                }
+            } catch {
+                // Polling is a safety net — ignore errors
+            }
+        }, 10000); // every 10 seconds
+
+        return () => clearInterval(pollInterval);
+    }, [gamePin, phase, participantCount]);
+
     // Countdown interval — only depends on phase, not countdown value
     useEffect(() => {
         if (phase !== 'countdown') return;

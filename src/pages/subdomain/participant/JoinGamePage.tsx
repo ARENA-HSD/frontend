@@ -153,9 +153,19 @@ const JoinGamePage = () => {
         setError('');
 
         try {
-            if (!gameSocket.isConnected) await gameSocket.connect();
+            // Force-kill any existing socket from a previous game
+            // This is critical: old sockets stay alive after games end and block new joins
+            const storedPin = localStorage.getItem('arena_pin');
+            if (storedPin && storedPin !== pin.trim()) {
+                gameSocket.disconnectAndClear();
+            } else if (gameSocket.isConnected) {
+                // Same pin but we want a fresh connection
+                gameSocket.disconnect();
+            }
 
-            const storedToken = localStorage.getItem(`arena_player_session_${pin}`) || undefined;
+            await gameSocket.connect();
+
+            const storedToken = localStorage.getItem(`arena_player_session_${pin.trim()}`) || undefined;
             gameSocket.joinRoom(pin.trim(), storedToken, 'player');
             startTimeout();
         } catch {

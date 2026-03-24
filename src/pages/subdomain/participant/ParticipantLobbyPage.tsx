@@ -5,7 +5,7 @@
  * Listens for GAME_STARTING to transition to the game.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useManagerNavigate } from '@/hooks';
 import { gameSocket, WS_EVENTS } from '@/services/websocket.service';
@@ -29,6 +29,11 @@ const ParticipantLobbyPage = () => {
     const [countdown, setCountdown] = useState(3);
 
     const [dots, setDots] = useState('.');
+
+    // Store QUESTION_START payload in a ref to avoid navigate race condition
+    const pendingQuestionRef = useRef<QuestionStartPlayload | null>(null);
+    // Guard against navigating twice
+    const hasNavigatedRef = useRef(false);
 
     // Animate dots
     useEffect(() => {
@@ -57,13 +62,18 @@ const ParticipantLobbyPage = () => {
             })
         );
 
-        // SYNC FIX: If question starts while in lobby, move to game page immediately
+        // Store QUESTION_START payload — don't navigate here, let countdown handle it
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
-                navigate('/play/game', {
-                    state: { ...state, initialQuestion: payload },
-                    replace: true
-                });
+                pendingQuestionRef.current = payload;
+                // If countdown already finished but we haven't navigated yet, go now
+                if (phase === 'countdown' && countdown <= 0 && !hasNavigatedRef.current) {
+                    hasNavigatedRef.current = true;
+                    navigate('/play/game', {
+                        state: { ...state, initialQuestion: payload },
+                        replace: true
+                    });
+                }
             })
         );
 
@@ -109,7 +119,7 @@ const ParticipantLobbyPage = () => {
             unsubs.forEach(unsub => unsub());
             // Cleanup WebSocket disabled here to maintain connection during path change
         };
-    }, [navigate, state]);
+    }, [navigate, state, phase, countdown]);
 
     // Countdown interval — only depends on phase, not countdown value
     useEffect(() => {
@@ -126,11 +136,15 @@ const ParticipantLobbyPage = () => {
         return () => clearInterval(interval);
     }, [phase]);
 
-    // Navigate when countdown reaches 0
+    // Navigate when countdown reaches 0 — include any pending question data
     useEffect(() => {
-        if (phase === 'countdown' && countdown <= 0) {
+        if (phase === 'countdown' && countdown <= 0 && !hasNavigatedRef.current) {
+            hasNavigatedRef.current = true;
             navigate('/play/game', {
-                state: { ...state },
+                state: {
+                    ...state,
+                    initialQuestion: pendingQuestionRef.current || null,
+                },
                 replace: true,
             });
         }

@@ -401,6 +401,138 @@
     /* 80px circular timer */
     --game-qr-code-size: 16rem;
     /* 256px QR code */
+
+    /* ==========================================================================
+     NEW: FLUID TYPOGRAPHY
+     Direction: min = alt step, max = kendi orijinal değeri
+     Formula: clamp(altStep, calc(altStep + (own - altStep) * ((100vw - bpMin) / (bpMax - bpMin))), own)
+     Small sizes (xs–base):  640px → 768px
+     Medium sizes (lg–2xl):  768px → 1024px
+     Large sizes (3xl–7xl):  1024px → 1280px
+     ========================================================================== */
+
+    /* xs: 12px (flat — no lower step) */
+    --fs-xs-fluid: 12px;
+    /* sm: 12px → 14px @ 640–768px */
+    --fs-sm-fluid: clamp(12px, calc(12px + (14 - 12) * ((100vw - 640px) / (768 - 640))), 14px);
+    /* base: 14px → 16px @ 640–768px */
+    --fs-base-fluid: clamp(14px, calc(14px + (16 - 14) * ((100vw - 640px) / (768 - 640))), 16px);
+    /* lg: 16px → 18px @ 768–1024px */
+    --fs-lg-fluid: clamp(16px, calc(16px + (18 - 16) * ((100vw - 768px) / (1024 - 768))), 18px);
+    /* xl: 18px → 20px @ 768–1024px */
+    --fs-xl-fluid: clamp(18px, calc(18px + (20 - 18) * ((100vw - 768px) / (1024 - 768))), 20px);
+    /* 2xl: 20px → 24px @ 768–1024px */
+    --fs-2xl-fluid: clamp(20px, calc(20px + (24 - 20) * ((100vw - 768px) / (1024 - 768))), 24px);
+    /* 3xl: 24px → 30px @ 1024–1280px */
+    --fs-3xl-fluid: clamp(24px, calc(24px + (30 - 24) * ((100vw - 1024px) / (1280 - 1024))), 30px);
+    /* 4xl: 30px → 36px @ 1024–1280px */
+    --fs-4xl-fluid: clamp(30px, calc(30px + (36 - 30) * ((100vw - 1024px) / (1280 - 1024))), 36px);
+    /* 5xl: 36px → 48px @ 1024–1280px */
+    --fs-5xl-fluid: clamp(36px, calc(36px + (48 - 36) * ((100vw - 1024px) / (1280 - 1024))), 48px);
+    /* 6xl: 48px → 60px @ 1024–1280px */
+    --fs-6xl-fluid: clamp(48px, calc(48px + (60 - 48) * ((100vw - 1024px) / (1280 - 1024))), 60px);
+    /* 7xl: 60px → 72px @ 1024–1280px */
+    --fs-7xl-fluid: clamp(60px, calc(60px + (72 - 60) * ((100vw - 1024px) / (1280 - 1024))), 72px);
+
+    /* ==========================================================================
+     NEW: FLUID SPACING
+     Direction: min = alt step, max = kendi orijinal değeri
+     Formula: clamp(altStep, calc(altStep + (own - altStep) * ((100vw - bpMin) / (bpMax - bpMin))), own)
+     Small spacings (1–4):   640px → 768px
+     Medium spacings (5–10): 768px → 1024px
+     Large spacings (12–32): 1024px → 1280px
+     ========================================================================== */
+
+    /* 1: 4px (flat — no lower step) */
+    --space-1-fluid: 4px;
+    /* 2: 4px → 8px @ 640–768px */
+    --space-2-fluid: clamp(4px, calc(4px + (8 - 4) * ((100vw - 640px) / (768 - 640))), 8px);
+    /* 3: 8px → 12px @ 640–768px */
+    --space-3-fluid: clamp(8px, calc(8px + (12 - 8) * ((100vw - 640px) / (768 - 640))), 12px);
+    /* 4: 12px → 16px @ 640–768px */
+    --space-4-fluid: clamp(12px, calc(12px + (16 - 12) * ((100vw - 640px) / (768 - 640))), 16px);
+    /* 5: 16px → 20px @ 768–1024px */
+    --space-5-fluid: clamp(16px, calc(16px + (20 - 16) * ((100vw - 768px) / (1024 - 768))), 20px);
+    /* 6: 20px → 24px @ 768–1024px */
+    --space-6-fluid: clamp(20px, calc(20px + (24 - 20) * ((100vw - 768px) / (1024 - 768))), 24px);
+    /* 8: 24px → 32px @ 768–1024px */
+    --space-8-fluid: clamp(24px, calc(24px + (32 - 24) * ((100vw - 768px) / (1024 - 768))), 32px);
+    /* 10: 32px → 40px @ 768–1024px */
+    --space-10-fluid: clamp(32px, calc(32px + (40 - 32) * ((100vw - 768px) / (1024 - 768))), 40px);
+    /* 12: 40px → 48px @ 1024–1280px */
+    --space-12-fluid: clamp(40px, calc(40px + (48 - 40) * ((100vw - 1024px) / (1280 - 1024))), 48px);
+    /* 16: 48px → 64px @ 1024–1280px */
+    --space-16-fluid: clamp(48px, calc(48px + (64 - 48) * ((100vw - 1024px) / (1280 - 1024))), 64px);
+    /* 20: 64px → 80px @ 1024–1280px */
+    --space-20-fluid: clamp(64px, calc(64px + (80 - 64) * ((100vw - 1024px) / (1280 - 1024))), 80px);
+    /* 24: 80px → 96px @ 1024–1280px */
+    --space-24-fluid: clamp(80px, calc(80px + (96 - 80) * ((100vw - 1024px) / (1280 - 1024))), 96px);
+    /* 32: 96px → 128px @ 1024–1280px */
+    --space-32-fluid: clamp(96px, calc(96px + (128 - 96) * ((100vw - 1024px) / (1280 - 1024))), 128px);
+
+    /* ==========================================================================
+     NEW: SIZING TOKENS
+     Static + fluid versions for common component sizes.
+     Direction: min = alt step, max = kendi orijinal değeri
+     Formula: clamp(altStep, calc(altStep + (own - altStep) * ((100vw - 768px) / (1024 - 768))), own)
+     ========================================================================== */
+
+    --size-xs: 1.5rem;
+    /* 24px */
+    --size-sm: 2rem;
+    /* 32px */
+    --size-md: 2.5rem;
+    /* 40px */
+    --size-lg: 3rem;
+    /* 48px */
+    --size-xl: 3.5rem;
+    /* 56px */
+
+    /* xs: 24px (flat — no lower step) */
+    --size-xs-fluid: 24px;
+    /* sm: 24px → 32px @ 768–1024px */
+    --size-sm-fluid: clamp(24px, calc(24px + (32 - 24) * ((100vw - 768px) / (1024 - 768))), 32px);
+    /* md: 32px → 40px @ 768–1024px */
+    --size-md-fluid: clamp(32px, calc(32px + (40 - 32) * ((100vw - 768px) / (1024 - 768))), 40px);
+    /* lg: 40px → 48px @ 768–1024px */
+    --size-lg-fluid: clamp(40px, calc(40px + (48 - 40) * ((100vw - 768px) / (1024 - 768))), 48px);
+    /* xl: 48px → 56px @ 768–1024px */
+    --size-xl-fluid: clamp(48px, calc(48px + (56 - 48) * ((100vw - 768px) / (1024 - 768))), 56px);
+
+    /* ==========================================================================
+     NEW: CONTAINER SYSTEM
+     ========================================================================== */
+
+    --container-padding: clamp(1rem, 3vw, 2rem);
+    --container-narrow: 40rem;
+    /* 640px */
+    --container-wide: 80rem;
+    /* 1280px */
+
+    /* ==========================================================================
+     NEW: TYPOGRAPHY EXTRAS
+     Letter-spacing (tracking) and fluid line-height.
+     ========================================================================== */
+
+    --tracking-tight: -0.025em;
+    --tracking-normal: 0em;
+    --tracking-wide: 0.025em;
+    --leading-fluid: clamp(1.4, 1.2 + 0.2vw, 1.6);
+
+    /* ==========================================================================
+     NEW: TRANSITION SHORTHAND TOKENS
+     Composed from existing duration and easing tokens.
+     ========================================================================== */
+
+    --transition-fast: all var(--duration-fast) var(--ease-out);
+    --transition-normal: all var(--duration-normal) var(--ease-in-out);
+
+    /* ==========================================================================
+     NEW: NAMING ALIAS (non-breaking)
+     --color-3-oposite kept for backward compatibility.
+     ========================================================================== */
+
+    --color-3-contrast: var(--color-3-oposite);
 }
 
 /* ============================================================================
@@ -436,6 +568,7 @@
 
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
 }
+
 /* ==========================================================================
     OCEAN MODE OVERRIDES
    A warm midnight-blue aesthetic — neither light nor dark.

@@ -212,7 +212,7 @@ const QuizDetailPage = () => {
     // ── Other Handlers ───────────────────────────────────────────────────
 
     const handleStartQuiz = () => {
-        navigate(`/manager/quizzes/${quizId}/lobby`);
+        navigate(`/manager/quizzes/${quizId}/live`);
     };
 
     const handleSettingsQuiz = (quizId: string) => {

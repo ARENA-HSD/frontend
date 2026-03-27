@@ -1,0 +1,26 @@
+services:
+  frontend:
+    container_name: arena-frontend-test
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args:
+        - VITE_API_URL=${VITE_API_URL}
+        - VITE_BASE_DOMAIN=${VITE_BASE_DOMAIN}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5173:80" # Nginx makinesi proxy atacağı için localhost'a açıyoruz
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+      - VITE_BASE_DOMAIN=${VITE_BASE_DOMAIN}
+    networks:
+      - arena-network-test
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  arena-network-test:
+    external: true

@@ -8,6 +8,7 @@ import { useState } from 'react';
 import type { Question, CreateQuestionData, UpdateQuestionData, QuestionOption } from '@/types';
 import ImagePlaceholder from '@/components/quiz/shared/ImagePlaceholder';
 import { Button } from '@/components/ui';
+import { MEDIA_UPLOAD_CONSTRAINTS } from '@/lib/constants';
 
 interface QuestionEditorProps {
     question?: Question;
@@ -19,10 +20,20 @@ interface QuestionEditorProps {
 
 const OPTION_COLORS = ['bg-role-success', 'bg-[#FF4F81]', 'bg-[#9C4BFF]', 'bg-[#FF8A00]'];
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+const FRONTEND_MEDIA_TYPE_ERROR = 'Sadece jpeg, png, webp veya gif görseller yüklenebilir.';
+const FRONTEND_MEDIA_SIZE_ERROR = 'Görsel boyutu en fazla 3 MB olabilir.';
+const BACKEND_MEDIA_ERRORS = [
+    'Image must be a valid base64 data URL',
+    'Image size must be 3MB or less',
+    'Only jpeg, png, webp or gif images are allowed',
+] as const;
 
 const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCancel }: QuestionEditorProps) => {
     const [questionText, setQuestionText] = useState(question?.text || '');
-    const [mediaUrl, setMediaUrl] = useState(question?.mediaUrl || '');
+    const [mediaPreview, setMediaPreview] = useState(question?.mediaUrl || '');
+    const [mediaBase64, setMediaBase64] = useState<string | null>(null);
+    const [mediaError, setMediaError] = useState<string | null>(null);
+    const [isPreparingMedia, setIsPreparingMedia] = useState(false);
     const [timeLimit, setTimeLimit] = useState(question?.timeLimit || 30);
     const [points, setPoints] = useState(question?.points || 1000);
     const [options, setOptions] = useState<QuestionOption[]>(
@@ -40,6 +51,87 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
         });
     };
 
+    const readFileAsDataURL = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                    resolve(reader.result);
+                    return;
+                }
+                reject(new Error('Invalid file content'));
+            };
+
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleMediaFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        setMediaError(null);
+
+        if (!MEDIA_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.type as (typeof MEDIA_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES)[number])) {
+            setMediaError(FRONTEND_MEDIA_TYPE_ERROR);
+            event.target.value = '';
+            return;
+        }
+
+        if (file.size > MEDIA_UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE_BYTES) {
+            setMediaError(FRONTEND_MEDIA_SIZE_ERROR);
+            event.target.value = '';
+            return;
+        }
+
+        setIsPreparingMedia(true);
+
+        try {
+            const dataURL = await readFileAsDataURL(file);
+            setMediaPreview(dataURL);
+            setMediaBase64(dataURL);
+        } catch (error) {
+            console.error('Failed to prepare image:', error);
+            setMediaError('Görsel dosyası okunamadı. Lütfen tekrar deneyin.');
+        } finally {
+            setIsPreparingMedia(false);
+            event.target.value = '';
+        }
+    };
+
+    const handleRemoveMedia = () => {
+        setMediaPreview('');
+        setMediaBase64('');
+        setMediaError(null);
+    };
+
+    const getSaveErrorMessage = (error: unknown): string => {
+        const requestError = error as {
+            response?: { status?: number; data?: { message?: string } };
+            message?: string;
+        };
+        const status = requestError.response?.status;
+        const message = requestError.response?.data?.message;
+
+        if (status === 400 && typeof message === 'string') {
+            if (BACKEND_MEDIA_ERRORS.includes(message as (typeof BACKEND_MEDIA_ERRORS)[number])) {
+                return message;
+            }
+
+            return message;
+        }
+
+        if (status && status >= 500) {
+            return 'Görsel yükleme sırasında bir hata oluştu.';
+        }
+
+        return message || requestError.message || 'Failed to save question';
+    };
+
     const handleSave = async () => {
         if (!questionText.trim()) {
             alert('Please enter a question');
@@ -51,32 +143,49 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
             return;
         }
 
+        if (mediaError) {
+            alert(mediaError);
+            return;
+        }
+
         try {
             setIsSaving(true);
 
             if (question && onUpdate) {
-                await onUpdate({
+                const payload: UpdateQuestionData = {
                     text: questionText,
-                    mediaUrl: mediaUrl || undefined,
                     timeLimit,
                     points,
                     options,
                     correctIndex,
-                });
+                };
+
+                if (mediaBase64 !== null) {
+                    payload.mediaBase64 = mediaBase64;
+                }
+
+                await onUpdate(payload);
+                setMediaBase64(null);
             } else if (onCreate) {
-                await onCreate({
+                const payload: CreateQuestionData = {
                     text: questionText,
-                    mediaUrl: mediaUrl || undefined,
                     timeLimit,
                     points,
                     options,
                     correctIndex,
                     orderIndex: question?.orderIndex ?? totalQuestions,
-                });
+                };
+
+                if (mediaBase64) {
+                    payload.mediaBase64 = mediaBase64;
+                }
+
+                await onCreate(payload);
+                setMediaBase64(null);
             }
         } catch (error) {
             console.error('Failed to save question:', error);
-            alert('Failed to save question');
+            alert(getSaveErrorMessage(error));
         } finally {
             setIsSaving(false);
         }
@@ -89,10 +198,18 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                 {/* Image Section */}
                 <div className="w-full md:w-48 shrink-0 flex flex-col gap-2">
                     <div className="w-48 h-48 rounded-3xl overflow-hidden bg-card border-4 border-light shadow-sm flex items-center justify-center relative">
-                        <ImagePlaceholder
-                            alt={mediaUrl || 'Question Image'}
-                            className="w-full h-full object-cover"
-                        />
+                        {mediaPreview ? (
+                            <img
+                                src={mediaPreview}
+                                alt="Question Image"
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <ImagePlaceholder
+                                alt="Question Image"
+                                className="w-full h-full object-cover"
+                            />
+                        )}
                     </div>
                 </div>
 
@@ -102,13 +219,35 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                         <label className="text-lg font-bold text-primary block mb-3">
                             Question Image
                         </label>
-                        <input
-                            type="text"
-                            placeholder="Media URL (optional)"
-                            value={mediaUrl}
-                            onChange={(e) => setMediaUrl(e.target.value)}
-                            className="w-full px-6 py-4 bg-transparent border-2 border-light focus:border-[var(--btn-primary-bg)] rounded-3xl outline-none transition-colors text-primary font-medium text-lg placeholder:text-tertiary shadow-sm"
-                        />
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <input
+                                type="file"
+                                accept={MEDIA_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.join(',')}
+                                onChange={(event) => {
+                                    void handleMediaFileChange(event);
+                                }}
+                                disabled={isPreparingMedia || isSaving}
+                                className="w-full px-4 py-3 bg-transparent border-2 border-light focus:border-[var(--btn-primary-bg)] rounded-2xl outline-none transition-colors text-primary font-medium"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleRemoveMedia}
+                                disabled={isPreparingMedia || isSaving || (!mediaPreview && mediaBase64 === null)}
+                                className="whitespace-nowrap"
+                            >
+                                Remove image
+                            </Button>
+                        </div>
+                        <p className="text-sm text-tertiary mt-2">
+                            Maksimum {MEDIA_UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE_MB} MB. Desteklenen formatlar: jpeg, png, webp, gif.
+                        </p>
+                        {isPreparingMedia && (
+                            <p className="text-sm text-secondary mt-1">Görsel hazırlanıyor...</p>
+                        )}
+                        {mediaError && (
+                            <p className="text-sm text-role-danger mt-1">{mediaError}</p>
+                        )}
                     </div>
                     <div>
                         <label className="text-lg font-bold text-primary block mb-3">

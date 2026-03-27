@@ -53,6 +53,7 @@ export type OrganizationRole = 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER';
 
 export interface OrganizationBranding {
     logoUrl?: string;
+    logoBase64?: string;
     primary?: string;
     secondary?: string;
 }

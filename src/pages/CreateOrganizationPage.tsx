@@ -23,8 +23,9 @@ const CreateOrganizationPage = () => {
         branding: {
             primary: string;
             secondary: string;
-            logoUrl: string
-        }
+            logoUrl?: string;
+            logoBase64?: string;
+        };
     }) => {
         setError(null);
 
@@ -56,7 +57,11 @@ const CreateOrganizationPage = () => {
             }
         } catch (err: any) {
             console.error('Failed to create organization:', err);
-            const message = err?.response?.data?.message || err?.message || 'Failed to create organization';
+            const status = err?.response?.status;
+            const backendMessage = err?.response?.data?.message;
+            const message = status >= 500
+                ? 'Görsel yükleme sırasında bir hata oluştu.'
+                : backendMessage || err?.message || 'Failed to create organization';
             setError(message);
         } finally {
             setIsLoading(false);

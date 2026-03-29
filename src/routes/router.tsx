@@ -25,9 +25,7 @@ import {
     CreateQuizPage,
     CreateQuestionPage,
     EditQuestionPage,
-    QuizLobbyPage,
     QuizLivePage,
-    QuizResultsPage,
     MembersPage,
     InvitationsPage,
 } from '@/pages/subdomain/manager';
@@ -35,9 +33,7 @@ import {
 // Participant Pages
 import {
     JoinGamePage,
-    ParticipantLobbyPage,
     ParticipantGamePage,
-    ParticipantResultPage,
 } from '@/pages/subdomain/participant';
 import {
     AdminInfoPage,
@@ -205,31 +201,11 @@ const subdomainRouter = createBrowserRouter([
         ),
     },
     {
-        path: '/manager/quizzes/:id/lobby',
-        element: (
-            <SubdomainGuard>
-                <ProtectedRoute>
-                    <QuizLobbyPage />
-                </ProtectedRoute>
-            </SubdomainGuard>
-        ),
-    },
-    {
         path: '/manager/quizzes/:id/live',
         element: (
             <SubdomainGuard>
                 <ProtectedRoute>
                     <QuizLivePage />
-                </ProtectedRoute>
-            </SubdomainGuard>
-        ),
-    },
-    {
-        path: '/manager/quizzes/:id/results',
-        element: (
-            <SubdomainGuard>
-                <ProtectedRoute>
-                    <QuizResultsPage />
                 </ProtectedRoute>
             </SubdomainGuard>
         ),
@@ -284,26 +260,10 @@ const subdomainRouter = createBrowserRouter([
         ),
     },
     {
-        path: '/play/lobby',
-        element: (
-            <SubdomainGuard>
-                <ParticipantLobbyPage />
-            </SubdomainGuard>
-        ),
-    },
-    {
         path: '/play/game',
         element: (
             <SubdomainGuard>
                 <ParticipantGamePage />
-            </SubdomainGuard>
-        ),
-    },
-    {
-        path: '/play/results',
-        element: (
-            <SubdomainGuard>
-                <ParticipantResultPage />
             </SubdomainGuard>
         ),
     },

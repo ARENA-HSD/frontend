@@ -62,7 +62,7 @@ const JoinGamePage = () => {
             WS_EVENTS.JOIN_SUCCESS,
             (payload: JoinSuccessPlayload) => {
                 clearTimeoutRef();
-                navigate('/play/lobby', {
+                navigate('/play/game', {
                     state: { pin, nickname: payload.myNick || nickname },
                 });
             }
@@ -75,7 +75,7 @@ const JoinGamePage = () => {
                 clearTimeoutRef();
 
                 if (payload.gameStatus === 'LOBBY') {
-                    navigate('/play/lobby', {
+                    navigate('/play/game', {
                         state: { pin, nickname: 'Player' },
                         replace: true,
                     });

@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { MEDIA_UPLOAD_CONSTRAINTS } from '@/lib/constants';
+
+const FRONTEND_MEDIA_TYPE_ERROR = 'Sadece jpeg, png, webp veya gif görseller yüklenebilir.';
+const FRONTEND_MEDIA_SIZE_ERROR = 'Görsel boyutu en fazla 3 MB olabilir.';
+
+type LogoAction = 'unchanged' | 'new' | 'remove';
 
 interface OrganizationFormProps {
     initialData?: {
@@ -18,8 +24,9 @@ interface OrganizationFormProps {
         branding: {
             primary: string;
             secondary: string;
-            logoUrl: string
-        }
+            logoUrl?: string;
+            logoBase64?: string;
+        };
     }) => Promise<void>;
     isLoading: boolean;
     error: string | null;
@@ -45,9 +52,13 @@ const OrganizationForm = ({
         branding: {
             primary: initialData?.branding?.primary || '#97abf5',
             secondary: initialData?.branding?.secondary || '#ffffff',
-            logoUrl: initialData?.branding?.logoUrl || '',
         }
     });
+    const [logoPreview, setLogoPreview] = useState(initialData?.branding?.logoUrl || '');
+    const [logoAction, setLogoAction] = useState<LogoAction>('unchanged');
+    const [logoBase64, setLogoBase64] = useState('');
+    const [logoError, setLogoError] = useState<string | null>(null);
+    const [isPreparingLogo, setIsPreparingLogo] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -57,9 +68,12 @@ const OrganizationForm = ({
                 branding: {
                     primary: initialData.branding?.primary || '#97abf5',
                     secondary: initialData.branding?.secondary || '#ffffff',
-                    logoUrl: initialData.branding?.logoUrl || '',
                 }
             });
+            setLogoPreview(initialData.branding?.logoUrl || '');
+            setLogoAction('unchanged');
+            setLogoBase64('');
+            setLogoError(null);
         }
     }, [initialData]);
 
@@ -78,9 +92,104 @@ const OrganizationForm = ({
         });
     };
 
+    const readFileAsDataURL = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+                if (typeof reader.result === 'string') {
+                    resolve(reader.result);
+                    return;
+                }
+                reject(new Error('Invalid file content'));
+            };
+
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handleLogoFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+            return;
+        }
+
+        setLogoError(null);
+
+        if (!MEDIA_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.includes(file.type as (typeof MEDIA_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES)[number])) {
+            setLogoError(FRONTEND_MEDIA_TYPE_ERROR);
+            event.target.value = '';
+            return;
+        }
+
+        if (file.size > MEDIA_UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE_BYTES) {
+            setLogoError(FRONTEND_MEDIA_SIZE_ERROR);
+            event.target.value = '';
+            return;
+        }
+
+        setIsPreparingLogo(true);
+
+        try {
+            const dataURL = await readFileAsDataURL(file);
+            setLogoPreview(dataURL);
+            setLogoBase64(dataURL);
+            setLogoAction('new');
+        } catch (error) {
+            console.error('Failed to prepare logo:', error);
+            setLogoError('Görsel dosyası okunamadı. Lütfen tekrar deneyin.');
+        } finally {
+            setIsPreparingLogo(false);
+            event.target.value = '';
+        }
+    };
+
+    const handleRemoveLogo = () => {
+        setLogoPreview('');
+        setLogoBase64('');
+        setLogoAction('remove');
+        setLogoError(null);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await onSubmit(formData);
+
+        if (logoError) {
+            return;
+        }
+
+        const payload: {
+            name: string;
+            subdomain: string;
+            branding: {
+                primary: string;
+                secondary: string;
+                logoUrl?: string;
+                logoBase64?: string;
+            };
+        } = {
+            name: formData.name,
+            subdomain: formData.subdomain,
+            branding: {
+                primary: formData.branding.primary,
+                secondary: formData.branding.secondary,
+            },
+        };
+
+        if (logoAction === 'new' && logoBase64) {
+            payload.branding.logoBase64 = logoBase64;
+        }
+
+        if (logoAction === 'remove' && initialData?.branding?.logoUrl) {
+            payload.branding.logoUrl = '';
+        }
+
+        await onSubmit(payload);
+        setLogoBase64('');
+        if (logoAction === 'new') {
+            setLogoAction('unchanged');
+        }
     };
 
     return (
@@ -152,18 +261,45 @@ const OrganizationForm = ({
                         <h3 className="text-lg font-semibold text-primary mb-4">Branding</h3>
 
                         <div className="space-y-4">
-                            {/* Logo URL */}
+                            {/* Logo Upload */}
                             <div>
                                 <label className="block text-sm font-semibold text-primary mb-2">
-                                    Logo URL
+                                    Logo
                                 </label>
-                                <input
-                                    type="url"
-                                    value={formData.branding.logoUrl}
-                                    onChange={(e) => handleBrandingChange('logoUrl', e.target.value)}
-                                    placeholder="https://example.com/logo.png"
-                                    className="w-full border border-light rounded-lg px-4 py-2 text-primary"
-                                />
+                                {logoPreview && (
+                                    <div className="mb-3 w-24 h-24 border border-light rounded-lg overflow-hidden bg-page">
+                                        <img src={logoPreview} alt="Organization logo preview" className="w-full h-full object-cover" />
+                                    </div>
+                                )}
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <input
+                                        type="file"
+                                        accept={MEDIA_UPLOAD_CONSTRAINTS.ALLOWED_MIME_TYPES.join(',')}
+                                        onChange={(event) => {
+                                            void handleLogoFileChange(event);
+                                        }}
+                                        disabled={isPreparingLogo || isLoading}
+                                        className="w-full border border-light rounded-lg px-4 py-2 text-primary"
+                                    />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleRemoveLogo}
+                                        disabled={isPreparingLogo || isLoading || (!logoPreview && !initialData?.branding?.logoUrl)}
+                                        className="whitespace-nowrap"
+                                    >
+                                        Remove logo
+                                    </Button>
+                                </div>
+                                <p className="text-sm text-tertiary mt-2">
+                                    Maksimum {MEDIA_UPLOAD_CONSTRAINTS.MAX_IMAGE_SIZE_MB} MB. Desteklenen formatlar: jpeg, png, webp, gif.
+                                </p>
+                                {isPreparingLogo && (
+                                    <p className="text-sm text-secondary mt-1">Görsel hazırlanıyor...</p>
+                                )}
+                                {logoError && (
+                                    <p className="text-sm text-role-danger mt-1">{logoError}</p>
+                                )}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

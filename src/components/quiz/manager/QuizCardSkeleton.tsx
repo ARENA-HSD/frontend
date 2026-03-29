@@ -17,21 +17,18 @@ const SkeletonBlock = ({ className }: SkeletonBlockProps) => (
 const QuizCardSkeleton = () => {
     return (
         <div className="card shadow-md overflow-hidden h-full">
-            <div className="flex h-full flex-col justify-between gap-6">
-                <div className="space-y-3">
-                    <SkeletonBlock className="h-7 w-3/4 rounded-lg" />
-                    <SkeletonBlock className="h-4 w-1/2 rounded-md" />
-                </div>
+            <div className="flex flex-col justify-between h-full">
+                <SkeletonBlock className="h-7 w-3/4 rounded-lg mb-2" />
 
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start justify-between gap-4 mb-6">
                     <div className="flex-1 space-y-2">
-                        <SkeletonBlock className="h-4 w-full rounded-md" />
+                        <SkeletonBlock className="h-4 w-1/2 rounded-md" />
                         <SkeletonBlock className="h-4 w-4/5 rounded-md" />
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <SkeletonBlock className="h-8 w-8 rounded-lg" />
-                        <SkeletonBlock className="h-8 w-8 rounded-lg" />
+                        <SkeletonBlock className="h-4 w-4 rounded-lg" />
+                        <SkeletonBlock className="h-4 w-4 rounded-lg" />
                     </div>
                 </div>
 

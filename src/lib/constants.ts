@@ -177,6 +177,12 @@ export const QUESTION_CONSTRAINTS = {
     MAX_OPTION_LENGTH: 200,
 } as const;
 
+export const MEDIA_UPLOAD_CONSTRAINTS = {
+    MAX_IMAGE_SIZE_BYTES: 3 * 1024 * 1024,
+    MAX_IMAGE_SIZE_MB: 3,
+    ALLOWED_MIME_TYPES: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const,
+} as const;
+
 // ============================================================================
 // Organization Configuration
 // ============================================================================

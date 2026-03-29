@@ -3,12 +3,16 @@ import maskot from '@/assets/maskot.png';
 import maskot160Webp from '@/assets/optimized/maskot-160.webp';
 import maskot320Webp from '@/assets/optimized/maskot-320.webp';
 import maskot480Webp from '@/assets/optimized/maskot-480.webp';
+import { useBranding, useSubdomain } from '@/hooks';
 
 interface HeaderLogoProps {
     size?: 'sm' | 'md' | 'lg';
 }
 
 const HeaderLogo = ({ size }: HeaderLogoProps) => {
+    const subdomain = useSubdomain();
+    const { branding, isLoading } = useBranding(subdomain);
+    const logoUrl = branding?.logoUrl;
     const navigate = useNavigate();
     let strokeWidth = `${11}px`;
     let fontSize = `${50}px`;
@@ -52,44 +56,62 @@ const HeaderLogo = ({ size }: HeaderLogoProps) => {
         paintOrder: "stroke fill",
     };
 
+    // When a subdomain exists and branding is still loading,
+    // render an invisible placeholder to prevent the default logo from flashing.
+    if (subdomain && isLoading) {
+        return (
+            <div
+                className={`inline-flex items-end ${containerMargin} ${containerHeight}`}
+                style={{ gap }}
+            />
+        );
+    }
+
     return (
         <div
             className={`inline-flex items-end cursor-pointer ${containerMargin} ${containerHeight}`}
             style={{ gap }}
             onClick={() => navigate('/')}
         >
-            <div className="flex flex-col gap-[2px]">
-                <span
-                    className="block select-none font-['Titan_One',sans-serif]"
-                    style={textStyle}
-                >
-                    <span className="text-[#E63329]" translate='no'>Qu</span>
-                    <span className="text-[#2196F3]" translate='no'>iz</span>
-                </span>
-                <span
-                    className="block select-none font-['Titan_One',sans-serif]"
-                    style={textStyle}
-                >
-                    <span className="text-[#F5A623]" translate='no'>Str</span>
-                    <span className="text-[#4CAF50]" translate='no'>ike</span>
-                </span>
-            </div>
-            <picture className="w-auto object-contain relative top-[6px]" style={{ width: imgWidth, left: imgLeft }}>
-                <source
-                    type="image/webp"
-                    srcSet={`${maskot160Webp} 160w, ${maskot320Webp} 320w, ${maskot480Webp} 480w`}
-                    sizes="(max-width: 640px) 88px, (max-width: 1024px) 150px, 200px"
-                />
-                <img
-                    src={maskot}
-                    alt="Quiz Strike Maskot"
-                    className="w-full h-auto"
-                    width={1051}
-                    height={758}
-                    loading="eager"
-                    decoding="async"
-                />
-            </picture>
+            {logoUrl ? (
+                <img src={logoUrl} alt="Logo" className="h-full" />
+            ) : (
+                <>
+                    <div className="flex flex-col gap-[2px]">
+                        <span
+                            className="block select-none font-['Titan_One',sans-serif]"
+                            style={textStyle}
+                        >
+                            <span className="text-[#E63329]" translate='no'>Qu</span>
+                            <span className="text-[#2196F3]" translate='no'>iz</span>
+                        </span>
+                        <span
+                            className="block select-none font-['Titan_One',sans-serif]"
+                            style={textStyle}
+                        >
+                            <span className="text-[#F5A623]" translate='no'>Str</span>
+                            <span className="text-[#4CAF50]" translate='no'>ike</span>
+                        </span>
+                    </div>
+                    <picture className="w-auto object-contain relative top-[6px]" style={{ width: imgWidth, left: imgLeft }}>
+                        <source
+                            type="image/webp"
+                            srcSet={`${maskot160Webp} 160w, ${maskot320Webp} 320w, ${maskot480Webp} 480w`}
+                            sizes="(max-width: 640px) 88px, (max-width: 1024px) 150px, 200px"
+                        />
+                        <img
+                            src={maskot}
+                            alt="Quiz Strike Maskot"
+                            className="w-full h-auto"
+                            width={1051}
+                            height={758}
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </picture>
+                </>
+            )
+            }
         </div>
     );
 };

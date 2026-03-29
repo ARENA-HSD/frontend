@@ -23,7 +23,7 @@ const QuizCard = ({ quiz, onStart, onEdit, onDelete }: QuizCardProps) => {
                 <h3 className="font-bold text-lg text-primary mb-2">{quiz.title}</h3>
                 <div className="flex items-center justify-between mb-4">
                     <div className="text-sm text-tertiary">
-                        {quiz.questionCount || 0} questions • {quiz.defaultMode} mode
+                        {quiz.questionCount || 0} questions <br /> {quiz.defaultMode} mode
                     </div>
                     <div className="flex flex-col items-center">
                         <button

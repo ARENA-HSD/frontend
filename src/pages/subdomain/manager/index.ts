@@ -3,8 +3,6 @@ export { default as QuizDetailPage } from './QuizDetailPage';
 export { default as CreateQuizPage } from './CreateQuizPage';
 export { default as CreateQuestionPage } from './CreateQuestionPage';
 export { default as EditQuestionPage } from './EditQuestionPage';
-export { default as QuizLobbyPage } from './QuizLobbyPage';
 export { default as QuizLivePage } from './QuizLivePage';
-export { default as QuizResultsPage } from './QuizResultsPage';
 export { default as MembersPage } from './MembersPage';
 export { default as InvitationsPage } from './InvitationsPage';

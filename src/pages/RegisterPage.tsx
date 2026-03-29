@@ -41,7 +41,7 @@ const RegisterPage = () => {
                 title="Create Account"
                 description="Sign up for Quiz Strike and start building interactive quizzes for your organization."
             />
-            <div className="h-full flex items-center justify-between sm:flex-row flex-col-reverse">
+            <div className="h-full flex items-center sm:justify-between sm:flex-row flex-col-reverse justify-center">
                 <div className="space-y-2 w-full max-w-[80%] sm:max-w-[50%]">
                     <div className="">
                         <h1 className="text-5xl text-primary mb-1 font-['Titan_One',sans-serif]">
@@ -59,7 +59,7 @@ const RegisterPage = () => {
                         </a>
                     </p>
                 </div>
-                <picture className="w-[30%] mb-8 md:mr-16">
+                <picture className="w-[30%] mb-8 md:mr-16 hidden sm:block">
                     <source
                         type="image/webp"
                         srcSet={`${maskot320Webp} 320w, ${maskot640Webp} 640w, ${maskot960Webp} 960w`}

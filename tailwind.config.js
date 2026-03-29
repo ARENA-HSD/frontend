@@ -4,9 +4,25 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+
   theme: {
+    /* ========================================================================
+       CONTAINER — uses design system tokens
+       ======================================================================== */
+    container: {
+      center: true,
+      padding: 'var(--container-padding)',
+      screens: {
+        DEFAULT: 'var(--container-wide)',
+      },
+    },
+
     extend: {
+      /* ====================================================================
+         COLORS — mapped to CSS variable role/surface/text system
+         ==================================================================== */
       colors: {
+        /* Role colors (semantic) */
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',
@@ -85,10 +101,160 @@ export default {
           900: '#7c2d12',
         },
       },
-      fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['Fira Code', 'ui-monospace', 'monospace'],
+
+      /* ====================================================================
+         FONT SIZE — fluid tokens (clamp + calc)
+         Usage: text-sm, text-base, text-2xl etc.
+         ==================================================================== */
+      fontSize: {
+        'xs': 'var(--fs-xs-fluid)',
+        'sm': 'var(--fs-sm-fluid)',
+        'base': 'var(--fs-base-fluid)',
+        'lg': 'var(--fs-lg-fluid)',
+        'xl': 'var(--fs-xl-fluid)',
+        '2xl': 'var(--fs-2xl-fluid)',
+        '3xl': 'var(--fs-3xl-fluid)',
+        '4xl': 'var(--fs-4xl-fluid)',
+        '5xl': 'var(--fs-5xl-fluid)',
+        '6xl': 'var(--fs-6xl-fluid)',
+        '7xl': 'var(--fs-7xl-fluid)',
       },
+
+      /* ====================================================================
+         FONT FAMILY — from design system
+         ==================================================================== */
+      fontFamily: {
+        sans: ['var(--font-sans)'],
+        mono: ['var(--font-mono)'],
+      },
+
+      /* ====================================================================
+         FONT WEIGHT — from design system
+         ==================================================================== */
+      fontWeight: {
+        light: 'var(--font-light)',
+        normal: 'var(--font-normal)',
+        medium: 'var(--font-medium)',
+        semibold: 'var(--font-semibold)',
+        bold: 'var(--font-bold)',
+        extrabold: 'var(--font-extrabold)',
+      },
+
+      /* ====================================================================
+         LINE HEIGHT — from design system
+         ==================================================================== */
+      lineHeight: {
+        none: 'var(--leading-none)',
+        tight: 'var(--leading-tight)',
+        snug: 'var(--leading-snug)',
+        normal: 'var(--leading-normal)',
+        relaxed: 'var(--leading-relaxed)',
+        loose: 'var(--leading-loose)',
+        fluid: 'var(--leading-fluid)',
+      },
+
+      /* ====================================================================
+         LETTER SPACING — from design system
+         ==================================================================== */
+      letterSpacing: {
+        tight: 'var(--tracking-tight)',
+        normal: 'var(--tracking-normal)',
+        wide: 'var(--tracking-wide)',
+      },
+
+      /* ====================================================================
+         SPACING — fluid tokens (clamp + calc)
+         Applies to: p-*, m-*, gap-*, w-*, h-*, etc.
+         ==================================================================== */
+      spacing: {
+        '0': 'var(--spacing-0)',
+        '1': 'var(--space-1-fluid)',
+        '2': 'var(--space-2-fluid)',
+        '3': 'var(--space-3-fluid)',
+        '4': 'var(--space-4-fluid)',
+        '5': 'var(--space-5-fluid)',
+        '6': 'var(--space-6-fluid)',
+        '8': 'var(--space-8-fluid)',
+        '10': 'var(--space-10-fluid)',
+        '12': 'var(--space-12-fluid)',
+        '16': 'var(--space-16-fluid)',
+        '20': 'var(--space-20-fluid)',
+        '24': 'var(--space-24-fluid)',
+        '32': 'var(--space-32-fluid)',
+        '128': '32rem',
+        '144': '36rem',
+      },
+
+      /* ====================================================================
+         BORDER RADIUS — from design system
+         ==================================================================== */
+      borderRadius: {
+        'sm': 'var(--radius-sm)',
+        DEFAULT: 'var(--radius-base)',
+        'md': 'var(--radius-md)',
+        'lg': 'var(--radius-lg)',
+        'xl': 'var(--radius-xl)',
+        '2xl': 'var(--radius-2xl)',
+        'full': 'var(--radius-full)',
+      },
+
+      /* ====================================================================
+         BOX SHADOW — from design system
+         ==================================================================== */
+      boxShadow: {
+        'sm': 'var(--shadow-sm)',
+        DEFAULT: 'var(--shadow-base)',
+        'md': 'var(--shadow-md)',
+        'lg': 'var(--shadow-lg)',
+        'xl': 'var(--shadow-xl)',
+        '2xl': 'var(--shadow-2xl)',
+        'inner': 'var(--shadow-inner)',
+      },
+
+      /* ====================================================================
+         TRANSITION — from design system
+         ==================================================================== */
+      transitionDuration: {
+        fast: 'var(--duration-fast)',
+        DEFAULT: 'var(--duration-normal)',
+        slow: 'var(--duration-slow)',
+        slower: 'var(--duration-slower)',
+      },
+
+      transitionTimingFunction: {
+        linear: 'var(--ease-linear)',
+        in: 'var(--ease-in)',
+        out: 'var(--ease-out)',
+        'in-out': 'var(--ease-in-out)',
+      },
+
+      /* ====================================================================
+         Z-INDEX — from design system
+         ==================================================================== */
+      zIndex: {
+        dropdown: 'var(--z-dropdown)',
+        sticky: 'var(--z-sticky)',
+        fixed: 'var(--z-fixed)',
+        'modal-backdrop': 'var(--z-modal-backdrop)',
+        modal: 'var(--z-modal)',
+        popover: 'var(--z-popover)',
+        tooltip: 'var(--z-tooltip)',
+      },
+
+      /* ====================================================================
+         MAX WIDTH — container widths from design system
+         ==================================================================== */
+      maxWidth: {
+        narrow: 'var(--container-narrow)',
+        wide: 'var(--container-wide)',
+        content: 'var(--layout-max-content-width)',
+        '8xl': '88rem',
+        '9xl': '96rem',
+      },
+
+      /* ====================================================================
+         ANIMATIONS — preserved from existing config
+         ==================================================================== */
       animation: {
         'spin-slow': 'spin 3s linear infinite',
         'bounce-slow': 'bounce 3s infinite',
@@ -105,15 +271,26 @@ export default {
           '100%': { transform: 'translateY(100vh) rotate(720deg)' },
         },
       },
-      spacing: {
-        '128': '32rem',
-        '144': '36rem',
-      },
-      maxWidth: {
-        '8xl': '88rem',
-        '9xl': '96rem',
-      },
     },
   },
-  plugins: [],
+
+  /* ========================================================================
+     PLUGINS — custom size utilities
+     ======================================================================== */
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        /* Fluid sizing utilities: .size-xs through .size-xl */
+        '.size-xs': { width: 'var(--size-xs-fluid)', height: 'var(--size-xs-fluid)' },
+        '.size-sm': { width: 'var(--size-sm-fluid)', height: 'var(--size-sm-fluid)' },
+        '.size-md': { width: 'var(--size-md-fluid)', height: 'var(--size-md-fluid)' },
+        '.size-lg': { width: 'var(--size-lg-fluid)', height: 'var(--size-lg-fluid)' },
+        '.size-xl': { width: 'var(--size-xl-fluid)', height: 'var(--size-xl-fluid)' },
+
+        /* Transition shorthand utilities */
+        '.transition-fast': { transition: 'var(--transition-fast)' },
+        '.transition-normal': { transition: 'var(--transition-normal)' },
+      });
+    },
+  ],
 }

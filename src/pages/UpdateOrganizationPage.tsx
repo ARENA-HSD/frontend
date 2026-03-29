@@ -64,8 +64,9 @@ const UpdateOrganizationPage = () => {
         branding: {
             primary: string;
             secondary: string;
-            logoUrl: string
-        }
+            logoUrl?: string;
+            logoBase64?: string;
+        };
     }) => {
         setError(null);
 
@@ -99,7 +100,11 @@ const UpdateOrganizationPage = () => {
             }
         } catch (err: any) {
             console.error('Failed to update organization:', err);
-            const message = err?.response?.data?.message || err?.message || 'Failed to update organization';
+            const status = err?.response?.status;
+            const backendMessage = err?.response?.data?.message;
+            const message = status >= 500
+                ? 'Görsel yükleme sırasında bir hata oluştu.'
+                : backendMessage || err?.message || 'Failed to update organization';
             setError(message);
         } finally {
             setIsLoading(false);

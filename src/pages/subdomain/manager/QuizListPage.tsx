@@ -92,7 +92,7 @@ const QuizListPage = () => {
     };
 
     const handleStartQuiz = (quizId: string) => {
-        navigate(`/manager/quizzes/${quizId}/lobby`);
+        navigate(`/manager/quizzes/${quizId}/live`);
     };
 
     const handleViewQuiz = (quizId: string) => {

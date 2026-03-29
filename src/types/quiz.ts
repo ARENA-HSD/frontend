@@ -56,7 +56,7 @@ export interface Question {
 
 export interface CreateQuestionData {
     text: string;
-    mediaUrl?: string;
+    mediaBase64?: string;
     timeLimit: number;
     points: number;
     options: QuestionOption[];       // exactly 4 options
@@ -66,7 +66,7 @@ export interface CreateQuestionData {
 
 export interface UpdateQuestionData {
     text?: string;
-    mediaUrl?: string;
+    mediaBase64?: string;
     timeLimit?: number;
     points?: number;
     options?: QuestionOption[];

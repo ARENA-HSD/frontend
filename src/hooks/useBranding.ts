@@ -65,9 +65,10 @@ const getOrganizationMeta = async (subdomain: string): Promise<OrganizationMeta>
 };
 
 export const useBranding = (subdomain: string | null) => {
-    const [branding, setBranding] = useState<OrganizationBranding | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [organizationExists, setOrganizationExists] = useState<boolean>(true);
+    const cached = subdomain ? orgMetaCache.get(subdomain) : undefined;
+    const [branding, setBranding] = useState<OrganizationBranding | null>(cached?.branding ?? null);
+    const [isLoading, setIsLoading] = useState(!!subdomain && !cached);
+    const [organizationExists, setOrganizationExists] = useState<boolean>(cached?.organizationExists ?? true);
 
     useEffect(() => {
         if (!subdomain) {

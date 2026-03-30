@@ -19,6 +19,7 @@ import QuestionStage from '@/components/quiz/participant/game/QuestionStage';
 import Result from '@/components/quiz/participant/game/Result';
 import LeaderboardPersonal from '@/components/quiz/participant/game/LeaderboardPersonal';
 import LeaderboardStage from '@/components/quiz/participant/game/LeaderboardStage';
+import Finished from '@/components/quiz/participant/game/Finished';
 
 const ParticipantGamePage = () => {
     const { state, actions } = useParticipantGameController();
@@ -91,11 +92,15 @@ const ParticipantGamePage = () => {
                 <LeaderboardStage stats={state.stats} />
             )}
 
-            {/* ====== Fallback (finished → auto-navigates) ====== */}
+            {/* ====== Finished ====== */}
             {state.phase === 'finished' && (
-                <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
-                    <div className="text-white text-xl animate-pulse">Loading results...</div>
-                </div>
+                <Finished
+                    nickname={state.nickname}
+                    stats={state.stats}
+                    gameMode={state.gameMode}
+                    podium={state.top5}
+                    handleNavigateToJoin={actions.handleNavigateToJoin}
+                />
             )}
         </>
     );

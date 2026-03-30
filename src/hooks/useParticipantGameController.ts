@@ -188,13 +188,11 @@ export function useParticipantGameController() {
     }, [reconnectData]);
 
     // ========================================
-    // Handle `finished` phase → navigate to results
+    // Handle `finished` phase
     // ========================================
-    useEffect(() => {
-        if (phase === 'finished') {
-            navigate('/play/results', { replace: true });
-        }
-    }, [phase, navigate]);
+    // Previously: navigated to /play/results
+    // Now: Handled via state and rendered in ParticipantGamePage
+    // No action needed here as phase change handles the UI transition.
 
     // ========================================
     // Lobby: animate dots
@@ -311,18 +309,10 @@ export function useParticipantGameController() {
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
                 gameSocket.clearStoredSession();
                 const s = statsRef.current;
-                navigate('/play/results', {
-                    state: {
-                        nickname: nicknameRef.current,
-                        myRank: s.rank,
-                        myTotalScore: s.totalScore,
-                        podium: payload.finalScores,
-                        correctAnswers: s.correct,
-                        wrongAnswers: s.wrong,
-                        gameMode: gameModeRef.current,
-                    },
-                    replace: true,
-                });
+
+                // Save final data into state instead of navigating
+                setTop5(payload.finalScores || []);
+                setPhase('finished');
             })
         );
 

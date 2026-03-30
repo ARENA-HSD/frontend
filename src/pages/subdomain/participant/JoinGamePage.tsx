@@ -90,7 +90,7 @@ const JoinGamePage = () => {
                         replace: true,
                     });
                 } else {
-                    navigate('/play/results', { replace: true });
+                    navigate('/join', { replace: true });
                 }
             }
         );

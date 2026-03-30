@@ -4,6 +4,9 @@
  * 3-2-1 countdown transition between questions
  */
 
+import adBgMobile from '@/assets/images/reklam-test-coutdown.jpg';
+import adBg from '@/assets/images/reklam-test.webp';
+import countdownBgMobile from '@/assets/images/background-mobile.png';
 import countdownBg from '@/assets/images/background.png';
 import maskotBase from '@/assets/maskot.png'
 import maskot160Webp from '@/assets/optimized/maskot-160.webp';
@@ -18,6 +21,20 @@ interface CountdownProps {
 const Countdown = ({ countdown }: CountdownProps) => {
     return (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden">
+            {adBg ? (
+                <picture className="absolute inset-0 w-full h-full">
+                    <source media="(orientation: portrait)" srcSet={adBgMobile} />
+                    <source media="(orientation: landscape)" srcSet={adBg} />
+                    <img src={adBg} alt="Ad Background" className="w-full h-full object-fill" />
+                </picture>
+            ) : (
+                <picture className="absolute inset-0 w-full h-full">
+                    <source media="(orientation: portrait)" srcSet={countdownBgMobile} />
+                    <source media="(orientation: landscape)" srcSet={countdownBg} />
+                    <img src={countdownBg} alt="Background" className="w-full h-full object-cover" />
+                </picture>
+            )}
+            <div className="absolute inset-0 bg-black/40" />
             <ReconnectOverlay />
 
             {/* Content Container */}
@@ -33,7 +50,7 @@ const Countdown = ({ countdown }: CountdownProps) => {
                 </div>
 
                 {/* Central Circle Countdown */}
-                <div className="relative flex items-center justify-center">
+                <div className="relative flex flex-col items-center justify-center">
                     {/* THE Green Circle */}
                     <div className="relative w-28 h-28 sm:w-40 sm:h-40 lg:w-48 lg:h-48 bg-[#4CAF50] rounded-full flex items-center justify-center border-b-[6px] sm:border-b-[10px] border-black/20 shadow-2xl">
                         <span
@@ -45,30 +62,36 @@ const Countdown = ({ countdown }: CountdownProps) => {
                             {countdown > 0 ? countdown : '🚀'}
                         </span>
                     </div>
+
+                    <div className="text-white text-xl sm:text-3xl font-black tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] mt-6 text-center">
+                        <span className="text-[#ea004b]">Yemeksepeti</span> ile eğlence başlıyor
+                    </div>
                 </div>
             </div>
 
             {/* Mascot in the corner - Rotated 15deg left and slightly off-screen */}
-            <div
-                className="absolute bottom-[-20px] right-[-30px] lg:bottom-[-40px] lg:right-[-60px] w-[300px] lg:w-[450px] select-none pointer-events-none -rotate-[15deg]"
-            >
-                <picture>
-                    <source
-                        type="image/webp"
-                        srcSet={`${maskot160Webp} 160w, ${maskot320Webp} 320w, ${maskot480Webp} 480w`}
-                        sizes="(max-width: 1024px) 300px, 450px"
-                    />
-                    <img
-                        src={maskotBase}
-                        alt="Mascot"
-                        className="w-full h-auto drop-shadow-2xl"
-                        width={1051}
-                        height={758}
-                        loading="eager"
-                        decoding="async"
-                    />
-                </picture>
-            </div>
+            {!adBg && (
+                <div
+                    className="absolute bottom-[-20px] right-[-30px] lg:bottom-[-40px] lg:right-[-60px] w-[300px] lg:w-[450px] select-none pointer-events-none -rotate-[15deg]"
+                >
+                    <picture>
+                        <source
+                            type="image/webp"
+                            srcSet={`${maskot160Webp} 160w, ${maskot320Webp} 320w, ${maskot480Webp} 480w`}
+                            sizes="(max-width: 1024px) 300px, 450px"
+                        />
+                        <img
+                            src={maskotBase}
+                            alt="Mascot"
+                            className="w-full h-auto drop-shadow-2xl"
+                            width={1051}
+                            height={758}
+                            loading="eager"
+                            decoding="async"
+                        />
+                    </picture>
+                </div>
+            )}
         </div>
     );
 };

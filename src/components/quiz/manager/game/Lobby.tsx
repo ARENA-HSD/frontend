@@ -77,7 +77,7 @@ const Lobby = ({
             <ReconnectOverlay />
 
             {/* Premium Header Bar - Slimmer for better fit */}
-            <div className="w-full max-w-7xl mx-auto mb-6 flex items-center justify-between flex-shrink-0">
+            <div className="w-full max-w-7xl mx-auto flex items-center justify-between flex-shrink-0">
                 {/* Logo & Maskot */}
                 <HeaderLogo />
 
@@ -105,7 +105,7 @@ const Lobby = ({
             </div>
 
             {/* Main Content Grid - Flex-1 with min-h-0 for scroll-less behavior */}
-            <div className="w-full max-w-7xl mx-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 min-h-0 mb-6">
+            <div className="w-full max-w-7xl mx-auto flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 min-h-0 mb-2">
 
                 {/* Left Column: Join Info */}
                 <div className="bg-white rounded-[32px] shadow-2xl py-20 flex flex-col items-center justify-center border-b-[6px] border-black/10 relative overflow-hidden h-full min-h-[350px]">
@@ -144,6 +144,9 @@ const Lobby = ({
                                     >
                                         {copied ? 'Copied!' : 'Copy'}
                                     </button>
+                                </div>
+                                <div className="mt-2 text-sm md:text-base font-medium text-gray-500 text-center">
+                                    Bu quiz <span className="text-[#ea004b] font-bold">Yemeksepeti</span> sponsorluğunda
                                 </div>
                             </div>
                         </div>

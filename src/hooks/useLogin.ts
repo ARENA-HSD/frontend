@@ -28,6 +28,7 @@ interface UseLoginReturn {
         general?: string;
     };
     isLoading: boolean;
+    turnstileRenderKey: number;
     setEmail: (email: string) => void;
     setPassword: (password: string) => void;
     setCfTurnstileToken: (token: string) => void;
@@ -48,6 +49,7 @@ export const useLogin = (
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [cfTurnstileToken, setCfTurnstileToken] = useState('');
+    const [turnstileRenderKey, setTurnstileRenderKey] = useState(0);
     const [errors, setErrors] = useState<UseLoginReturn['errors']>({});
     const [isLoading, setIsLoading] = useState(false);
 
@@ -94,6 +96,11 @@ export const useLogin = (
 
             onSuccess?.();
         } catch (error) {
+            if (requireTurnstile) {
+                setCfTurnstileToken('');
+                setTurnstileRenderKey((prev) => prev + 1);
+            }
+
             const authError = error as AuthError;
             if (authError.code === 'INVALID_CREDENTIALS') {
                 setErrors({ general: authError.message });
@@ -112,6 +119,7 @@ export const useLogin = (
         password,
         errors,
         isLoading,
+        turnstileRenderKey,
         setEmail,
         setPassword,
         setCfTurnstileToken,

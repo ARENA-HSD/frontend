@@ -20,6 +20,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
         password,
         errors,
         isLoading,
+        turnstileRenderKey,
         setUsername,
         setEmail,
         setPassword,
@@ -86,6 +87,7 @@ const RegisterForm = ({ onSuccess }: RegisterFormProps) => {
 
             <div className="flex justify-center">
                 <Turnstile
+                    key={turnstileRenderKey}
                     siteKey={TURNSTILE_SITE_KEY}
                     onSuccess={setCfTurnstileToken}
                     onExpire={() => setCfTurnstileToken('')}

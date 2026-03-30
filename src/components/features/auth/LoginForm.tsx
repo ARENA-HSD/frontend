@@ -20,6 +20,7 @@ const LoginForm = ({ onSuccess, requireTurnstile = true }: LoginFormProps) => {
         password,
         errors,
         isLoading,
+        turnstileRenderKey,
         setEmail,
         setPassword,
         setCfTurnstileToken,
@@ -73,6 +74,7 @@ const LoginForm = ({ onSuccess, requireTurnstile = true }: LoginFormProps) => {
             {requireTurnstile && (
                 <div className="flex justify-center">
                     <Turnstile
+                        key={turnstileRenderKey}
                         siteKey={TURNSTILE_SITE_KEY}
                         onSuccess={setCfTurnstileToken}
                         onExpire={() => setCfTurnstileToken('')}

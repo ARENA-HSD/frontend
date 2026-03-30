@@ -33,6 +33,7 @@ interface UseRegisterReturn {
         general?: string;
     };
     isLoading: boolean;
+    turnstileRenderKey: number;
 
     setUsername: (value: string) => void;
     setEmail: (value: string) => void;
@@ -50,6 +51,7 @@ export const useRegister = (onSuccess?: () => void): UseRegisterReturn => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [cfTurnstileToken, setCfTurnstileToken] = useState('');
+    const [turnstileRenderKey, setTurnstileRenderKey] = useState(0);
 
     const [errors, setErrors] = useState<UseRegisterReturn['errors']>({});
     const [isLoading, setIsLoading] = useState(false);
@@ -115,6 +117,9 @@ export const useRegister = (onSuccess?: () => void): UseRegisterReturn => {
             await register(data);
             onSuccess?.();
         } catch (error) {
+            setCfTurnstileToken('');
+            setTurnstileRenderKey((prev) => prev + 1);
+
             const authError = error as AuthError;
             if (authError.field) {
                 setErrors({ [authError.field]: authError.message });
@@ -134,6 +139,7 @@ export const useRegister = (onSuccess?: () => void): UseRegisterReturn => {
         password,
         errors,
         isLoading,
+        turnstileRenderKey,
         setUsername,
         setEmail,
         setPassword,

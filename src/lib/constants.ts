@@ -10,19 +10,7 @@
 // ============================================================================
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-export const WS_BASE_URL = (() => {
-    // Eğer API URL '/' ile başlıyorsa (relative path ise), tarayıcı üzerinden aktif adresi çek ve birleştir.
-    if (API_BASE_URL.startsWith('/')) {
-        if (typeof window !== 'undefined') {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            // origin: https://tubitak.quizstrike.com.tr -> wss://tubitak.quizstrike.com.tr
-            return `${protocol}//${window.location.host}${API_BASE_URL}`;
-        }
-        return `ws://localhost:3000${API_BASE_URL}`;
-    }
-    return API_BASE_URL.replace('http', 'ws');
-})();
+export const WS_BASE_URL = API_BASE_URL.replace('http', 'ws');
 export const IS_DEVELOPMENT = import.meta.env.DEV;
 export const IS_PRODUCTION = import.meta.env.PROD;
 

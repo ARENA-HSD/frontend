@@ -146,9 +146,6 @@ const Leaderboard = ({
                             </div>
                         )}
                     </div>
-                    <div className="text-sm md:text-base font-bold text-gray-500 mt-1">
-                        <span className="text-[#ea004b] font-black">Yemeksepeti</span> ile eğlence devam ediyor
-                    </div>
                 </div>
 
                 <div className="h-6 lg:h-10 shrink-0 w-full" />

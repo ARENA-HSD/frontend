@@ -6,14 +6,12 @@
  * Copy-pasted JSX from QuizResultsPage.tsx.
  */
 
-import { useState } from 'react';
 import { TrendingUp } from 'lucide-react';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import ConnectionToasts from '@/components/ui/ConnectionToasts';
 import { SEO } from '@/components';
 import { HeaderLogo } from '@/components/layout';
 import backgroundBg from '@/assets/optimized/background-1280.webp';
-import reklamBg from '@/assets/images/reklam-test.webp';
 import type { Quiz } from '@/types';
 import type { ConnectionToast } from '@/hooks/useGameController';
 
@@ -30,29 +28,6 @@ const Finished = ({
     connectionToasts,
     handleEndGame,
 }: FinishedProps) => {
-    const [showAd, setShowAd] = useState(false);
-
-    if (showAd) {
-        return (
-            <div className="fixed inset-0 z-0 flex flex-col overflow-hidden bg-black font-['Outfit',sans-serif]">
-                <img src={reklamBg} alt="Sponsor" className="w-full h-full object-fill object-center" />
-                <ReconnectOverlay />
-                <ConnectionToasts toasts={connectionToasts} />
-                <SEO title={`${quiz?.title || 'Quiz'} - Results`} description="View the final leaderboard and scores from your Quiz Strike session." noIndex />
-
-                {/* Exit Button positioned at top right */}
-                <div className="absolute top-4 right-4 md:top-8 md:right-8 z-50">
-                    <button
-                        onClick={handleEndGame}
-                        className="px-8 py-3 bg-[#ea004b] hover:bg-rose-600 text-white rounded-2xl font-black text-lg md:text-xl border-[3px] border-white shadow-[0_4px_12px_rgba(0,0,0,0.5)] transition-all hover:scale-105 active:scale-95"
-                    >
-                        Çık
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     const top3 = leaderboard.slice(0, 3);
     const first = top3[0];
     const second = top3[1];
@@ -98,7 +73,7 @@ const Finished = ({
                             </h1>
                         </div>
                         <div className="flex items-center">
-                            <button onClick={() => setShowAd(true)} className="px-5 md:px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-black text-sm md:text-base border-[3px] border-black shadow-[0_4px_0_rgba(153,27,27,1)] hover:translate-y-[1px] hover:shadow-[0_2px_0_rgba(153,27,27,1)] active:translate-y-[4px] active:shadow-none whitespace-nowrap">
+                            <button onClick={handleEndGame} className="px-5 md:px-6 py-2 bg-red-500 hover:bg-red-600 text-white rounded-2xl font-black text-sm md:text-base border-[3px] border-black shadow-[0_4px_0_rgba(153,27,27,1)] hover:translate-y-[1px] hover:shadow-[0_2px_0_rgba(153,27,27,1)] active:translate-y-[4px] active:shadow-none whitespace-nowrap">
                                 Exit Game
                             </button>
                         </div>

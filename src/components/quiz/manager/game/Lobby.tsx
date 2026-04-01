@@ -145,9 +145,6 @@ const Lobby = ({
                                         {copied ? 'Copied!' : 'Copy'}
                                     </button>
                                 </div>
-                                <div className="mt-2 text-sm md:text-base font-medium text-gray-500 text-center">
-                                    Bu quiz <span className="text-[#ea004b] font-bold">Yemeksepeti</span> sponsorluğunda
-                                </div>
                             </div>
                         </div>
 

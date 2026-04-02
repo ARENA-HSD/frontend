@@ -308,7 +308,19 @@ export function useParticipantGameController() {
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
                 gameSocket.clearStoredSession();
-                const s = statsRef.current;
+
+                // Keep locally accumulated stats (correct, wrong), but update exact rank and score from backend
+                if (payload.myRank != null) {
+                    statsRef.current.rank = payload.myRank;
+                } else if (statsRef.current.rank === 0) {
+                    // Fallback to searching finalScores if myRank wasn't provided for some reason
+                    const idx = (payload.finalScores || []).findIndex(p => p.nickname === nicknameRef.current);
+                    if (idx >= 0) statsRef.current.rank = idx + 1;
+                }
+
+                if (payload.myTotalScore != null) {
+                    statsRef.current.totalScore = payload.myTotalScore;
+                }
 
                 // Save final data into state instead of navigating
                 setTop5(payload.finalScores || []);

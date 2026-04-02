@@ -29,8 +29,49 @@ const Finished = ({ nickname, stats, gameMode, podium, handleNavigateToJoin }: P
     const correctAnswers = stats.correct || 0;
     const wrongAnswers = stats.wrong || 0;
 
+    const statsSummary = (
+        <div className="space-y-3 mb-6">
+            {/* Total Points */}
+            <div className="flex items-center bg-blue-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                <div className="bg-blue-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
+                    Total Points
+                </div>
+                <div className="flex-1 text-right pr-6 text-4xl font-black text-blue-700">
+                    {myTotalScore.toLocaleString()}
+                </div>
+            </div>
+            {/* Final Position */}
+            <div className="flex items-center bg-yellow-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                <div className="bg-yellow-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
+                    Final Position
+                </div>
+                <div className="flex-1 text-right pr-6 text-3xl font-black text-yellow-700">
+                    {myRank ? `#${myRank}` : '-'}
+                </div>
+            </div>
+            {/* Correct Answers */}
+            <div className="flex items-center bg-green-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                <div className="bg-green-500 text-white font-bold text-lg px-5 py-4 rounded-full whitespace-nowrap">
+                    Correct Answers
+                </div>
+                <div className="flex-1 text-right pr-6 text-3xl font-black text-green-700">
+                    {correctAnswers}
+                </div>
+            </div>
+            {/* Wrong Answers */}
+            <div className="flex items-center bg-red-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
+                <div className="bg-red-400 text-white font-bold text-lg px-5 py-4 rounded-full whitespace-nowrap">
+                    Wrong Answers
+                </div>
+                <div className="flex-1 text-right pr-6 text-3xl font-black text-red-600">
+                    {wrongAnswers}
+                </div>
+            </div>
+        </div>
+    );
+
     // ========================================
-    // PERSONAL MODE: Podium + own position
+    // PERSONAL MODE: Stats + Podium
     // ========================================
     if (gameMode === 'PERSONAL') {
         const myPodiumIdx = podium.findIndex(p => p.nickname === nickname);
@@ -54,26 +95,7 @@ const Finished = ({ nickname, stats, gameMode, podium, handleNavigateToJoin }: P
                         <div className="text-3xl font-black text-primary">Quiz Complete!</div>
                     </div>
 
-                    <div className="space-y-3 mb-6">
-                        {/* Total Points */}
-                        <div className="flex items-center bg-blue-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
-                            <div className="bg-blue-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
-                                Total Points
-                            </div>
-                            <div className="flex-1 text-right pr-6 text-4xl font-black text-blue-700">
-                                {myTotalScore.toLocaleString()}
-                            </div>
-                        </div>
-                        {/* Final Position */}
-                        <div className="flex items-center bg-yellow-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
-                            <div className="bg-yellow-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
-                                Final Position
-                            </div>
-                            <div className="flex-1 text-right pr-6 text-3xl font-black text-yellow-700">
-                                #{myRank || '-'}
-                            </div>
-                        </div>
-                    </div>
+                    {statsSummary}
 
                     {/* Podium miniature */}
                     {podium.length > 0 && (
@@ -134,39 +156,7 @@ const Finished = ({ nickname, stats, gameMode, podium, handleNavigateToJoin }: P
                     <div className="text-3xl font-black text-primary">Quiz Complete!</div>
                 </div>
 
-                <div className="space-y-3 mb-6">
-                    {/* Total Points */}
-                    <div className="flex items-center bg-blue-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
-                        <div className="bg-blue-500 text-white font-bold text-lg px-6 py-4 rounded-full whitespace-nowrap">
-                            Total Points
-                        </div>
-                        <div className="flex-1 text-right pr-6 text-4xl font-black text-blue-700">
-                            {myTotalScore.toLocaleString()}
-                        </div>
-                    </div>
-                    {/* Correct Answers */}
-                    {correctAnswers > 0 && (
-                        <div className="flex items-center bg-green-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
-                            <div className="bg-green-500 text-white font-bold text-lg px-5 py-4 rounded-full whitespace-nowrap">
-                                Correct Answers
-                            </div>
-                            <div className="flex-1 text-right pr-6 text-3xl font-black text-green-700">
-                                {correctAnswers}
-                            </div>
-                        </div>
-                    )}
-                    {/* Wrong Answers */}
-                    {wrongAnswers > 0 && (
-                        <div className="flex items-center bg-red-100 rounded-l-[2.5rem] rounded-r-xl overflow-hidden">
-                            <div className="bg-red-400 text-white font-bold text-lg px-5 py-4 rounded-full whitespace-nowrap">
-                                Wrong Answers
-                            </div>
-                            <div className="flex-1 text-right pr-6 text-3xl font-black text-red-600">
-                                {wrongAnswers}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                {statsSummary}
 
                 <div className="text-center text-lg font-semibold text-gray mb-6">
                     Thank you for playing! 🎓

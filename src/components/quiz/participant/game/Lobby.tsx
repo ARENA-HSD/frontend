@@ -5,7 +5,6 @@
  */
 
 import { SEO } from '@/components';
-import Countdown from '@/components/quiz/shared/Countdown';
 import maskot from "@/assets/maskot.png";
 import maskot160Webp from '@/assets/optimized/maskot-160.webp';
 import maskot320Webp from '@/assets/optimized/maskot-320.webp';
@@ -14,15 +13,10 @@ import maskot480Webp from '@/assets/optimized/maskot-480.webp';
 interface LobbyProps {
     nickname: string;
     pin: string;
-    lobbyPhase: 'lobby' | 'countdown';
-    countdown: number;
     dots: string;
 }
 
-const Lobby = ({ nickname, pin, lobbyPhase, countdown, dots }: LobbyProps) => {
-    if (lobbyPhase === 'countdown') {
-        return <Countdown countdown={countdown} />;
-    }
+const Lobby = ({ nickname, pin, dots }: LobbyProps) => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-black/20">

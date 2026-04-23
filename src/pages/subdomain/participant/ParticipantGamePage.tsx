@@ -10,9 +10,12 @@
  */
 
 import { useParticipantGameController } from '@/hooks/useParticipantGameController';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SEO } from '@/components';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import Lobby from '@/components/quiz/participant/game/Lobby';
+import Countdown from '@/components/quiz/shared/Countdown';
+import Incoming from '@/components/quiz/shared/Incoming';
 import Waiting from '@/components/quiz/participant/game/Waiting';
 import QuestionPersonal from '@/components/quiz/participant/game/QuestionPersonal';
 import QuestionStage from '@/components/quiz/participant/game/QuestionStage';
@@ -24,84 +27,108 @@ import Finished from '@/components/quiz/participant/game/Finished';
 const ParticipantGamePage = () => {
     const { state, actions } = useParticipantGameController();
 
+    // Key mapping: countdown shares key with lobby, answered/incoming share key with question
+    const animationKey = ['answered', 'incoming'].includes(state.phase) ? 'question' : state.phase === 'countdown' ? 'lobby' : state.phase;
+
     return (
         <>
             <SEO title="Quiz in Progress" description="Playing a live Quiz Strike session." noIndex />
             <ReconnectOverlay onNavigateToJoin={actions.handleNavigateToJoin} />
 
-            {/* ====== Lobby ====== */}
-            {state.phase === 'lobby' && (
-                <Lobby
-                    nickname={state.nickname}
-                    pin={state.pin}
-                    lobbyPhase={state.lobbyPhase}
-                    countdown={state.countdown}
-                    dots={state.dots}
-                />
-            )}
+            <div style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh' }}>
+            <AnimatePresence initial={false}>
+                <motion.div
+                    key={animationKey}
+                    initial={{ x: '100%' }}
+                    animate={{ x: 0 }}
+                    exit={{ x: '-100%' }}
+                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                    style={{ position: 'absolute', inset: 0, width: '100%', minHeight: '100vh' }}>
 
-            {/* ====== Waiting ====== */}
-            {state.phase === 'waiting' && (
-                <Waiting nickname={state.nickname} />
-            )}
+                    {/* ====== Lobby ====== */}
+                    {state.phase === 'lobby' && (
+                        <Lobby
+                            nickname={state.nickname}
+                            pin={state.pin}
+                            dots={state.dots}
+                        />
+                    )}
 
-            {/* ====== Question / Answered — PERSONAL ====== */}
-            {(state.phase === 'question' || state.phase === 'answered') && state.gameMode === 'PERSONAL' && (
-                <QuestionPersonal
-                    phase={state.phase}
-                    questionIndex={state.questionIndex}
-                    questionText={state.questionText}
-                    questionMedia={state.questionMedia}
-                    options={state.options}
-                    timeLeft={state.timeLeft}
-                    selectedAnswer={state.selectedAnswer}
-                    handleSelectAnswer={actions.handleSelectAnswer}
-                />
-            )}
+                    {/* ====== Countdown ====== */}
+                    {state.phase === 'countdown' && (
+                        <Countdown countdown={state.countdown} />
+                    )}
 
-            {/* ====== Question / Answered — STAGE ====== */}
-            {(state.phase === 'question' || state.phase === 'answered') && state.gameMode === 'STAGE' && (
-                <QuestionStage
-                    phase={state.phase}
-                    timeLeft={state.timeLeft}
-                    selectedAnswer={state.selectedAnswer}
-                    handleSelectAnswer={actions.handleSelectAnswer}
-                />
-            )}
+                    {/* ====== Waiting ====== */}
+                    {state.phase === 'waiting' && (
+                        <Waiting nickname={state.nickname} />
+                    )}
 
-            {/* ====== Result ====== */}
-            {state.phase === 'result' && (
-                <Result
-                    isCorrect={state.isCorrect}
-                    pointsEarned={state.pointsEarned}
-                    streak={state.streak}
-                />
-            )}
+                    {/* ====== Incoming (next question transition) ====== */}
+                    {state.phase === 'incoming' && (
+                        <Incoming />
+                    )}
 
-            {/* ====== Leaderboard — PERSONAL ====== */}
-            {state.phase === 'leaderboard' && state.gameMode === 'PERSONAL' && (
-                <LeaderboardPersonal
-                    nickname={state.nickname}
-                    top5={state.top5}
-                    stats={state.stats}
-                />
-            )}
+                    {/* ====== Question / Answered — PERSONAL ====== */}
+                    {(state.phase === 'question' || state.phase === 'answered') && state.gameMode === 'PERSONAL' && (
+                        <QuestionPersonal
+                            phase={state.phase}
+                            questionIndex={state.questionIndex}
+                            questionText={state.questionText}
+                            questionMedia={state.questionMedia}
+                            options={state.options}
+                            timeLeft={state.timeLeft}
+                            selectedAnswer={state.selectedAnswer}
+                            handleSelectAnswer={actions.handleSelectAnswer}
+                        />
+                    )}
 
-            {/* ====== Leaderboard — STAGE ====== */}
-            {state.phase === 'leaderboard' && state.gameMode === 'STAGE' && (
-                <LeaderboardStage stats={state.stats} />
-            )}
+                    {/* ====== Question / Answered — STAGE ====== */}
+                    {(state.phase === 'question' || state.phase === 'answered') && state.gameMode === 'STAGE' && (
+                        <QuestionStage
+                            phase={state.phase}
+                            timeLeft={state.timeLeft}
+                            selectedAnswer={state.selectedAnswer}
+                            handleSelectAnswer={actions.handleSelectAnswer}
+                        />
+                    )}
 
-            {/* ====== Finished ====== */}
-            {state.phase === 'finished' && (
-                <Finished
-                    nickname={state.nickname}
-                    stats={state.stats}
-                    gameMode={state.gameMode}
-                    podium={state.top5}
-                    handleNavigateToJoin={actions.handleNavigateToJoin}
-                />
-            )}
+                    {/* ====== Result ====== */}
+                    {state.phase === 'result' && (
+                        <Result
+                            isCorrect={state.isCorrect}
+                            pointsEarned={state.pointsEarned}
+                            streak={state.streak}
+                        />
+                    )}
+
+                    {/* ====== Leaderboard — PERSONAL ====== */}
+                    {state.phase === 'leaderboard' && state.gameMode === 'PERSONAL' && (
+                        <LeaderboardPersonal
+                            nickname={state.nickname}
+                            top5={state.top5}
+                            stats={state.stats}
+                        />
+                    )}
+
+                    {/* ====== Leaderboard — STAGE ====== */}
+                    {state.phase === 'leaderboard' && state.gameMode === 'STAGE' && (
+                        <LeaderboardStage stats={state.stats} />
+                    )}
+
+                    {/* ====== Finished ====== */}
+                    {state.phase === 'finished' && (
+                        <Finished
+                            nickname={state.nickname}
+                            stats={state.stats}
+                            gameMode={state.gameMode}
+                            podium={state.top5}
+                            handleNavigateToJoin={actions.handleNavigateToJoin}
+                        />
+                    )}
+                </motion.div>
+            </AnimatePresence>
+            </div>
         </>
     );
 };

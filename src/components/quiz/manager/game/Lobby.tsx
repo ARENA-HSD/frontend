@@ -10,7 +10,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import ReconnectOverlay from '@/components/ui/ReconnectOverlay';
 import { SEO } from '@/components';
 import { HeaderLogo } from '@/components/layout';
-import Countdown from '@/components/quiz/shared/Countdown';
 import type { Quiz } from '@/types';
 
 interface LobbyProps {
@@ -19,8 +18,6 @@ interface LobbyProps {
     participantCount: number;
     recentPlayers: string[];
     isStarting: boolean;
-    lobbyPhase: 'lobby' | 'countdown';
-    countdown: number;
     copied: boolean;
     winHeight: number;
     joinUrl: string;
@@ -35,8 +32,6 @@ const Lobby = ({
     participantCount,
     recentPlayers,
     isStarting,
-    lobbyPhase,
-    countdown,
     copied,
     winHeight,
     joinUrl,
@@ -44,15 +39,6 @@ const Lobby = ({
     handleKickPlayer,
     copyToClipboard,
 }: LobbyProps) => {
-
-    // ========================================
-    // RENDER: Countdown
-    // ========================================
-    if (lobbyPhase === 'countdown') {
-        return (
-            <Countdown countdown={countdown} />
-        );
-    }
 
     if (!quiz) {
         return (
@@ -144,9 +130,6 @@ const Lobby = ({
                                     >
                                         {copied ? 'Copied!' : 'Copy'}
                                     </button>
-                                </div>
-                                <div className="mt-2 text-sm md:text-base font-medium text-gray-500 text-center">
-                                    Bu quiz <span className="text-[#ea004b] font-bold">Yemeksepeti</span> sponsorluğunda
                                 </div>
                             </div>
                         </div>

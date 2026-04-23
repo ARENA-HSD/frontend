@@ -33,6 +33,8 @@ import type {
 
 export type GameState =
     | 'lobby'
+    | 'countdown'
+    | 'incoming'
     | 'question'
     | 'results'
     | 'leaderboard'
@@ -105,7 +107,6 @@ export function useGameController() {
     const [recentPlayers, setRecentPlayers] = useState<string[]>([]);
     const [isStarting, setIsStarting] = useState(false);
     const [wsConnected, setWsConnected] = useState(false);
-    const [lobbyPhase, setLobbyPhase] = useState<'lobby' | 'countdown'>('lobby');
     const [countdown, setCountdown] = useState(1);
     const [copied, setCopied] = useState(false);
     const [winHeight, setWinHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
@@ -120,6 +121,7 @@ export function useGameController() {
     // Refs
     // ========================================
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const incomingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const toastIdRef = useRef(0);
     const toastTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
     const mountedRef = useRef(true);
@@ -366,7 +368,7 @@ export function useGameController() {
         // ------ GAME_STARTING (countdown) ------
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
-                setLobbyPhase('countdown');
+                setPhase('countdown');
                 setCountdown(payload.countDown);
             })
         );
@@ -374,14 +376,28 @@ export function useGameController() {
         // ------ QUESTION_START ------
         unsubs.push(
             gameSocket.on(WS_EVENTS.QUESTION_START, (payload: QuestionStartPlayload) => {
-                applyQuestionPayload(payload);
-
-                if (phaseRef.current === 'lobby') {
-                    // Transitioning from lobby to question — load quiz data
+                if (phaseRef.current === 'lobby' || phaseRef.current === 'countdown') {
+                    // First question — apply immediately and load quiz data
+                    applyQuestionPayload(payload);
                     loadQuizData();
+                    setPhase('question');
+                    return;
                 }
 
-                setPhase('question');
+                // Subsequent questions — show incoming transition
+                navigator.vibrate?.(50);
+                setPhase('incoming');
+
+                // Clear any existing incoming timer
+                if (incomingTimerRef.current) clearTimeout(incomingTimerRef.current);
+
+                incomingTimerRef.current = setTimeout(() => {
+                    if (!mountedRef.current) return;
+                    // Subtract 1s from timer to compensate for transition delay
+                    const adjusted = { ...payload, time: Math.max(1, payload.time - 1) };
+                    applyQuestionPayload(adjusted);
+                    setPhase('question');
+                }, 1000);
             })
         );
 
@@ -516,6 +532,7 @@ export function useGameController() {
 
         return () => {
             unsubs.forEach(unsub => unsub());
+            if (incomingTimerRef.current) clearTimeout(incomingTimerRef.current);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -524,7 +541,7 @@ export function useGameController() {
     // Polling fallback: fetch player count via HTTP in case pub/sub lost
     // ========================================
     useEffect(() => {
-        if (!gamePin || phase !== 'lobby' || lobbyPhase !== 'lobby') return;
+        if (!gamePin || phase !== 'lobby' || phase !== 'lobby') return;
 
         const pollInterval = setInterval(async () => {
             try {
@@ -538,11 +555,11 @@ export function useGameController() {
         }, 10000);
 
         return () => clearInterval(pollInterval);
-    }, [gamePin, phase, lobbyPhase, participantCount]);
+    }, [gamePin, phase, phase, participantCount]);
 
-    // Countdown interval — only depends on lobbyPhase
+    // Countdown interval — only depends on phase
     useEffect(() => {
-        if (lobbyPhase !== 'countdown') return;
+        if (phase !== 'countdown') return;
         const interval = setInterval(() => {
             setCountdown(prev => {
                 if (prev <= 1) {
@@ -553,17 +570,17 @@ export function useGameController() {
             });
         }, 1000);
         return () => clearInterval(interval);
-    }, [lobbyPhase]);
+    }, [phase]);
 
     // When countdown reaches 0, load quiz data so questions array is populated
     useEffect(() => {
-        if (lobbyPhase === 'countdown' && countdown <= 0) {
+        if (phase === 'countdown' && countdown <= 0) {
             if (phaseRef.current === 'lobby') {
                 loadQuizData();
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [countdown, lobbyPhase]);
+    }, [countdown, phase]);
 
     // ========================================
     // Actions
@@ -643,7 +660,6 @@ export function useGameController() {
             recentPlayers,
             isStarting,
             wsConnected,
-            lobbyPhase,
             countdown,
             copied,
             winHeight,

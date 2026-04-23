@@ -25,7 +25,7 @@ import type {
 // Types
 // ========================================
 
-export type GameStatus = 'lobby' | 'waiting' | 'question' | 'answered' | 'result' | 'leaderboard' | 'finished';
+export type GameStatus = 'lobby' | 'countdown' | 'waiting' | 'incoming' | 'question' | 'answered' | 'result' | 'leaderboard' | 'finished';
 
 interface LocationState {
     nickname?: string;
@@ -101,7 +101,6 @@ export function useParticipantGameController() {
     // ========================================
     // Lobby State
     // ========================================
-    const [lobbyPhase, setLobbyPhase] = useState<'lobby' | 'countdown'>('lobby');
     const [countdown, setCountdown] = useState(3);
     const [dots, setDots] = useState('.');
 
@@ -109,6 +108,7 @@ export function useParticipantGameController() {
     // Refs — avoid stale closures in WS handlers
     // ========================================
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const incomingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const phaseRef = useRef<GameStatus>(phase);
     const mountedRef = useRef(true);
     const pendingQuestionRef = useRef<QuestionStartPlayload | null>(null);
@@ -209,7 +209,7 @@ export function useParticipantGameController() {
     // Lobby: countdown interval
     // ========================================
     useEffect(() => {
-        if (lobbyPhase !== 'countdown') return;
+        if (phase !== 'countdown') return;
         const interval = setInterval(() => {
             setCountdown(prev => {
                 if (prev <= 1) {
@@ -220,21 +220,23 @@ export function useParticipantGameController() {
             });
         }, 1000);
         return () => clearInterval(interval);
-    }, [lobbyPhase]);
+    }, [phase]);
 
     // Lobby: when countdown reaches 0, transition to waiting/question
     useEffect(() => {
-        if (lobbyPhase === 'countdown' && countdown <= 0) {
+        if (phase === 'countdown' && countdown <= 0) {
             if (pendingQuestionRef.current) {
                 applyQuestionPayload(pendingQuestionRef.current);
                 pendingQuestionRef.current = null;
+                navigator.vibrate?.(50);
                 setPhase('question');
             } else {
+                navigator.vibrate?.(50);
                 setPhase('waiting');
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [countdown, lobbyPhase]);
+    }, [countdown, phase]);
 
     // ========================================
     // Unified WebSocket Event Listeners
@@ -245,7 +247,8 @@ export function useParticipantGameController() {
         // ------ GAME_STARTING (countdown) ------
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_STARTING, (payload: GameStartingPlayload) => {
-                setLobbyPhase('countdown');
+                navigator.vibrate?.(50);
+                setPhase('countdown');
                 setCountdown(payload.countDown);
             })
         );
@@ -257,7 +260,30 @@ export function useParticipantGameController() {
                     pendingQuestionRef.current = payload;
                     return;
                 }
+
+                // For subsequent questions (not first from waiting/countdown), show incoming transition
+                if (phaseRef.current !== 'waiting' && phaseRef.current !== 'countdown') {
+                    pendingQuestionRef.current = payload;
+                    navigator.vibrate?.(50);
+                    setPhase('incoming');
+
+                    // Clear any existing incoming timer
+                    if (incomingTimerRef.current) clearTimeout(incomingTimerRef.current);
+
+                    incomingTimerRef.current = setTimeout(() => {
+                        if (!mountedRef.current) return;
+                        // Subtract 1s from timer to compensate for the transition delay
+                        const adjusted = { ...payload, time: Math.max(1, payload.time - 1) };
+                        applyQuestionPayload(adjusted);
+                        pendingQuestionRef.current = null;
+                        setPhase('question');
+                    }, 1000);
+                    return;
+                }
+
+                // First question — show immediately
                 applyQuestionPayload(payload);
+                navigator.vibrate?.(50);
                 setPhase('question');
             })
         );
@@ -281,6 +307,7 @@ export function useParticipantGameController() {
                 }
                 statsRef.current.totalScore += pts;
 
+                navigator.vibrate?.(50);
                 setPhase('result');
             })
         );
@@ -300,6 +327,7 @@ export function useParticipantGameController() {
                     statsRef.current.totalScore = payload.myTotalScore;
                 }
 
+                navigator.vibrate?.(50);
                 setPhase('leaderboard');
             })
         );
@@ -308,10 +336,23 @@ export function useParticipantGameController() {
         unsubs.push(
             gameSocket.on(WS_EVENTS.GAME_OVER, (payload: GameOverPlayload) => {
                 gameSocket.clearStoredSession();
-                const s = statsRef.current;
+
+                // Keep locally accumulated stats (correct, wrong), but update exact rank and score from backend
+                if (payload.myRank != null) {
+                    statsRef.current.rank = payload.myRank;
+                } else if (statsRef.current.rank === 0) {
+                    // Fallback to searching finalScores if myRank wasn't provided for some reason
+                    const idx = (payload.finalScores || []).findIndex(p => p.nickname === nicknameRef.current);
+                    if (idx >= 0) statsRef.current.rank = idx + 1;
+                }
+
+                if (payload.myTotalScore != null) {
+                    statsRef.current.totalScore = payload.myTotalScore;
+                }
 
                 // Save final data into state instead of navigating
                 setTop5(payload.finalScores || []);
+                navigator.vibrate?.(50);
                 setPhase('finished');
             })
         );
@@ -338,10 +379,12 @@ export function useParticipantGameController() {
         unsubs.push(
             gameSocket.on(WS_EVENTS.RECONNECT_SUCCESS, (payload: ReconnectSuccessPlayerPlayload) => {
                 if (payload.gameStatus === 'LOBBY') {
+                    navigator.vibrate?.(50);
                     setPhase('lobby');
                     return;
                 }
                 if (payload.gameStatus === 'FINISHED') {
+                    navigator.vibrate?.(50);
                     setPhase('finished');
                     return;
                 }
@@ -355,11 +398,13 @@ export function useParticipantGameController() {
                 setGameMode(payload.mode || 'PERSONAL');
 
                 if (payload.hasAnswered) {
+                    navigator.vibrate?.(50);
                     setPhase('answered');
                 } else if (payload.remainingTime > 0) {
                     const remaining = Math.floor(payload.remainingTime);
                     startTimer(remaining);
                     setSelectedAnswer(-1);
+                    navigator.vibrate?.(50);
                     setPhase('question');
                 }
             })
@@ -368,6 +413,7 @@ export function useParticipantGameController() {
         return () => {
             unsubs.forEach(u => u());
             clearTimer();
+            if (incomingTimerRef.current) clearTimeout(incomingTimerRef.current);
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -378,6 +424,7 @@ export function useParticipantGameController() {
     const handleSelectAnswer = useCallback((idx: number) => {
         if (selectedAnswerRef.current !== -1 || phaseRef.current !== 'question') return;
         setSelectedAnswer(idx);
+        navigator.vibrate?.(50);
         setPhase('answered');
         gameSocket.submitAnswer(idx);
     }, []);
@@ -417,7 +464,6 @@ export function useParticipantGameController() {
             top5,
 
             // Lobby
-            lobbyPhase,
             countdown,
             dots,
         },

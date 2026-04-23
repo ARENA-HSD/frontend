@@ -254,7 +254,10 @@ export interface LeaderboardResultPlayerPlayload {
 }
 
 export interface GameOverPlayload {
+    winner: string;
     finalScores: LeaderboardEntry[];
+    myRank?: number;
+    myTotalScore?: number;
 }
 
 export interface ErrorPlayload {

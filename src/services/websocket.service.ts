@@ -5,7 +5,7 @@
  * Handles connection, reconnection with session tokens, and event dispatching.
  */
 
-import { WS_BASE_URL } from '@/lib/constants';
+import { API_BASE_URL, WS_BASE_URL } from '@/lib/constants';
 
 // ============================================================================
 // Types
@@ -125,12 +125,23 @@ class GameWebSocket {
     private _currentPin: string = '';
     private _currentRole: SessionRole = 'player';
 
+    // --- Long-Polling Transport ---
+    private _transport: 'ws' | 'polling' = 'ws';
+    private _pollId: string | null = null;
+    private _pollActive = false;
+    private _pollAbort: AbortController | null = null;
+
     get isConnected(): boolean {
         return this._isConnected;
     }
 
     get isReconnecting(): boolean {
         return this._isReconnecting;
+    }
+
+    /** Current transport: 'ws' or 'polling' */
+    get transport(): 'ws' | 'polling' {
+        return this._transport;
     }
 
     /**
@@ -141,7 +152,7 @@ class GameWebSocket {
     connect(path?: string): Promise<void> {
         const wsPath = path || import.meta.env.VITE_WS_PATH || '/ws';
 
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        if (this._isConnected) {
             return Promise.resolve();
         }
 
@@ -170,6 +181,7 @@ class GameWebSocket {
                     this.ws.onopen = () => {
                         console.log('🔌 WebSocket connected:', this.url);
                         this._isConnected = true;
+                        this._transport = 'ws';
                         this.reconnectAttempts = 0;
                         if (!settled) {
                             settled = true;
@@ -192,7 +204,7 @@ class GameWebSocket {
                         console.log('🔌 WebSocket closed:', event.code, event.reason);
                         this._isConnected = false;
 
-                        // Still in initial connect phase — retry before rejecting
+                        // Still in initial connect phase — retry before falling back
                         if (!settled) {
                             if (attempt < maxInitialAttempts) {
                                 const delay = 1000 * attempt;
@@ -200,9 +212,10 @@ class GameWebSocket {
                                 setTimeout(tryConnect, delay);
                                 return;
                             }
-                            // All initial attempts exhausted
+                            // All WS attempts exhausted — fallback to polling
+                            console.warn('⚠️ WebSocket failed after all retries, switching to HTTP Long-Polling...');
                             settled = true;
-                            reject(new Error('WebSocket connection failed after retries'));
+                            this.connectPolling().then(resolve).catch(reject);
                             return;
                         }
 
@@ -222,8 +235,10 @@ class GameWebSocket {
                         if (attempt < maxInitialAttempts) {
                             setTimeout(tryConnect, 1000 * attempt);
                         } else {
+                            // Fallback to polling
+                            console.warn('⚠️ WebSocket error, switching to HTTP Long-Polling...');
                             settled = true;
-                            reject(err);
+                            this.connectPolling().then(resolve).catch(reject);
                         }
                     }
                 }
@@ -231,6 +246,101 @@ class GameWebSocket {
 
             tryConnect();
         });
+    }
+
+    // ============================
+    // Long-Polling Transport
+    // ============================
+
+    /** Connect via HTTP Long-Polling (fallback when WS fails) */
+    private async connectPolling(): Promise<void> {
+        try {
+            const res = await fetch(`${API_BASE_URL}/poll/connect`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({}),
+            });
+
+            if (!res.ok) throw new Error(`Poll connect failed: ${res.status}`);
+
+            const { pollId } = await res.json();
+            this._pollId = pollId;
+            this._transport = 'polling';
+            this._isConnected = true;
+            this._pollActive = true;
+
+            console.log('📡 Connected via HTTP Long-Polling, pollId:', pollId);
+            this.startPolling();
+        } catch (err) {
+            console.error('❌ Long-Polling connect failed:', err);
+            throw err;
+        }
+    }
+
+    /** Continuously fetch messages from the server */
+    private async startPolling(): Promise<void> {
+        while (this._pollActive && this._pollId) {
+            try {
+                this._pollAbort = new AbortController();
+                const res = await fetch(
+                    `${API_BASE_URL}/poll/receive/${this._pollId}`,
+                    { signal: this._pollAbort.signal }
+                );
+
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        // Session expired
+                        console.warn('📡 Polling session expired');
+                        this._isConnected = false;
+                        this._pollActive = false;
+                        break;
+                    }
+                    throw new Error(`Poll receive error: ${res.status}`);
+                }
+
+                const { messages, expired } = await res.json();
+
+                if (expired) {
+                    console.warn('📡 Polling session expired');
+                    this._isConnected = false;
+                    this._pollActive = false;
+                    break;
+                }
+
+                if (messages && messages.length > 0) {
+                    for (const msg of messages) {
+                        const message: WSMessage = typeof msg === 'string' ? JSON.parse(msg) : msg;
+                        console.log('📡 Poll received:', message.type, message.data);
+                        this.handleInternalEvents(message);
+                        this.dispatch(message.type, message.data);
+                    }
+                }
+
+                // No artificial delay — long-poll itself handles timing
+            } catch (err: any) {
+                if (err?.name === 'AbortError') break; // Intentional abort
+                console.error('📡 Polling error:', err);
+                // Brief delay before retry on error
+                await new Promise(r => setTimeout(r, 2000));
+            }
+        }
+    }
+
+    /** Stop the polling loop */
+    private stopPolling(): void {
+        this._pollActive = false;
+        this._pollAbort?.abort();
+        this._pollAbort = null;
+
+        // Notify server to clean up
+        if (this._pollId) {
+            fetch(`${API_BASE_URL}/poll/disconnect`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pollId: this._pollId }),
+            }).catch(() => {}); // fire-and-forget
+            this._pollId = null;
+        }
     }
 
     /**
@@ -371,10 +481,13 @@ class GameWebSocket {
         this.shouldReconnect = false;
         this._isConnected = false;
         this._isReconnecting = false;
+
+        // Stop polling if active
+        if (this._transport === 'polling') {
+            this.stopPolling();
+        }
+
         if (this.ws) {
-            // CRITICAL: Null out handlers BEFORE close() to prevent
-            // the old socket's onclose from triggering attemptReconnect()
-            // when connect() is called immediately after disconnect().
             this.ws.onopen = null;
             this.ws.onclose = null;
             this.ws.onerror = null;
@@ -384,6 +497,7 @@ class GameWebSocket {
         }
         this.listeners.clear();
         this.reconnectAttempts = 0;
+        this._transport = 'ws'; // Reset for next connection
     }
 
     /**
@@ -392,12 +506,31 @@ class GameWebSocket {
     disconnectAndClear(): void {
         clearSession();
         this.disconnect();
+        this._transport = 'ws'; // Reset
     }
 
     /**
      * Send a message to the server
      */
     emit(event: string, payload: any = {}): void {
+        if (this._transport === 'polling' && this._pollId) {
+            // HTTP Long-Polling transport
+            console.log('📡 Poll sending:', event, payload);
+            fetch(`${API_BASE_URL}/poll/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    pollId: this._pollId,
+                    type: event,
+                    data: payload,
+                }),
+            }).catch(err => {
+                console.error('📡 Poll send failed:', err);
+            });
+            return;
+        }
+
+        // WebSocket transport
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
             console.warn('⚠️ WebSocket not connected, cannot send:', event);
             return;

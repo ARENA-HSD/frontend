@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import type { Question, CreateQuestionData, UpdateQuestionData, QuestionOption } from '@/types';
+import type { Question, CreateQuestionData, UpdateQuestionData, QuestionOption, QuestionType } from '@/types';
 import ImagePlaceholder from '@/components/quiz/shared/ImagePlaceholder';
 import { Button } from '@/components/ui';
 import { MEDIA_UPLOAD_CONSTRAINTS } from '@/lib/constants';
@@ -18,8 +18,8 @@ interface QuestionEditorProps {
     onCancel: () => void;
 }
 
-const OPTION_COLORS = ['bg-role-success', 'bg-[#FF4F81]', 'bg-[#9C4BFF]', 'bg-[#FF8A00]'];
-const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+const OPTION_COLORS = ['bg-role-success', 'bg-[#FF4F81]', 'bg-[#9C4BFF]', 'bg-[#FF8A00]', 'bg-blue-500', 'bg-pink-500'];
+const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E', 'F'];
 const FRONTEND_MEDIA_TYPE_ERROR = 'Sadece jpeg, png, webp veya gif görseller yüklenebilir.';
 const FRONTEND_MEDIA_SIZE_ERROR = 'Görsel boyutu en fazla 3 MB olabilir.';
 const BACKEND_MEDIA_ERRORS = [
@@ -29,6 +29,7 @@ const BACKEND_MEDIA_ERRORS = [
 ] as const;
 
 const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCancel }: QuestionEditorProps) => {
+    const [questionType, setQuestionType] = useState<QuestionType>(question?.questionType || 'MULTIPLE_CHOICE');
     const [questionText, setQuestionText] = useState(question?.text || '');
     const [mediaPreview, setMediaPreview] = useState(question?.mediaUrl || '');
     const [mediaBase64, setMediaBase64] = useState<string | null>(null);
@@ -37,9 +38,9 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
     const [timeLimit, setTimeLimit] = useState(question?.timeLimit || 30);
     const [points, setPoints] = useState(question?.points || 1000);
     const [options, setOptions] = useState<QuestionOption[]>(
-        question?.options || [{ text: '', color: 'red' }, { text: '', color: 'blue' }, { text: '', color: 'green' }, { text: '', color: 'yellow' }]
+        question?.options?.length ? question.options : [{ text: '', color: 'red' }, { text: '', color: 'blue' }, { text: '', color: 'green' }, { text: '', color: 'yellow' }]
     );
-    const [correctIndex, setCorrectIndex] = useState(question?.correctIndex ?? 0);
+    const [correctAnswer, setCorrectAnswer] = useState<number[]>(question?.correctAnswer || [0]);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleOptionChange = (index: number, text: string) => {
@@ -134,12 +135,22 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
 
     const handleSave = async () => {
         if (!questionText.trim()) {
-            alert('Please enter a question');
+            alert('Lütfen bir soru metni girin');
             return;
         }
 
-        if (options.some(o => !o.text.trim())) {
-            alert('Please fill all options');
+        if (questionType !== 'RANGE' && options.some(o => !o.text.trim())) {
+            alert('Lütfen tüm seçenekleri doldurun');
+            return;
+        }
+
+        if (questionType === 'MULTI_SELECT' && correctAnswer.length === 0) {
+            alert('Lütfen en az bir doğru cevap seçin');
+            return;
+        }
+
+        if (questionType === 'RANGE' && (correctAnswer.length !== 2 || correctAnswer[0] > correctAnswer[1])) {
+            alert('Lütfen geçerli bir min ve max aralığı girin');
             return;
         }
 
@@ -156,8 +167,9 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                     text: questionText,
                     timeLimit,
                     points,
-                    options,
-                    correctIndex,
+                    options: questionType === 'RANGE' ? [] : options,
+                    questionType,
+                    correctAnswer: questionType === 'ORDERING' ? options.map((_, i) => i) : correctAnswer,
                 };
 
                 if (mediaBase64 !== null) {
@@ -171,8 +183,9 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                     text: questionText,
                     timeLimit,
                     points,
-                    options,
-                    correctIndex,
+                    options: questionType === 'RANGE' ? [] : options,
+                    questionType,
+                    correctAnswer: questionType === 'ORDERING' ? options.map((_, i) => i) : correctAnswer,
                     orderIndex: question?.orderIndex ?? totalQuestions,
                 };
 
@@ -301,42 +314,111 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                 </div>
             </div>
 
+            {/* Question Type Selection */}
+            <div className="mb-6">
+                <label className="text-lg font-bold text-primary block mb-3">Soru Tipi</label>
+                <div className="flex flex-wrap gap-3">
+                    {[
+                        { type: 'MULTIPLE_CHOICE', label: 'Çoktan Seçmeli' },
+                        { type: 'TRUE_FALSE', label: 'Doğru / Yanlış' },
+                        { type: 'MULTI_SELECT', label: 'Çoklu Seçim' },
+                        { type: 'ORDERING', label: 'Sıralama' },
+                        { type: 'RANGE', label: 'Aralık Tahmini' },
+                    ].map(t => (
+                        <button
+                            key={t.type}
+                            type="button"
+                            onClick={() => {
+                                setQuestionType(t.type as QuestionType);
+                                if (t.type === 'TRUE_FALSE') {
+                                    setOptions([{ text: 'Doğru', color: 'green' }, { text: 'Yanlış', color: 'red' }]);
+                                    setCorrectAnswer([0]);
+                                } else if (t.type === 'RANGE') {
+                                    setOptions([]);
+                                    setCorrectAnswer([0, 100]);
+                                } else {
+                                    setOptions([{ text: '', color: 'red' }, { text: '', color: 'blue' }, { text: '', color: 'green' }, { text: '', color: 'yellow' }]);
+                                    setCorrectAnswer([0]);
+                                }
+                            }}
+                            className={`px-4 py-2 rounded-xl border-2 font-bold transition-colors ${questionType === t.type ? 'border-[var(--btn-primary-bg)] bg-[var(--btn-primary-bg)] text-white' : 'border-light text-secondary hover:border-[var(--btn-primary-bg)]'}`}
+                        >
+                            {t.label}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* Options */}
             <div className="mb-10">
                 <label className="text-lg font-bold text-primary block mb-4">
-                    Options (select the correct one)
+                    {questionType === 'ORDERING' ? 'Seçenekleri doğru sırayla girin' : 
+                     questionType === 'RANGE' ? 'Doğru aralığı (Min - Max) girin' : 
+                     'Seçenekler (Doğru olanı işaretleyin)'}
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {options.map((option, idx) => (
-                        <div
-                            key={idx}
-                            onClick={() => setCorrectIndex(idx)}
-                            className={`relative flex items-center p-4 rounded-3xl cursor-pointer transition-all shadow-md group border-[3px]
-                                ${correctIndex === idx ? 'border-transparent scale-[1.02]' : 'border-transparent hover:scale-[1.02] hover:shadow-lg opacity-80'}
-                                ${OPTION_COLORS[idx]}
-                            `}
-                        >
-                            <span className="text-white font-black text-3xl shrink-0 drop-shadow-sm ml-2 mr-4">
-                                {OPTION_LABELS[idx]}
-                            </span>
+                
+                {questionType === 'RANGE' ? (
+                    <div className="flex gap-4">
+                        <div className="flex-1">
+                            <label className="text-sm font-bold text-secondary mb-1 block">Minimum Değer</label>
                             <input
-                                type="text"
-                                value={option.text}
-                                onChange={(e) => handleOptionChange(idx, e.target.value)}
-                                onClick={(e) => e.stopPropagation()}
-                                placeholder={`Option ${OPTION_LABELS[idx]}`}
-                                className="flex-1 text-xl font-bold text-white border-none focus:outline-none bg-transparent placeholder:text-white/60 min-w-0"
+                                type="number"
+                                value={correctAnswer[0] || 0}
+                                onChange={(e) => setCorrectAnswer([parseInt(e.target.value) || 0, correctAnswer[1]])}
+                                className="w-full px-4 py-3 bg-transparent border-2 border-light focus:border-[var(--btn-primary-bg)] rounded-2xl outline-none text-primary font-bold text-xl"
                             />
-                            {correctIndex === idx && (
-                                <div className="absolute -top-3 -right-3 bg-white text-role-success rounded-full p-1 shadow-lg border-2 border-role-success transform rotate-12">
-                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                </div>
-                            )}
                         </div>
-                    ))}
-                </div>
+                        <div className="flex-1">
+                            <label className="text-sm font-bold text-secondary mb-1 block">Maksimum Değer</label>
+                            <input
+                                type="number"
+                                value={correctAnswer[1] || 100}
+                                onChange={(e) => setCorrectAnswer([correctAnswer[0], parseInt(e.target.value) || 0])}
+                                className="w-full px-4 py-3 bg-transparent border-2 border-light focus:border-[var(--btn-primary-bg)] rounded-2xl outline-none text-primary font-bold text-xl"
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                        {options.map((option, idx) => (
+                            <div
+                                key={idx}
+                                onClick={() => {
+                                    if (questionType === 'MULTIPLE_CHOICE' || questionType === 'TRUE_FALSE') {
+                                        setCorrectAnswer([idx]);
+                                    } else if (questionType === 'MULTI_SELECT') {
+                                        setCorrectAnswer(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]);
+                                    }
+                                }}
+                                className={`relative flex items-center p-4 rounded-3xl transition-all shadow-md group border-[3px]
+                                    ${questionType !== 'ORDERING' ? 'cursor-pointer' : ''}
+                                    ${(questionType !== 'ORDERING' && correctAnswer.includes(idx)) ? 'border-transparent scale-[1.02]' : 'border-transparent hover:scale-[1.02] hover:shadow-lg opacity-80'}
+                                    ${OPTION_COLORS[idx % OPTION_COLORS.length]}
+                                `}
+                            >
+                                <span className="text-white font-black text-3xl shrink-0 drop-shadow-sm ml-2 mr-4">
+                                    {questionType === 'ORDERING' ? (idx + 1) : OPTION_LABELS[idx % OPTION_LABELS.length]}
+                                </span>
+                                <input
+                                    type="text"
+                                    value={option.text}
+                                    onChange={(e) => handleOptionChange(idx, e.target.value)}
+                                    onClick={(e) => e.stopPropagation()}
+                                    placeholder={questionType === 'ORDERING' ? `${idx + 1}. Sıradaki Öğe` : `Option ${OPTION_LABELS[idx % OPTION_LABELS.length]}`}
+                                    className="flex-1 text-xl font-bold text-white border-none focus:outline-none bg-transparent placeholder:text-white/60 min-w-0"
+                                    readOnly={questionType === 'TRUE_FALSE'}
+                                />
+                                {questionType !== 'ORDERING' && correctAnswer.includes(idx) && (
+                                    <div className="absolute -top-3 -right-3 bg-white text-role-success rounded-full p-1 shadow-lg border-2 border-role-success transform rotate-12">
+                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Actions */}

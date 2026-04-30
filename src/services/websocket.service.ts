@@ -593,8 +593,8 @@ class GameWebSocket {
     }
 
     /** Participant submits an answer */
-    submitAnswer(answerIndex: number): void {
-        this.emit(WS_EVENTS.SUBMIT_ANSWER, { answerIndex });
+    submitAnswer(payload: { answerIndex?: number; answerIndices?: number[]; orderedIndices?: number[]; rangeValue?: number }): void {
+        this.emit(WS_EVENTS.SUBMIT_ANSWER, payload);
     }
 
     /** Host requests leaderboard */

@@ -73,13 +73,25 @@ const ParticipantGamePage = () => {
                     {(state.phase === 'question' || state.phase === 'answered') && state.gameMode === 'PERSONAL' && (
                         <QuestionPersonal
                             phase={state.phase}
+                            questionType={state.questionType}
                             questionIndex={state.questionIndex}
                             questionText={state.questionText}
                             questionMedia={state.questionMedia}
                             options={state.options}
+                            rangeMin={state.rangeMin}
+                            rangeMax={state.rangeMax}
                             timeLeft={state.timeLeft}
                             selectedAnswer={state.selectedAnswer}
+                            selectedAnswerIndices={state.selectedAnswerIndices}
+                            orderedIndices={state.orderedIndices}
+                            rangeValue={state.rangeValue}
                             handleSelectAnswer={actions.handleSelectAnswer}
+                            handleToggleMultiSelect={actions.handleToggleMultiSelect}
+                            handleSubmitMultiSelect={actions.handleSubmitMultiSelect}
+                            handleChangeOrdering={actions.handleChangeOrdering}
+                            handleSubmitOrdering={actions.handleSubmitOrdering}
+                            handleChangeRange={actions.handleChangeRange}
+                            handleSubmitRange={actions.handleSubmitRange}
                         />
                     )}
 
@@ -87,9 +99,22 @@ const ParticipantGamePage = () => {
                     {(state.phase === 'question' || state.phase === 'answered') && state.gameMode === 'STAGE' && (
                         <QuestionStage
                             phase={state.phase}
+                            questionType={state.questionType}
+                            optionsCount={state.options?.length}
+                            rangeMin={state.rangeMin}
+                            rangeMax={state.rangeMax}
                             timeLeft={state.timeLeft}
                             selectedAnswer={state.selectedAnswer}
+                            selectedAnswerIndices={state.selectedAnswerIndices}
+                            orderedIndices={state.orderedIndices}
+                            rangeValue={state.rangeValue}
                             handleSelectAnswer={actions.handleSelectAnswer}
+                            handleToggleMultiSelect={actions.handleToggleMultiSelect}
+                            handleSubmitMultiSelect={actions.handleSubmitMultiSelect}
+                            handleChangeOrdering={actions.handleChangeOrdering}
+                            handleSubmitOrdering={actions.handleSubmitOrdering}
+                            handleChangeRange={actions.handleChangeRange}
+                            handleSubmitRange={actions.handleSubmitRange}
                         />
                     )}
 

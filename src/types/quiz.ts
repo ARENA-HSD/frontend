@@ -55,6 +55,8 @@ export interface QuestionOption {
     color: color;
 }
 
+export type QuestionType = 'MULTIPLE_CHOICE' | 'TRUE_FALSE' | 'MULTI_SELECT' | 'ORDERING' | 'RANGE';
+
 export interface Question {
     id: string;
     quizId: string;
@@ -62,8 +64,9 @@ export interface Question {
     mediaUrl?: string;
     timeLimit: number;       // 10-120 seconds
     points: number;          // min 100
-    options: QuestionOption[];       // exactly 4 options
-    correctIndex: number;    // 0-3
+    options: QuestionOption[];
+    questionType: QuestionType;
+    correctAnswer: number[];
     orderIndex: number;
 }
 
@@ -72,8 +75,9 @@ export interface CreateQuestionData {
     mediaBase64?: string;
     timeLimit: number;
     points: number;
-    options: QuestionOption[];       // exactly 4 options
-    correctIndex: number;    // 0-3
+    options: QuestionOption[];
+    questionType: QuestionType;
+    correctAnswer: number[];
     orderIndex: number;
 }
 
@@ -83,7 +87,8 @@ export interface UpdateQuestionData {
     timeLimit?: number;
     points?: number;
     options?: QuestionOption[];
-    correctIndex?: number;
+    questionType?: QuestionType;
+    correctAnswer?: number[];
     orderIndex?: number;
 }
 
@@ -196,7 +201,10 @@ export interface StartGamePlayload {
 
 export interface SubmitAnswerPlayload {
     questionId: string;
-    answerIndex: number;
+    answerIndex?: number;
+    answerIndices?: number[];
+    orderedIndices?: number[];
+    rangeValue?: number;
 }
 
 // PDF SPEC: NEW - Manual leaderboard trigger
@@ -241,14 +249,18 @@ export interface QuestionStartPlayload {
     time: number;
     serverTime: number;
     mode: 'PERSONAL' | 'STAGE';
+    questionType: QuestionType;
     text?: string;         // Included in PERSONAL mode
     mediaUrl?: string;     // Included in PERSONAL mode
     options?: QuestionOption[]; // Filtered by mode
+    rangeMin?: number;     // RANGE
+    rangeMax?: number;     // RANGE
 }
 
 // PDF SPEC: DIFFERENTIATED - To Host
 export interface QuestionEndHostPlayload {
-    correctIndex: number;
+    correctAnswer: number[];
+    questionType: QuestionType;
     answerStats: Record<string, number>; // { "0": 15, "1": 5, "2": 40, "3": 0 }
     streakLeaders?: Array<{ nick: string; streak: number }>;
 }
@@ -257,7 +269,8 @@ export interface QuestionEndHostPlayload {
 export interface QuestionEndPlayerPlayload {
     qIndex: number;
     correct: boolean;
-    correctIndex: number;
+    correctAnswer: number[];
+    questionType: QuestionType;
     points: number;
     streak?: number;
     streakLeaders?: Array<{ nick: string; streak: number }>;

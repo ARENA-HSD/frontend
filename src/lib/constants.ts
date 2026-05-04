@@ -278,6 +278,10 @@ export const API_ROUTES = {
     QUIZZES: (orgDomain: string) => `/org/${orgDomain}/quizzes`,
     QUIZ_BY_ID: (orgDomain: string, quizId: string) =>
         `/org/${orgDomain}/quizzes/${quizId}`,
+    QUIZ_IMPORT: (orgDomain: string, quizId: string) =>
+        `/org/${orgDomain}/quizzes/${quizId}/import`,
+    QUIZ_EXPORT: (orgDomain: string, quizId: string) =>
+        `/org/${orgDomain}/quizzes/${quizId}/export`,
 
     // Questions
     QUESTIONS: (orgDomain: string, quizId: string) =>

@@ -4,9 +4,9 @@
  * View and manage questions in a quiz with drag-and-drop reordering
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Plus, Edit2, Trash2, ArrowLeft, Settings, GripVertical } from 'lucide-react';
+import { Plus, Edit2, Trash2, ArrowLeft, Settings, GripVertical, Upload, Download } from 'lucide-react';
 import {
     DndContext,
     closestCenter,
@@ -24,7 +24,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useManagerNavigate, useSubdomain } from '@/hooks';
+import { useManagerNavigate, useSubdomain, useQuizImportExport } from '@/hooks';
 import { quizService, questionService } from '@/services';
 import { dedupeRequest, invalidateDedupedRequest } from '@/lib/requestDedup';
 import type { Quiz, Question } from '@/types';
@@ -115,6 +115,10 @@ const QuizDetailPage = () => {
     const [questions, setQuestions] = useState<Question[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSavingOrder, setIsSavingOrder] = useState(false);
+    const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const { importQuestions, exportQuestions, isImporting, isExporting, error: importExportError, clearError } = useQuizImportExport();
 
     // DnD sensors — pointer (mouse/touch) + keyboard
     const sensors = useSensors(
@@ -247,6 +251,41 @@ const QuizDetailPage = () => {
         }
     };
 
+    // ── Import / Export Handlers ─────────────────────────────────────────
+
+    const handleExport = async () => {
+        if (!quizId) return;
+        clearError();
+        setSuccessMsg(null);
+        const ok = await exportQuestions(subdomain!, quizId, quiz?.title);
+        if (ok) {
+            setSuccessMsg('Quiz başarıyla dışa aktarıldı!');
+            setTimeout(() => setSuccessMsg(null), 3000);
+        }
+    };
+
+    const handleImportClick = () => {
+        clearError();
+        setSuccessMsg(null);
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !quizId) return;
+
+        const ok = await importQuestions(subdomain!, quizId, file);
+        if (ok) {
+            setSuccessMsg('Sorular başarıyla içe aktarıldı!');
+            setTimeout(() => setSuccessMsg(null), 3000);
+            invalidateDedupedRequest(`quiz-detail:${subdomain}:${quizId}`);
+            await loadQuizData(true);
+        }
+
+        // Reset input so same file can be selected again
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
+
     // ── Render ───────────────────────────────────────────────────────────
 
     if (isLoading) {
@@ -306,6 +345,22 @@ const QuizDetailPage = () => {
                                 </Button>
                                 <div className="flex items-center gap-2 ml-2">
                                     <button
+                                        onClick={handleExport}
+                                        disabled={isExporting}
+                                        className="p-3 text-secondary hover:text-role-primary hover:bg-role-primary-light rounded-full transition-colors bg-card shadow-sm border border-light disabled:opacity-50"
+                                        title="Dışa Aktar (JSON)"
+                                    >
+                                        <Download className={`w-5 h-5 stroke-[2.5] ${isExporting ? 'animate-bounce' : ''}`} />
+                                    </button>
+                                    <button
+                                        onClick={handleImportClick}
+                                        disabled={isImporting}
+                                        className="p-3 text-secondary hover:text-role-primary hover:bg-role-primary-light rounded-full transition-colors bg-card shadow-sm border border-light disabled:opacity-50"
+                                        title="İçe Aktar (JSON)"
+                                    >
+                                        <Upload className={`w-5 h-5 stroke-[2.5] ${isImporting ? 'animate-spin' : ''}`} />
+                                    </button>
+                                    <button
                                         onClick={() => handleSettingsQuiz(quiz.id)}
                                         className="p-3 text-secondary hover:text-role-primary hover:bg-role-primary-light rounded-full transition-colors bg-card shadow-sm border border-light"
                                         title="Settings"
@@ -323,6 +378,28 @@ const QuizDetailPage = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Hidden file input for import */}
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept=".json,application/json"
+                        className="hidden"
+                        onChange={handleFileChange}
+                    />
+
+                    {/* Feedback Messages */}
+                    {importExportError && (
+                        <div className="mb-3 px-4 py-3 rounded-lg bg-role-danger-light text-role-danger text-sm font-medium flex items-center justify-between">
+                            <span>{importExportError}</span>
+                            <button onClick={clearError} className="ml-2 hover:opacity-70">✕</button>
+                        </div>
+                    )}
+                    {successMsg && (
+                        <div className="mb-3 px-4 py-3 rounded-lg bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-sm font-medium">
+                            {successMsg}
+                        </div>
+                    )}
 
                     {/* Question List — Drag & Drop */}
                     <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide">

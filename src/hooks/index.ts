@@ -16,3 +16,4 @@ export { useUser } from './useUsers';
 export { useMembers } from './useMembers';
 export { useInvitations } from './useInvitations';
 export { useGameController } from './useGameController';
+export { useQuizImportExport } from './useQuizImportExport';

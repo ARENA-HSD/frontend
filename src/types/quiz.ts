@@ -31,6 +31,19 @@ export interface UpdateQuizData {
     defaultMode?: QuizMode;
 }
 
+export interface ImportQuizData {
+    orgDomain: string,
+    quizId: string,
+    body: ImportQuestionsRequest,
+    userId: string
+}
+
+export interface ExportQuizData {
+    orgDomain: string,
+    quizId: string,
+    userId: string
+}
+
 // ============================================
 // QUESTION
 // ============================================
@@ -72,6 +85,17 @@ export interface UpdateQuestionData {
     options?: QuestionOption[];
     correctIndex?: number;
     orderIndex?: number;
+}
+
+export interface ImportQuestionsRequest {
+    questions: Array<{
+        text: string;
+        mediaUrl?: string; // from JSON
+        timeLimit: number;
+        points?: number;
+        correctIndex: number;
+        options: QuestionOption[];
+    }>;
 }
 
 // ============================================

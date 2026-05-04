@@ -76,12 +76,20 @@ export function useParticipantGameController() {
     // ========================================
     // Question State
     // ========================================
+    const [questionType, setQuestionType] = useState<string>(reconnectData?.questionType || initialQuestion?.questionType || 'MULTIPLE_CHOICE');
     const [questionIndex, setQuestionIndex] = useState(reconnectData?.currentQuestionIndex ?? initialQuestion?.qIndex ?? 0);
     const [questionText, setQuestionText] = useState(reconnectData?.text || initialQuestion?.text || '');
     const [questionMedia, setQuestionMedia] = useState(reconnectData?.mediaUrl || initialQuestion?.mediaUrl || '');
     const [options, setOptions] = useState<Array<{ text: string; color: string }>>(reconnectData?.options || initialQuestion?.options || []);
+    const [rangeMin, setRangeMin] = useState<number | undefined>(reconnectData?.rangeMin ?? initialQuestion?.rangeMin);
+    const [rangeMax, setRangeMax] = useState<number | undefined>(reconnectData?.rangeMax ?? initialQuestion?.rangeMax);
     const [timeLeft, setTimeLeft] = useState(0);
+
+    // Answer states
     const [selectedAnswer, setSelectedAnswer] = useState(-1);
+    const [selectedAnswerIndices, setSelectedAnswerIndices] = useState<number[]>([]);
+    const [orderedIndices, setOrderedIndices] = useState<number[]>([]);
+    const [rangeValue, setRangeValue] = useState<number | undefined>(undefined);
 
     // ========================================
     // Result State
@@ -155,10 +163,20 @@ export function useParticipantGameController() {
     // ========================================
     const applyQuestionPayload = useCallback((payload: QuestionStartPlayload) => {
         setQuestionIndex(payload.qIndex);
+        setQuestionType(payload.questionType || 'MULTIPLE_CHOICE');
         setQuestionText(payload.text || '');
         setQuestionMedia(payload.mediaUrl || '');
         setOptions(payload.options || []);
+        setRangeMin(payload.rangeMin);
+        setRangeMax(payload.rangeMax);
+
+        // Reset all answer states
         setSelectedAnswer(-1);
+        setSelectedAnswerIndices([]);
+        // For ordering, initial state is the default order [0, 1, 2, ...]
+        setOrderedIndices((payload.options || []).map((_, i) => i));
+        setRangeValue(undefined);
+
         setGameMode(payload.mode || 'PERSONAL');
         startTimer(payload.time);
     }, [startTimer]);
@@ -421,13 +439,58 @@ export function useParticipantGameController() {
     // ========================================
     // Actions
     // ========================================
+
+    // 1. Single Answer (MULTIPLE_CHOICE, TRUE_FALSE)
     const handleSelectAnswer = useCallback((idx: number) => {
         if (selectedAnswerRef.current !== -1 || phaseRef.current !== 'question') return;
         setSelectedAnswer(idx);
         navigator.vibrate?.(50);
         setPhase('answered');
-        gameSocket.submitAnswer(idx);
+        gameSocket.submitAnswer({ answerIndex: idx });
     }, []);
+
+    // 2. Multi Select (Toggle and Submit)
+    const handleToggleMultiSelect = useCallback((idx: number) => {
+        if (phaseRef.current !== 'question') return;
+        setSelectedAnswerIndices(prev => {
+            if (prev.includes(idx)) return prev.filter(i => i !== idx);
+            return [...prev, idx];
+        });
+        navigator.vibrate?.(50);
+    }, []);
+
+    const handleSubmitMultiSelect = useCallback(() => {
+        if (phaseRef.current !== 'question') return;
+        navigator.vibrate?.(50);
+        setPhase('answered');
+        gameSocket.submitAnswer({ answerIndices: selectedAnswerIndices });
+    }, [selectedAnswerIndices]);
+
+    // 3. Ordering
+    const handleChangeOrdering = useCallback((newOrder: number[]) => {
+        if (phaseRef.current !== 'question') return;
+        setOrderedIndices(newOrder);
+    }, []);
+
+    const handleSubmitOrdering = useCallback(() => {
+        if (phaseRef.current !== 'question') return;
+        navigator.vibrate?.(50);
+        setPhase('answered');
+        gameSocket.submitAnswer({ orderedIndices });
+    }, [orderedIndices]);
+
+    // 4. Range
+    const handleChangeRange = useCallback((val: number) => {
+        if (phaseRef.current !== 'question') return;
+        setRangeValue(val);
+    }, []);
+
+    const handleSubmitRange = useCallback(() => {
+        if (phaseRef.current !== 'question' || rangeValue === undefined) return;
+        navigator.vibrate?.(50);
+        setPhase('answered');
+        gameSocket.submitAnswer({ rangeValue });
+    }, [rangeValue]);
 
     const handleNavigateToJoin = useCallback(() => {
         navigate('/join');
@@ -445,12 +508,20 @@ export function useParticipantGameController() {
             pin,
 
             // Question
+            questionType,
             questionIndex,
             questionText,
             questionMedia,
             options,
+            rangeMin,
+            rangeMax,
             timeLeft,
+
+            // Answer states
             selectedAnswer,
+            selectedAnswerIndices,
+            orderedIndices,
+            rangeValue,
 
             // Result
             isCorrect,
@@ -469,6 +540,12 @@ export function useParticipantGameController() {
         },
         actions: {
             handleSelectAnswer,
+            handleToggleMultiSelect,
+            handleSubmitMultiSelect,
+            handleChangeOrdering,
+            handleSubmitOrdering,
+            handleChangeRange,
+            handleSubmitRange,
             handleNavigateToJoin,
         },
     };

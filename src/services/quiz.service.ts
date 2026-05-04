@@ -10,7 +10,8 @@ import type {
     Quiz,
     CreateQuizData,
     UpdateQuizData,
-    ApiResponse
+    ApiResponse,
+    ImportQuestionsRequest,
 } from '@/types';
 
 // ============================================================================
@@ -57,4 +58,18 @@ export const updateQuiz = async (
  */
 export const deleteQuiz = async (orgDomain: string, quizId: string): Promise<ApiResponse<void>> => {
     return await del<ApiResponse<void>>(API_ROUTES.QUIZ_BY_ID(orgDomain, quizId));
+};
+
+/**
+ * Import quiz questions — sends { questions: [...] } as body
+ */
+export const importQuiz = async (orgDomain: string, quizId: string, data: ImportQuestionsRequest): Promise<ApiResponse<any>> => {
+    return await post<ApiResponse<any>>(API_ROUTES.QUIZ_IMPORT(orgDomain, quizId), data);
+};
+
+/**
+ * Export quiz questions
+ */
+export const exportQuiz = async (orgDomain: string, quizId: string): Promise<ApiResponse<any>> => {
+    return await get<ApiResponse<any>>(API_ROUTES.QUIZ_EXPORT(orgDomain, quizId));
 };

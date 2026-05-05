@@ -40,7 +40,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
     const [options, setOptions] = useState<QuestionOption[]>(
         question?.options?.length ? question.options : [{ text: '', color: 'red' }, { text: '', color: 'blue' }, { text: '', color: 'green' }, { text: '', color: 'yellow' }]
     );
-    const [correctAnswer, setCorrectAnswer] = useState<number[]>(question?.correctAnswer || [0]);
+    const [correctIndex, setCorrectIndex] = useState<number[]>(question?.correctIndex || [0]);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleOptionChange = (index: number, text: string) => {
@@ -144,12 +144,12 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
             return;
         }
 
-        if (questionType === 'MULTI_SELECT' && correctAnswer.length === 0) {
+        if (questionType === 'MULTI_SELECT' && correctIndex.length === 0) {
             alert('Lütfen en az bir doğru cevap seçin');
             return;
         }
 
-        if (questionType === 'RANGE' && (correctAnswer.length !== 2 || correctAnswer[0] > correctAnswer[1])) {
+        if (questionType === 'RANGE' && (correctIndex.length !== 2 || correctIndex[0] > correctIndex[1])) {
             alert('Lütfen geçerli bir min ve max aralığı girin');
             return;
         }
@@ -169,7 +169,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                     points,
                     options: questionType === 'RANGE' ? [] : options,
                     questionType,
-                    correctAnswer: questionType === 'ORDERING' ? options.map((_, i) => i) : correctAnswer,
+                    correctIndex: questionType === 'ORDERING' ? options.map((_, i) => i) : correctIndex,
                 };
 
                 if (mediaBase64 !== null) {
@@ -185,7 +185,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                     points,
                     options: questionType === 'RANGE' ? [] : options,
                     questionType,
-                    correctAnswer: questionType === 'ORDERING' ? options.map((_, i) => i) : correctAnswer,
+                    correctIndex: questionType === 'ORDERING' ? options.map((_, i) => i) : correctIndex,
                     orderIndex: question?.orderIndex ?? totalQuestions,
                 };
 
@@ -332,13 +332,13 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                                 setQuestionType(t.type as QuestionType);
                                 if (t.type === 'TRUE_FALSE') {
                                     setOptions([{ text: 'Doğru', color: 'green' }, { text: 'Yanlış', color: 'red' }]);
-                                    setCorrectAnswer([0]);
+                                    setCorrectIndex([0]);
                                 } else if (t.type === 'RANGE') {
                                     setOptions([]);
-                                    setCorrectAnswer([0, 100]);
+                                    setCorrectIndex([0, 100]);
                                 } else {
                                     setOptions([{ text: '', color: 'red' }, { text: '', color: 'blue' }, { text: '', color: 'green' }, { text: '', color: 'yellow' }]);
-                                    setCorrectAnswer([0]);
+                                    setCorrectIndex([0]);
                                 }
                             }}
                             className={`px-4 py-2 rounded-xl border-2 font-bold transition-colors ${questionType === t.type ? 'border-[var(--btn-primary-bg)] bg-[var(--btn-primary-bg)] text-white' : 'border-light text-secondary hover:border-[var(--btn-primary-bg)]'}`}
@@ -352,19 +352,19 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
             {/* Options */}
             <div className="mb-10">
                 <label className="text-lg font-bold text-primary block mb-4">
-                    {questionType === 'ORDERING' ? 'Seçenekleri doğru sırayla girin' : 
-                     questionType === 'RANGE' ? 'Doğru aralığı (Min - Max) girin' : 
-                     'Seçenekler (Doğru olanı işaretleyin)'}
+                    {questionType === 'ORDERING' ? 'Seçenekleri doğru sırayla girin' :
+                        questionType === 'RANGE' ? 'Doğru aralığı (Min - Max) girin' :
+                            'Seçenekler (Doğru olanı işaretleyin)'}
                 </label>
-                
+
                 {questionType === 'RANGE' ? (
                     <div className="flex gap-4">
                         <div className="flex-1">
                             <label className="text-sm font-bold text-secondary mb-1 block">Minimum Değer</label>
                             <input
                                 type="number"
-                                value={correctAnswer[0] || 0}
-                                onChange={(e) => setCorrectAnswer([parseInt(e.target.value) || 0, correctAnswer[1]])}
+                                value={correctIndex[0] || 0}
+                                onChange={(e) => setCorrectIndex([parseInt(e.target.value) || 0, correctIndex[1]])}
                                 className="w-full px-4 py-3 bg-transparent border-2 border-light focus:border-[var(--btn-primary-bg)] rounded-2xl outline-none text-primary font-bold text-xl"
                             />
                         </div>
@@ -372,8 +372,8 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                             <label className="text-sm font-bold text-secondary mb-1 block">Maksimum Değer</label>
                             <input
                                 type="number"
-                                value={correctAnswer[1] || 100}
-                                onChange={(e) => setCorrectAnswer([correctAnswer[0], parseInt(e.target.value) || 0])}
+                                value={correctIndex[1] || 100}
+                                onChange={(e) => setCorrectIndex([correctIndex[0], parseInt(e.target.value) || 0])}
                                 className="w-full px-4 py-3 bg-transparent border-2 border-light focus:border-[var(--btn-primary-bg)] rounded-2xl outline-none text-primary font-bold text-xl"
                             />
                         </div>
@@ -385,14 +385,14 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                                 key={idx}
                                 onClick={() => {
                                     if (questionType === 'MULTIPLE_CHOICE' || questionType === 'TRUE_FALSE') {
-                                        setCorrectAnswer([idx]);
+                                        setCorrectIndex([idx]);
                                     } else if (questionType === 'MULTI_SELECT') {
-                                        setCorrectAnswer(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]);
+                                        setCorrectIndex(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]);
                                     }
                                 }}
                                 className={`relative flex items-center p-4 rounded-3xl transition-all shadow-md group border-[3px]
                                     ${questionType !== 'ORDERING' ? 'cursor-pointer' : ''}
-                                    ${(questionType !== 'ORDERING' && correctAnswer.includes(idx)) ? 'border-transparent scale-[1.02]' : 'border-transparent hover:scale-[1.02] hover:shadow-lg opacity-80'}
+                                    ${(questionType !== 'ORDERING' && correctIndex.includes(idx)) ? 'border-transparent scale-[1.02]' : 'border-transparent hover:scale-[1.02] hover:shadow-lg opacity-80'}
                                     ${OPTION_COLORS[idx % OPTION_COLORS.length]}
                                 `}
                             >
@@ -408,7 +408,7 @@ const QuestionEditor = ({ question, totalQuestions = 0, onCreate, onUpdate, onCa
                                     className="flex-1 text-xl font-bold text-white border-none focus:outline-none bg-transparent placeholder:text-white/60 min-w-0"
                                     readOnly={questionType === 'TRUE_FALSE'}
                                 />
-                                {questionType !== 'ORDERING' && correctAnswer.includes(idx) && (
+                                {questionType !== 'ORDERING' && correctIndex.includes(idx) && (
                                     <div className="absolute -top-3 -right-3 bg-white text-role-success rounded-full p-1 shadow-lg border-2 border-role-success transform rotate-12">
                                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" />

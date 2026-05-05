@@ -28,6 +28,7 @@ import {
     QuizLivePage,
     MembersPage,
     InvitationsPage,
+    OrganizationSettingsPage,
 } from '@/pages/subdomain/manager';
 
 // Participant Pages
@@ -246,6 +247,16 @@ const subdomainRouter = createBrowserRouter([
             <SubdomainGuard>
                 <ProtectedRoute>
                     <InvitationsPage />
+                </ProtectedRoute>
+            </SubdomainGuard>
+        ),
+    },
+    {
+        path: '/manager/settings',
+        element: (
+            <SubdomainGuard>
+                <ProtectedRoute>
+                    <OrganizationSettingsPage />
                 </ProtectedRoute>
             </SubdomainGuard>
         ),

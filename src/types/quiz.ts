@@ -66,7 +66,7 @@ export interface Question {
     points: number;          // min 100
     options: QuestionOption[];
     questionType: QuestionType;
-    correctAnswer: number[];
+    correctIndex: number[];
     orderIndex: number;
 }
 
@@ -77,7 +77,7 @@ export interface CreateQuestionData {
     points: number;
     options: QuestionOption[];
     questionType: QuestionType;
-    correctAnswer: number[];
+    correctIndex: number[];
     orderIndex: number;
 }
 
@@ -88,7 +88,7 @@ export interface UpdateQuestionData {
     points?: number;
     options?: QuestionOption[];
     questionType?: QuestionType;
-    correctAnswer?: number[];
+    correctIndex?: number[];
     orderIndex?: number;
 }
 

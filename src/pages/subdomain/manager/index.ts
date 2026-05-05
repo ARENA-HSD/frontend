@@ -6,3 +6,4 @@ export { default as EditQuestionPage } from './EditQuestionPage';
 export { default as QuizLivePage } from './QuizLivePage';
 export { default as MembersPage } from './MembersPage';
 export { default as InvitationsPage } from './InvitationsPage';
+export { default as OrganizationSettingsPage } from './OrganizationSettingsPage';

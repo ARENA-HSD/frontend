@@ -8,7 +8,8 @@ import { Sidebar } from '@/components';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 import { type ReactNode, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks';
+import { useAuth, useSubdomain } from '@/hooks';
+import { authService } from '@/services';
 import HeaderLogo from './HeaderLogo';
 
 interface MainLayoutProps {
@@ -33,10 +34,31 @@ const MainLayout = ({ children, sidebar = true, navItems }: MainLayoutProps) => 
     const navigate = useNavigate();
     const location = useLocation();
     const { logout, isAuthenticated } = useAuth();
+    const subdomain = useSubdomain();
 
     const isPublicRoute = PUBLIC_ROUTES.includes(location.pathname);
 
     const handleLogout = async () => {
+        if (subdomain) {
+            // On a subdomain — clear auth data directly and redirect immediately
+            // Avoid React state update (which would cause ProtectedRoute to flash /login)
+            authService.clearAuthData();
+
+            const port = window.location.port ? `:${window.location.port}` : '';
+            const host = window.location.hostname;
+
+            let mainHost = '';
+            if (host.includes('localhost')) {
+                mainHost = 'localhost';
+            } else {
+                const baseDomain = import.meta.env.VITE_BASE_DOMAIN as string | undefined;
+                mainHost = baseDomain || host.split('.').slice(-2).join('.');
+            }
+
+            window.location.href = `${window.location.protocol}//${mainHost}${port}/organizations`;
+            return;
+        }
+
         await logout();
         navigate('/login');
     };
